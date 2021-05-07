@@ -438,6 +438,7 @@ public class AutoCropper {
 
 	}
 
+	// find type for official clean Cbz
 	static void findTypeOfficial( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
 		log.append( String.format("--- %s ---\n", img.name ) );				
@@ -516,7 +517,7 @@ public class AutoCropper {
 	
 	static void processImg( Context context, FileImg img ) throws Exception  {
 
-		// System.out.format( "processing %s ...\n", img.name );
+		System.out.format( "processing %s ...\n", img.name );
 		
 		File file = new File( img.fullpathname );
 		BufferedImage srcImage = ImageIO.read( file );
@@ -528,9 +529,7 @@ public class AutoCropper {
 		findTypeOfficial( context, log, img, fastRGB, srcImage );
 
 		context.writer.write(log.toString());
-		
-		// System.out.format( "%s : saving ...\n", img.name );
-		
+			
 		String format = "jpg";
 		if( Config.imgFileType == TypeImgFile.png ) {
 			format = "png";

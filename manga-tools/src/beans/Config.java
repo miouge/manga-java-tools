@@ -6,8 +6,8 @@ public class Config {
 	public String srcSubFolderFmt = "T%02d";	
 	public String imgPattern = "";
 	public static TypeImgFile imgFileType = TypeImgFile.jpeg;	
-		
-	public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/manga";	
+	
+	public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/scratch";	
 	//public String rootFolder = "D:/Scratch/manga";
 	
 	// archives related settings

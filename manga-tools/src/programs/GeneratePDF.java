@@ -66,6 +66,7 @@ public class GeneratePDF {
         document.close();
     }
 		
+	@SuppressWarnings("unused")
 	public static void generatePDF( Config config ) {
 		
 		
@@ -84,19 +85,17 @@ public class GeneratePDF {
 			
 			// compile file list
 			
-			Tools.listInputFiles( imgpath + "/", ".*\\.jpe?g", files, true );
+			if( true ) {
 			
-			// Tools.listInputFiles( imgpath + "/std"       , ".*\\.jpe?g", files, true );
-			//Tools.listInputFiles( imgpath + "/untouched" , ".*\\.jpe?g", files );
-			// Tools.listInputFiles( imgpath + "/tocheck"   , ".*\\.jpe?g", files, true );
+				Tools.listInputFiles( imgpath + "/", ".*\\.jpe?g", files, true );
+			}
+			else {
+				
+				Tools.listInputFiles( imgpath + "/std"       , ".*\\.jpe?g", files, true );
+				Tools.listInputFiles( imgpath + "/untouched" , ".*\\.jpe?g", files, true );
+				Tools.listInputFiles( imgpath + "/tocheck"   , ".*\\.jpe?g", files, true );
+			}
 
-			// Tools.listInputFiles( imgpath + "/std"       , ".*\\.png", files );
-			//Tools.listInputFiles( imgpath + "/untouched" , ".*\\.jpe?g", files );
-			// Tools.listInputFiles( imgpath + "/tocheck"   , ".*\\.png", files );
-			
-			
-			// 
-			
 			//listInputFiles( outpath + "/untouched/_BIC" , Config.imgExtention, files );
 			//listInputFiles( outpath + "/tocheck/_BIC"   , Config.imgExtention, files );
 			
