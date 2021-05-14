@@ -17,7 +17,6 @@ import javax.imageio.ImageIO;
 import beans.Config;
 import beans.FileItem;
 import beans.Tools;
-import beans.TypeImgFile;
 import programs.autoCropper.Context;
 import programs.autoCropper.CropDetectionResult;
 import programs.autoCropper.DetectionParam;
@@ -39,21 +38,28 @@ public class AutoCropper {
 	static boolean folderUntouchedCreated = false;
 	static boolean folderEmptyCreated = false;
 
+	// TODO : customize according to the page number position
 	static boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
 
-		// attended page number position 
+		// expected page number position 
 		
-		float fullH = 1774.0F;
-		float ratioUp   = 1630F/fullH;
-		float ratioDown = 1665F/fullH;
+		float fullH = 3956.0F;
+		float up      = 2886 / fullH;
+		float down    = 2958 / fullH;
 		
-		float fullW = 1200.0F;		
-		float left1   = 60F/fullW;
-		float left2   = 110/fullW;
-		float right1   = 1075F/fullW;
-		float right2   = 1130/fullW;
+		float fullW = 1952.0F;
+		float left1   =  141  / fullW;
+		float left2   =  276  / fullW;
+		float right1  =  1668  / fullW;
+		float right2  =  1776  / fullW;
+
+		//            left1         left2                 right1      right2   
+		//              v             v                     v            v
+		// up   ->
+		//                page number                         page number
+		// down ->
 				
-		if( (float)height*ratioUp < row && row < (float)height*ratioDown ) {
+		if( (float)height*up < row && row < (float)height*down ) {
 			
 			// hauteur des numeros de page
 			
@@ -77,7 +83,7 @@ public class AutoCropper {
 		// v--- hauteur n° de page ---v       v--- en bas a gauche ---v         v--- en bas a droite ---v
 
 		// Wakfu
-		if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
+		//if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
 		
 		// Dragon Ball
 		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }}
@@ -262,15 +268,22 @@ public class AutoCropper {
 
 		int borderLeft = param.border;
 		int borderRight = width - param.border;
-		double nonWhiteNbMin = (double) height * param.nonWhiteNbRatio; 
+		 
+		// useless white area detection
+		
+		int wfirstCol = -1;
+		int wlastCol  = -1;
+		double nonWhiteNbMin = (double) height * param.nonWhiteNbRatio;
 
-		for( int col = 0; col < width && cdr.firstCol == -1 ; col++ ) {
+		// from the left
+		
+		for( int col = 0; col < width && wfirstCol == -1 ; col++ ) {
 			
 			if( col < borderLeft ) continue;
 			
 			int colNonWhiteNb = 0;
 			
-			for( int row = 0; row < height && cdr.firstCol == -1 ; row++ ) {
+			for( int row = 0; row < height && wfirstCol == -1 ; row++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
 				PixColor pxColor = fastRGB.getColor( col, row );
@@ -281,19 +294,21 @@ public class AutoCropper {
 			
 			if( colNonWhiteNb > nonWhiteNbMin ) {
 
-				cdr.firstCol = col;
+				wfirstCol = col;
 				// System.out.format( "first col %d non white pixel = %d\n", col, colNonWhiteNb );
 				log.append(String.format("first col %d non white pixel = %d\n", col, colNonWhiteNb ));
 			}
 		}
 		
-		for( int col = width - 1; col >= 0 && cdr.lastCol == -1 ; col-- ) {
+		// from the right
+		
+		for( int col = width - 1; col >= 0 && wlastCol == -1 ; col-- ) {
 			
 			if( col > borderRight ) continue;
 			
 			int colNonWhiteNb = 0;
 			
-			for( int row = 0; row < height && cdr.lastCol == -1 ; row++ ) {
+			for( int row = 0; row < height && wlastCol == -1 ; row++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
 				PixColor pxColor = fastRGB.getColor( col, row );
@@ -304,14 +319,77 @@ public class AutoCropper {
 
 			if( colNonWhiteNb > nonWhiteNbMin ) {
 
-				cdr.lastCol = col;
+				wlastCol = col;
 				// System.out.format( "last col %d non white pixel = %d\n", col, colNonWhiteNb );
 				log.append(String.format("last col %d non white pixel = %d\n", col, colNonWhiteNb ));
 			}
 		}
+		
+		// useless black area detection
+		
+		int bfirstCol = -1;
+		int blastCol  = -1;
+		double nonBlackNbMin = (double)width * param.nonBlackNbRatio;
 
+		// from the left
+		
+		for( int col = 0; col < width && bfirstCol == -1 ; col++ ) {
+			
+			if( col < borderLeft ) continue;
+			
+			int colNonBlackNb = 0;
+			
+			for( int row = 0; row < height && bfirstCol == -1 ; row++ ) {
+				
+				if( isIgnoreZone( row, col, height, width )) { continue; }
+				PixColor pxColor = fastRGB.getColor( col, row );
+				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+				
+				colNonBlackNb++;
+			}
+			
+			if( colNonBlackNb > nonBlackNbMin ) {
+
+				bfirstCol = col;
+				// System.out.format( "first col %d non black pixel = %d\n", col, colNonWhiteNb );
+				log.append(String.format("first col %d non black pixel = %d\n", col, colNonBlackNb ));
+			}
+		}
+		
+		// from the right
+		
+		for( int col = width - 1; col >= 0 && blastCol == -1 ; col-- ) {
+			
+			if( col > borderRight ) continue;
+			
+			int colNonBlackNb = 0;
+			
+			for( int row = 0; row < height && blastCol == -1 ; row++ ) {
+				
+				if( isIgnoreZone( row, col, height, width )) { continue; }
+				PixColor pxColor = fastRGB.getColor( col, row );
+				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+				
+				colNonBlackNb++;
+			}
+
+			if( colNonBlackNb > nonBlackNbMin ) {
+
+				blastCol = col;
+				// System.out.format( "last col %d non black pixel = %d\n", col, colNonWhiteNb );
+				log.append(String.format("last col %d non black pixel = %d\n", col, colNonBlackNb ));
+			}
+		}
+		
+		if( wfirstCol != -1 && bfirstCol != -1 ) {
+			cdr.firstCol = ( wfirstCol > bfirstCol ) ? wfirstCol : bfirstCol;
+		}
+		if( wlastCol != -1 && blastCol != -1 ) {
+			cdr.lastCol = ( wlastCol < blastCol ) ? wlastCol : blastCol;
+		}
+			
 		log.append(String.format("delta col=%d\n", cdr.lastCol - cdr.firstCol ));
-	
+
 		cdr.hCrop = width - (( cdr.lastCol - cdr.firstCol )+1);
 	}
 	
@@ -373,7 +451,7 @@ public class AutoCropper {
 		return nonWhiteNb;
 	}	
 
-	// maison IKKOKU
+	// used for maison IKKOKU
 	static void findTypeScanned( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
 		// specification de la dimension standard du cadre attendue (dans la majorite des cas)
@@ -531,6 +609,19 @@ public class AutoCropper {
 		int width = srcImage.getWidth();		
 		// System.out.format( "%s : HxW %dx%d\n", img.name, height, width );
 		
+		if( (double)height / (double)width < 1.0 ) { // vivlio screen ration = 4/3 (1.33)
+			
+			// h / w ratio is unusual
+			img.typeDetected = TypeDetected.tocheck;
+			return;
+		}
+		if( (double)height / (double)width > 2.0 ) { // vivlio screen ration = 4/3 (1.33)
+			
+			// h / w ratio is unusual
+			img.typeDetected = TypeDetected.tocheck;
+			return;
+		}
+		
 		int ymargin = 1; // height padding after cropping detection
 		int xmargin = 1; // width padding after cropping detection
 			
@@ -568,9 +659,9 @@ public class AutoCropper {
 				return;
 			}
 			
-			if( ( cdr.vCrop > ( 0.2 * (double)height )) || ( cdr.hCrop > 0.2 * (double)width )) {
+			if( ( cdr.vCrop > ( 0.25 * (double)height )) || ( cdr.hCrop > 0.25 * (double)width )) {
 				img.typeDetected = TypeDetected.tocheck;
-				return;				
+				return;
 			}
 			
 			// standard case as previously defined
@@ -605,7 +696,7 @@ public class AutoCropper {
 	// TODO : select function to find type
 	static void processImg( Context context, FileImg img ) throws Exception  {
 
-		System.out.format( "processing %s ...\n", img.name );
+		// System.out.format( "processing %s ...\n", img.name );
 		
 		File file = new File( img.fullpathname );
 		BufferedImage srcImage = ImageIO.read( file );
@@ -619,22 +710,37 @@ public class AutoCropper {
 		findTypeOfficial( context, log, img, fastRGB, srcImage );
 
 		context.writer.write(log.toString());
-			
-		String format = "jpg";
-		if( Config.imgFileType == TypeImgFile.png ) {
-			format = "png";
+		
+		// auto detect the image format from the file it's extension
+		String format = null;
+		String fileName = file.getName();	
+		
+		String[] parts = fileName.split("\\.");
+		
+		if( parts.length >= 2 ) {
+
+			String ext = parts[ parts.length - 1 ].toLowerCase();
+			switch( ext ) {
+				case "jpeg" :
+				case "jpg" : { format = "jpg"; break; }
+				case "png" : { format = "png"; break; }
+			}
 		}
-				
+
+		if( format == null ) {
+			throw new Exception( " unable to detect the image format ");
+		}
+
 		switch( img.typeDetected ) {
 		
-			case standard: {								
+			case standard: {
 				
 				if( folderStdCreated == false ) {
 					Files.createDirectories(Paths.get( context.outpath + "/std"));
 					folderStdCreated = true;
 				}
 
-				File outputfile = new File( context.outpath + "/std/" + img.name );				
+				File outputfile = new File( context.outpath + "/std/" + img.name );
 				BufferedImage croppedImage = srcImage.getSubimage( img.x, img.y, img.w, img.h );
 
 				if( Config.drawCroppingLine ) {
@@ -655,7 +761,7 @@ public class AutoCropper {
 				if( folderCheckCreated == false ) {
 					Files.createDirectories(Paths.get( context.outpath + "/tocheck"));
 					folderCheckCreated = true;
-				}				
+				}
 				
 				File outputfile = new File( context.outpath + "/tocheck/" + img.name );
 				ImageIO.write( srcImage, format, outputfile );
@@ -681,7 +787,7 @@ public class AutoCropper {
 				if( folderErrorCreated == false ) {
 					Files.createDirectories(Paths.get( context.outpath + "/error"));
 					folderErrorCreated = true;
-				}				
+				}
 				
 				File outputfile = new File( context.outpath + "/error/" + img.name );
 				ImageIO.write( srcImage, format, outputfile );
@@ -692,7 +798,7 @@ public class AutoCropper {
 			
 			case empty: {
 				
-				if( folderEmptyCreated == false ) {				
+				if( folderEmptyCreated == false ) {
 					Files.createDirectories(Paths.get( context.outpath + "/empty"));
 					folderEmptyCreated = true;
 				}
@@ -705,7 +811,7 @@ public class AutoCropper {
 			}
 			
 			default:
-			case undefined: {				
+			case undefined: {
 				throw new Exception( " unexpected case ");
 			}
 		}
@@ -746,13 +852,9 @@ public class AutoCropper {
 			
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
-			if( Config.imgFileType == TypeImgFile.jpeg ) {
-				Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, true ); // jpg or jpeg
-			}
-			else {
-				Tools.listInputFiles( context.srcpath, ".*\\.png", files, true );
-			}
-						
+			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, true ); // jpg or jpeg
+			Tools.listInputFiles( context.srcpath, ".*\\.png", files, true );
+			
 			for( FileItem fi : files ) {
 				
 				FileImg img = new FileImg();
@@ -787,7 +889,7 @@ public class AutoCropper {
 
 			e.printStackTrace();
 		}
-				
+
 		System.out.format( "complete\n");
 	}
 	

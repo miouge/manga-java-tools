@@ -53,7 +53,9 @@ public class Tools {
 	      .map(f -> f.substring(filename.lastIndexOf(".") + 1));
 	}	
 	
-	public static void listInputFiles( String pathToSearch, String pattern, TreeSet<FileItem> files, boolean verbose ) throws IOException {
+	public static int listInputFiles( String pathToSearch, String pattern, TreeSet<FileItem> files, boolean verbose ) throws IOException {
+		
+		int foundNb = 0;
 		
 		if( verbose ) {
 			System.out.format( "browsing %s (%s) ...\n", pathToSearch, pattern );
@@ -82,13 +84,14 @@ public class Tools {
 	            	fi.fullpathname = path.toAbsolutePath().toString();
 	            	Optional<String > ext = getExtension( file.getName() );
 	            	fi.extention = ext.get(); 
-	            	files.add( fi );	            		
+	            	files.add( fi );
+	            	foundNb++;
 	            }
 	            else {
 	            	
 	            	// recursive search
 	            	String newPathToSearch = path.toString();
-            		listInputFiles( newPathToSearch, pattern, files, false );
+	            	foundNb += listInputFiles( newPathToSearch, pattern, files, false );
 	            }
 	        }
 	    }
@@ -96,9 +99,11 @@ public class Tools {
 	    	// juste ignore
 	    }
 	    
-	    if( verbose ) {
-	    	System.out.format( "found %d files\n", files.size() );
+	    if( verbose && foundNb > 0 ) {
+	    	System.out.format( "found %d matching files\n", foundNb );
 	    }
+	    
+	    return foundNb; 
 	}
 
 	public static void createFolder( String folderpath, boolean dropExisting ) throws IOException {
