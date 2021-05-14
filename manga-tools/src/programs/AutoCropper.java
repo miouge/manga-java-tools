@@ -121,7 +121,7 @@ public class AutoCropper {
 	}
 	
 	// guess y & h
-	static void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
+	static void findWhiteCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 				
 		int borderTop = param.border;
 		int borderBottom = height - param.border;
@@ -131,14 +131,14 @@ public class AutoCropper {
 		 		
 		for( int row = 0 ; row < height && cdr.firstRow == -1 ; row++ ) {
 
-			if( row < borderTop ) continue; // ignore pixel on the border			
+			if( row < borderTop ) continue; // ignore pixel on the border
 			
 			int rowNonWhiteNb = 0;
 			
 			for( int col = 0 ; col < width && cdr.firstRow == -1 ; col++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );				
+				PixColor pxColor = fastRGB.getColor( col, row );
 				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
 
 				rowNonWhiteNb++;
@@ -156,7 +156,7 @@ public class AutoCropper {
 				// image if nearly full of white like pixel
 				cdr.isWhite = true;
 				return;
-			}			
+			}
 		}
 		
 		//------------------------------
@@ -170,7 +170,7 @@ public class AutoCropper {
 			for( int col = 0 ; col < width && cdr.lastRow == -1 ; col++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );				
+				PixColor pxColor = fastRGB.getColor( col, row );
 				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
 
 				rowNonWhiteNb++;
@@ -190,7 +190,7 @@ public class AutoCropper {
 	}
 	
 	// guess x & w	
-	static void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
+	static void findWhiteCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 
 		int borderLeft = param.border;
 		int borderRight = width - param.border;
@@ -205,16 +205,16 @@ public class AutoCropper {
 			for( int row = 0; row < height && cdr.firstCol == -1 ; row++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );				
+				PixColor pxColor = fastRGB.getColor( col, row );
 				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
 				
-				colNonWhiteNb++;				
+				colNonWhiteNb++;
 			}
 			
 			if( colNonWhiteNb > nonWhiteNbMin ) {
 
 				cdr.firstCol = col;
-				// System.out.format( "first col %d non white pixel = %d\n", col, colNonWhiteNb );					
+				// System.out.format( "first col %d non white pixel = %d\n", col, colNonWhiteNb );
 				log.append(String.format("first col %d non white pixel = %d\n", col, colNonWhiteNb ));
 			}
 		}
@@ -228,10 +228,10 @@ public class AutoCropper {
 			for( int row = 0; row < height && cdr.lastCol == -1 ; row++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );				
+				PixColor pxColor = fastRGB.getColor( col, row );
 				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
 				
-				colNonWhiteNb++;				
+				colNonWhiteNb++;
 			}
 
 			if( colNonWhiteNb > nonWhiteNbMin ) {
@@ -248,17 +248,17 @@ public class AutoCropper {
 	}
 	
 	static void findCropping( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, DetectionParam param, CropDetectionResult cdr ) throws IOException {
-								
+
 		int height = srcImage.getHeight();
-		int width = srcImage.getWidth();		
+		int width = srcImage.getWidth();
 		
-		findCroppingRow( context, log, img, fastRGB, param, cdr, height, width );
+		findWhiteCroppingRow( context, log, img, fastRGB, param, cdr, height, width );
 		
 		if( cdr.isWhite ) { 
 			return;
 		}
 		
-		findCroppingCol( context, log, img, fastRGB, param, cdr, height, width );
+		findWhiteCroppingCol( context, log, img, fastRGB, param, cdr, height, width );
 				
 		// System.out.format( "%s : Row [%d - %d] vCrop=%d\n", img.name, cdr.firstRow, cdr.lastRow, cdr.vCrop );
 		// System.out.format( "%s : Col [%d - %d] hCrop=%d\n", img.name, cdr.firstCol, cdr.lastCol, cdr.hCrop );
@@ -270,7 +270,7 @@ public class AutoCropper {
 		if( Config.drawCroppingLine ) {
 			drawCroppingLineOnSource( context, fastRGB, srcImage, cdr, height, width );
 		}		
-		// cropping directives			
+		// cropping directives
 		
 		img.x = cdr.firstCol;
 		img.w = cdr.lastCol - cdr.firstCol; 
@@ -473,8 +473,10 @@ public class AutoCropper {
 			
 			param.border = 0;            // ignore these pixels close to the borders	
 			//param.nonWhiteNbRatio = 0.0; // 0.25 = 25% = 1 sur 4
-			param.nonWhiteNbRatio = 0.005;
-			param.nonWhiteLevel = 175;   // below this level 
+			param.nonWhiteNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
+			param.nonBlackNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
+			param.nonWhiteLevel = 175;   // below this level
+			param.nonBlackLevel = 80;   // below this level
 			
 			try {
 				
@@ -544,6 +546,8 @@ public class AutoCropper {
 
 		StringBuffer log = new StringBuffer();
 		
+		// configure what if the best detection function to use
+		// findTypeScanned( context, log, img, fastRGB, srcImage );
 		findTypeOfficial( context, log, img, fastRGB, srcImage );
 
 		context.writer.write(log.toString());

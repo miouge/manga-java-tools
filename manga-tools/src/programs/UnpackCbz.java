@@ -24,6 +24,7 @@ public class UnpackCbz {
 
 	static int errorCount = 0 ;
 	
+	// function #1 to unzip
 	public static void apacheDecompressZip( boolean flatUnzip, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
 		
 		File fromFile = new File( fi.fullpathname);
@@ -94,6 +95,7 @@ public class UnpackCbz {
     	System.out.format( "%d files saved\n", fileCount );
     }	
 	
+	// function #2 to unzip
     public static void unzipFile( Config config, FileItem fi, String destFolder ) throws IOException {
 	       
     	System.out.format( "unzip content of %s ...", fi.name );
