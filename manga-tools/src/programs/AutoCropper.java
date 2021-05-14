@@ -121,7 +121,7 @@ public class AutoCropper {
 	}
 	
 	// guess y & h
-	static void findWhiteCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
+	static void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 				
 		int borderTop = param.border;
 		int borderBottom = height - param.border;
@@ -154,7 +154,7 @@ public class AutoCropper {
 			if( row == (height - 1) && cdr.firstRow == -1 ) {
 			
 				// image if nearly full of white like pixel
-				cdr.isWhite = true;
+				cdr.isEmpty = true;
 				return;
 			}
 		}
@@ -190,7 +190,7 @@ public class AutoCropper {
 	}
 	
 	// guess x & w	
-	static void findWhiteCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
+	static void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 
 		int borderLeft = param.border;
 		int borderRight = width - param.border;
@@ -252,13 +252,13 @@ public class AutoCropper {
 		int height = srcImage.getHeight();
 		int width = srcImage.getWidth();
 		
-		findWhiteCroppingRow( context, log, img, fastRGB, param, cdr, height, width );
+		findCroppingRow( context, log, img, fastRGB, param, cdr, height, width );
 		
-		if( cdr.isWhite ) { 
+		if( cdr.isEmpty ) { 
 			return;
 		}
 		
-		findWhiteCroppingCol( context, log, img, fastRGB, param, cdr, height, width );
+		findCroppingCol( context, log, img, fastRGB, param, cdr, height, width );
 				
 		// System.out.format( "%s : Row [%d - %d] vCrop=%d\n", img.name, cdr.firstRow, cdr.lastRow, cdr.vCrop );
 		// System.out.format( "%s : Col [%d - %d] hCrop=%d\n", img.name, cdr.firstCol, cdr.lastCol, cdr.hCrop );
@@ -269,7 +269,7 @@ public class AutoCropper {
 		
 		if( Config.drawCroppingLine ) {
 			drawCroppingLineOnSource( context, fastRGB, srcImage, cdr, height, width );
-		}		
+		}
 		// cropping directives
 		
 		img.x = cdr.firstCol;
@@ -294,7 +294,7 @@ public class AutoCropper {
 
 				// in border clore area ...
 				
-				PixColor pxColor = fastRGB.getColor( col, row );				
+				PixColor pxColor = fastRGB.getColor( col, row );
 				if( pxColor.grey > 200 ) {  continue; } // pixel is white-like
 				
 				nonWhiteNb++;
@@ -315,9 +315,9 @@ public class AutoCropper {
 		int tolerancy =   35;
 		
 		int ymargin = 3; // height padding after cropping detection
-		int xmargin = 3; // width padding after cropping detection		
+		int xmargin = 3; // width padding after cropping detection
 		
-		log.append( String.format("--- %s ---\n", img.name ) );				
+		log.append( String.format("--- %s ---\n", img.name ) );
 		
 		int height = srcImage.getHeight();
 		int width = srcImage.getWidth();
@@ -327,7 +327,7 @@ public class AutoCropper {
 		int stdHeightMax = stdHeight + tolerancy;
 		
 		int stdWidthMin = stdWidth - tolerancy;
-		int stdWidthMax = stdWidth + tolerancy;					
+		int stdWidthMax = stdWidth + tolerancy;
 		
 		// find standard drawing at first
 		{	
@@ -457,26 +457,26 @@ public class AutoCropper {
 	
 	static void findTypeOfficial( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
-		log.append( String.format("--- %s ---\n", img.name ) );				
+		log.append( String.format("--- %s ---\n", img.name ) );
 		
 		int height = srcImage.getHeight();
 		int width = srcImage.getWidth();		
 		// System.out.format( "%s : HxW %dx%d\n", img.name, height, width );
 		
 		int ymargin = 1; // height padding after cropping detection
-		int xmargin = 1; // width padding after cropping detection				
+		int xmargin = 1; // width padding after cropping detection
 			
 		// find standard drawing at first
 		{	
 			DetectionParam param = new DetectionParam();
 			CropDetectionResult cdr = new CropDetectionResult();
 			
-			param.border = 0;            // ignore these pixels close to the borders	
+			param.border = 0;            // ignore these pixels close to the borders
 			//param.nonWhiteNbRatio = 0.0; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
 			param.nonBlackNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = 175;   // below this level
-			param.nonBlackLevel = 80;   // below this level
+			param.nonBlackLevel = 80;    // below this level
 			
 			try {
 				
@@ -489,7 +489,7 @@ public class AutoCropper {
 				return;
 			}
 			
-			if( cdr.isWhite ) {
+			if( cdr.isEmpty ) {
 				img.typeDetected = TypeDetected.empty;
 				return;				
 			}
@@ -527,7 +527,7 @@ public class AutoCropper {
 			}
 					
 			// System.out.format( "%s : cropping ...", img.name );
-			// System.out.format( "rows (y=%d h=%d) columns (x=%d w=%d) \n", img.y, img.h, img.x, img.w );		
+			// System.out.format( "rows (y=%d h=%d) columns (x=%d w=%d) \n", img.y, img.h, img.x, img.w );
 				
 			img.typeDetected = TypeDetected.standard;
 			return;

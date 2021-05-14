@@ -12,5 +12,5 @@ public class CropDetectionResult {
 	public int vCrop  = 0;	
 	public int hCrop  = 0;
 	
-	public boolean isWhite  = false;
+	public boolean isEmpty  = false;
 }
