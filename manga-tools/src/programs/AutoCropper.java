@@ -67,25 +67,39 @@ public class AutoCropper {
 		
 		return false;
 	}
-	
+
+	// TODO : customize according to the page number position
 	static boolean isIgnoreZoneAbs( int row, int col, int height, int width ) {
 		
 		// return true is the position could be a page marker position
+		// page number position :
+		
+		// v--- hauteur n° de page ---v       v--- en bas a gauche ---v         v--- en bas a droite ---v
 
-		// page number position :		
-		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }} // Dragon Ball 
-		if( 1635 < row && row < 1670 ) { if(( 60 < col && col < 120 ) || ( 1080 < col && col < 1134 )) { return true; }}  // Nana to kaoru		
-		// if( 2540 < row && row < 2615 ) { if(( 156 < col && col < 244 ) || ( 1664 < col && col < 1764 )) { return true; }} // Step up love story
-
-		// ^--- hauteur n° de page ---^        ^- en bas a gauche - ^    ^ - en bas a droite) - ^   		
+		// Wakfu
+		if( 2900 < row && row < 2960 ) { if(( 190 < col && col < 252 ) || ( 1695 < col && col < 1773 )) { return true; }}		
+		
+		// Dragon Ball
+		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }}
+		
+		// Nana to kaoru
+		// if( 1635 < row && row < 1670 ) { if(( 60  < col && col < 120 ) || ( 1080 < col && col < 1134 )) { return true; }}
+		
+		 // Step up love story
+		// if( 2540 < row && row < 2615 ) { if(( 156 < col && col < 244 ) || ( 1664 < col && col < 1764 )) { return true; }}
+		
+		// Dragon Ball
+		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }}
+		   		
 		
 		return false;
 	}
 	
+	// TODO : customize according to the page number position
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
-		//return isIgnoreZoneAbs( row, col, height, width );
-		return isIgnoreZoneRelative( row, col, height, width );
+		return isIgnoreZoneAbs( row, col, height, width );
+		//return isIgnoreZoneRelative( row, col, height, width );
 	}
 
 	static void drawCroppingLineOnSource( Context context, FastRGB fastRGB, BufferedImage srcImage, CropDetectionResult cdr, int height, int width ) {
@@ -253,7 +267,7 @@ public class AutoCropper {
 			return;
 		}		
 		
-		if( Config.drawCroppingLine == 1 ) {
+		if( Config.drawCroppingLine ) {
 			drawCroppingLineOnSource( context, fastRGB, srcImage, cdr, height, width );
 		}		
 		// cropping directives			
@@ -439,6 +453,8 @@ public class AutoCropper {
 	}
 
 	// find type for official clean Cbz
+	// TODO : configure DetectionParam if needed
+	
 	static void findTypeOfficial( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
 		log.append( String.format("--- %s ---\n", img.name ) );				
@@ -456,7 +472,8 @@ public class AutoCropper {
 			CropDetectionResult cdr = new CropDetectionResult();
 			
 			param.border = 0;            // ignore these pixels close to the borders	
-			param.nonWhiteNbRatio = 0.0; // 0.25 = 25% = 1 sur 4
+			//param.nonWhiteNbRatio = 0.0; // 0.25 = 25% = 1 sur 4
+			param.nonWhiteNbRatio = 0.005;
 			param.nonWhiteLevel = 175;   // below this level 
 			
 			try {
@@ -515,6 +532,7 @@ public class AutoCropper {
 		}
 	}
 	
+	// TODO : select function to find type
 	static void processImg( Context context, FileImg img ) throws Exception  {
 
 		System.out.format( "processing %s ...\n", img.name );
@@ -547,7 +565,9 @@ public class AutoCropper {
 				File outputfile = new File( context.outpath + "/std/" + img.name );				
 				BufferedImage croppedImage = srcImage.getSubimage( img.x, img.y, img.w, img.h );
 
-				if( Config.drawCroppingLine == 1 ) {
+				if( Config.drawCroppingLine ) {
+					
+					// instead of cropped image write the source image with the cropping lines
 					ImageIO.write( srcImage, format, outputfile );
 				}
 				else {

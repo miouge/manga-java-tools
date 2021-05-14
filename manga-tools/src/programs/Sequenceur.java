@@ -15,7 +15,7 @@ public class Sequenceur {
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );			
-			//AutoCropper.autoCrop( config );
+			AutoCropper.autoCrop( config );
 		}
 		
 		// package image into PDF
