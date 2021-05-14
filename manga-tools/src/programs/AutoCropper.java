@@ -77,7 +77,7 @@ public class AutoCropper {
 		// v--- hauteur n° de page ---v       v--- en bas a gauche ---v         v--- en bas a droite ---v
 
 		// Wakfu
-		if( 2900 < row && row < 2960 ) { if(( 190 < col && col < 252 ) || ( 1695 < col && col < 1773 )) { return true; }}		
+		if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
 		
 		// Dragon Ball
 		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }}
@@ -125,17 +125,22 @@ public class AutoCropper {
 				
 		int borderTop = param.border;
 		int borderBottom = height - param.border;
+		
+		// useless white area detection
+		
 		double nonWhiteNbMin = (double)width * param.nonWhiteNbRatio;
-				
-		// from the top
-		 		
-		for( int row = 0 ; row < height && cdr.firstRow == -1 ; row++ ) {
+		int wfirstRow = -1;
+		int wlastRow  = -1;
+		
+		// from the top ...
+
+		for( int row = 0 ; row < height && wfirstRow == -1 ; row++ ) {
 
 			if( row < borderTop ) continue; // ignore pixel on the border
 			
 			int rowNonWhiteNb = 0;
 			
-			for( int col = 0 ; col < width && cdr.firstRow == -1 ; col++ ) {
+			for( int col = 0 ; col < width && wfirstRow == -1 ; col++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
 				PixColor pxColor = fastRGB.getColor( col, row );
@@ -146,12 +151,12 @@ public class AutoCropper {
 			
 			if( rowNonWhiteNb > nonWhiteNbMin ) {
 
-				cdr.firstRow = row;
+				wfirstRow = row;
 				//System.out.format( "first row %d non white pixel = %d\n", row, rowNonWhiteNb );
 				log.append( String.format( "first row %d non white pixel nb = %d\n", row, rowNonWhiteNb ));
 			}
 			
-			if( row == (height - 1) && cdr.firstRow == -1 ) {
+			if( row == (height - 1) && wfirstRow == -1 ) {
 			
 				// image if nearly full of white like pixel
 				cdr.isEmpty = true;
@@ -159,15 +164,15 @@ public class AutoCropper {
 			}
 		}
 		
-		//------------------------------
+		// from the bottom ...
 		
-		for( int row = height - 1 ; row >= 0 && cdr.lastRow == -1 ; row-- ) {
+		for( int row = height - 1 ; row >= 0 && wlastRow == -1 ; row-- ) {
 			
 			if( row > borderBottom ) continue; // ignore pixel on the border
 			
 			int rowNonWhiteNb = 0;
 			
-			for( int col = 0 ; col < width && cdr.lastRow == -1 ; col++ ) {
+			for( int col = 0 ; col < width && wlastRow == -1 ; col++ ) {
 				
 				if( isIgnoreZone( row, col, height, width )) { continue; }
 				PixColor pxColor = fastRGB.getColor( col, row );
@@ -178,10 +183,73 @@ public class AutoCropper {
 
 			if( rowNonWhiteNb > nonWhiteNbMin ) {
 
-				cdr.lastRow = row;
+				wlastRow = row;
 				//System.out.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb );
 				log.append(String.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb ));
 			}
+		}
+		
+		// useless black area detection
+		
+		int bfirstRow = -1;
+		int blastRow  = -1;
+		double nonBlackNbMin = (double)width * param.nonBlackNbRatio;
+		
+		// from the top ...
+
+		for( int row = 0 ; row < height && bfirstRow == -1 ; row++ ) {
+
+			if( row < borderTop ) continue; // ignore pixel on the border
+			
+			int rowNonBlackNb = 0;
+			
+			for( int col = 0 ; col < width && bfirstRow == -1 ; col++ ) {
+				
+				if( isIgnoreZone( row, col, height, width )) { continue; }
+				PixColor pxColor = fastRGB.getColor( col, row );
+				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+
+				rowNonBlackNb++;
+			}
+			
+			if( rowNonBlackNb > nonBlackNbMin ) {
+
+				bfirstRow = row;
+				//System.out.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb );
+				log.append( String.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb ));
+			}			
+		}
+		
+		// from the bottom ...
+		
+		for( int row = height - 1 ; row >= 0 && blastRow == -1 ; row-- ) {
+			
+			if( row > borderBottom ) continue; // ignore pixel on the border
+			
+			int rowNonBlackNb = 0;
+			
+			for( int col = 0 ; col < width && blastRow == -1 ; col++ ) {
+				
+				if( isIgnoreZone( row, col, height, width )) { continue; }
+				PixColor pxColor = fastRGB.getColor( col, row );
+				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+
+				rowNonBlackNb++;
+			}
+
+			if( rowNonBlackNb > nonBlackNbMin ) {
+
+				blastRow = row;
+				//System.out.format( "last row %d non black pixel = %d\n", row, rowNonBlackNb );
+				log.append(String.format( "last row %d non black pixel = %d\n", row, rowNonBlackNb ));
+			}
+		}
+		
+		if( wfirstRow != -1 && bfirstRow != -1 ) {
+			cdr.firstRow = ( wfirstRow > bfirstRow ) ? wfirstRow : bfirstRow;
+		}
+		if( wlastRow != -1 && blastRow != -1 ) {
+			cdr.lastRow = ( wlastRow < blastRow ) ? wlastRow : blastRow;
 		}
 		
 		log.append(String.format("delta Row =%d\n", cdr.lastRow - cdr.firstRow ));
