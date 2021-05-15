@@ -38,6 +38,31 @@ public class AutoCropper {
 	static boolean folderUntouchedCreated = false;
 	static boolean folderEmptyCreated = false;
 
+	// TODO : customize according to border to ignore	
+	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
+		
+		// ignore these pixels close to the borders as it could include some scan artifacts
+		// if borderMarginToIgnore = 5 -> ignore the 5 pixels zone close to the border  
+		int borderMarginToIgnore = 0;
+		
+		if( borderMarginToIgnore == 0 ) {
+			return false;
+		}
+		
+		int borderLeft = borderMarginToIgnore;
+		int borderRight = width - borderMarginToIgnore; // 100 px - 5 = 95
+		
+		int borderTop = borderMarginToIgnore;
+		int borderBottom = height - borderMarginToIgnore;
+		
+		if( row < borderTop     ) { return true; } 
+		if( row >= borderBottom ) { return true; }
+		if( col < borderLeft    ) { return true; } // 5 : ignore 0,1,2,3,4
+		if( col >= borderRight  ) { return true; } // 5 : ignore 95 96 97 98 99
+		
+		return false;
+	}
+		
 	// TODO : customize according to the page number position
 	static boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
 
@@ -82,31 +107,21 @@ public class AutoCropper {
 		
 		// v--- hauteur n° de page ---v       v--- en bas a gauche ---v         v--- en bas a droite ---v
 
-		// Wakfu
-		//if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
+		if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
 		
-		// Dragon Ball
-		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }}
-		
-		// Nana to kaoru
-		// if( 1635 < row && row < 1670 ) { if(( 60  < col && col < 120 ) || ( 1080 < col && col < 1134 )) { return true; }}
-		
-		 // Step up love story
-		// if( 2540 < row && row < 2615 ) { if(( 156 < col && col < 244 ) || ( 1664 < col && col < 1764 )) { return true; }}
-		
-		// Dragon Ball
-		// if( 1920 < row && row < 1960 ) { if(( 100 < col && col < 150 ) || ( 1220 < col && col < 1290 )) { return true; }}
-		   		
+	   		
 		
 		return false;
 	}
 	
-	// TODO : customize according to the page number position
+	// TODO : customize as needed
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
-		// TODO : should chain multiple ignore zone
-		return isIgnoreZoneAbs( row, col, height, width );
-		//return isIgnoreZoneRelative( row, col, height, width );
+		if( isIgnoreBorderZone  ( row, col, height, width )) { return true; }
+		if( isIgnoreZoneAbs     ( row, col, height, width )) { return true; }
+		//if( isIgnoreZoneRelative( row, col, height, width )) { return true; }
+
+		return false;
 	}
 
 	static void drawCroppingLineOnSource( Context context, FastRGB fastRGB, BufferedImage srcImage, CropDetectionResult cdr, int height, int width ) {
@@ -130,8 +145,6 @@ public class AutoCropper {
 	// guess y & h
 	static void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 				
-		int borderTop = param.border;
-		int borderBottom = height - param.border;
 		
 		// useless white area detection
 		
@@ -143,7 +156,7 @@ public class AutoCropper {
 
 		for( int row = 0 ; row < height && wfirstRow == -1 ; row++ ) {
 
-			if( row < borderTop ) continue; // ignore pixel on the border
+
 			
 			int rowNonWhiteNb = 0;
 			
@@ -175,7 +188,6 @@ public class AutoCropper {
 		
 		for( int row = height - 1 ; row >= 0 && wlastRow == -1 ; row-- ) {
 			
-			if( row > borderBottom ) continue; // ignore pixel on the border
 			
 			int rowNonWhiteNb = 0;
 			
@@ -206,7 +218,6 @@ public class AutoCropper {
 
 		for( int row = 0 ; row < height && bfirstRow == -1 ; row++ ) {
 
-			if( row < borderTop ) continue; // ignore pixel on the border
 			
 			int rowNonBlackNb = 0;
 			
@@ -230,8 +241,6 @@ public class AutoCropper {
 		// from the bottom ...
 		
 		for( int row = height - 1 ; row >= 0 && blastRow == -1 ; row-- ) {
-			
-			if( row > borderBottom ) continue; // ignore pixel on the border
 			
 			int rowNonBlackNb = 0;
 			
@@ -267,8 +276,6 @@ public class AutoCropper {
 	// guess x & w	
 	static void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 
-		int borderLeft = param.border;
-		int borderRight = width - param.border;
 		 
 		// useless white area detection
 		
@@ -280,7 +287,7 @@ public class AutoCropper {
 		
 		for( int col = 0; col < width && wfirstCol == -1 ; col++ ) {
 			
-			if( col < borderLeft ) continue;
+
 			
 			int colNonWhiteNb = 0;
 			
@@ -305,7 +312,7 @@ public class AutoCropper {
 		
 		for( int col = width - 1; col >= 0 && wlastCol == -1 ; col-- ) {
 			
-			if( col > borderRight ) continue;
+
 			
 			int colNonWhiteNb = 0;
 			
@@ -335,9 +342,7 @@ public class AutoCropper {
 		// from the left
 		
 		for( int col = 0; col < width && bfirstCol == -1 ; col++ ) {
-			
-			if( col < borderLeft ) continue;
-			
+						
 			int colNonBlackNb = 0;
 			
 			for( int row = 0; row < height && bfirstCol == -1 ; row++ ) {
@@ -360,9 +365,7 @@ public class AutoCropper {
 		// from the right
 		
 		for( int col = width - 1; col >= 0 && blastCol == -1 ; col-- ) {
-			
-			if( col > borderRight ) continue;
-			
+						
 			int colNonBlackNb = 0;
 			
 			for( int row = 0; row < height && blastCol == -1 ; row++ ) {
@@ -479,9 +482,8 @@ public class AutoCropper {
 		// find standard drawing at first
 		{	
 			DetectionParam param = new DetectionParam();
-			CropDetectionResult cdr = new CropDetectionResult();
-			
-			param.border = 20;            // ignore these pixels close to the borders	
+			CropDetectionResult cdr = new CropDetectionResult();			
+
 			param.nonWhiteNbRatio = 0.10; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = 125;    // below this level 
 			
@@ -531,7 +533,6 @@ public class AutoCropper {
 			DetectionParam param = new DetectionParam();
 			CropDetectionResult cdr = new CropDetectionResult();
 			
-			param.border = 10;            // ignore these pixels close to the borders	
 			param.nonWhiteNbRatio = 0.05; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = 170;    // below this level 
 			
@@ -631,8 +632,6 @@ public class AutoCropper {
 			DetectionParam param = new DetectionParam();
 			CropDetectionResult cdr = new CropDetectionResult();
 			
-			param.border = 0;            // ignore these pixels close to the borders
-			//param.nonWhiteNbRatio = 0.0; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
 			param.nonBlackNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = 175;   // below this level
