@@ -85,19 +85,15 @@ public class GeneratePDF {
 			
 			// compile file list
 			
-			if( true ) {
-			
-				Tools.listInputFiles( imgpath + "/", ".*\\.jpe?g", files, true );
-			}
-			else {
-				
-				Tools.listInputFiles( imgpath + "/std"       , ".*\\.jpe?g", files, true );
-				Tools.listInputFiles( imgpath + "/untouched" , ".*\\.jpe?g", files, true );
-				Tools.listInputFiles( imgpath + "/tocheck"   , ".*\\.jpe?g", files, true );
-			}
+			//Tools.listInputFiles( imgpath + "/", ".*\\.jpe?g", files, true );
 
-			//listInputFiles( outpath + "/untouched/_BIC" , Config.imgExtention, files );
-			//listInputFiles( outpath + "/tocheck/_BIC"   , Config.imgExtention, files );
+			//Tools.listInputFiles( imgpath + "/std"       , ".*\\.jpe?g", files, true );
+			//Tools.listInputFiles( imgpath + "/untouched" , ".*\\.jpe?g", files, true );
+			//Tools.listInputFiles( imgpath + "/tocheck"   , ".*\\.jpe?g", files, true );
+			Tools.listInputFiles( imgpath + "/std/_BIC"       , ".*\\.jpe?g", files, true );			
+			Tools.listInputFiles( imgpath + "/tocheck/_BIC"   , ".*\\.jpe?g", files, true );
+			Tools.listInputFiles( imgpath + "/std/_BIC"       , ".*\\.png", files, true );			
+			Tools.listInputFiles( imgpath + "/tocheck/_BIC"   , ".*\\.png", files, true );
 			
 			System.out.format( "total file count : %d files\n", files.size() );
 			

@@ -6,8 +6,8 @@ public class Config {
 	public String srcSubFolderFmt = "T%02d";	
 	public String imgPattern = "";
 	
-	public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/scratch";	
-	//public String rootFolder = "D:/Scratch/manga";
+	//public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/scratch";	
+	public String rootFolder = "D:/Scratch/manga";
 	
 	// archives related settings
 	// pdf, cbr source folder, 	
@@ -29,9 +29,9 @@ public class Config {
 
 	// jpg to pdf
 	
-	public String pdfnamefmt = "Les enfants de la baleine (Gl�nat) T%02d.pdf";
-	public String titlefmt   = "Les enfants de la baleine No %d";
-	public String author  = "Umeda Abi";
+	public String pdfnamefmt = "Wakfu T%02d.pdf";
+	public String titlefmt   = "Wakfu No %d";
+	public String author  = "Tot - Azea - Saïd Sassine";
 	
 	public Config() {		
 	}

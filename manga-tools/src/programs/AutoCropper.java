@@ -104,6 +104,7 @@ public class AutoCropper {
 	// TODO : customize according to the page number position
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
+		// TODO : should chain multiple ignore zone
 		return isIgnoreZoneAbs( row, col, height, width );
 		//return isIgnoreZoneRelative( row, col, height, width );
 	}
