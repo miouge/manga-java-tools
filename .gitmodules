@@ -1,0 +1,3 @@
+[submodule "junrar"]
+	path = junrar
+	url = git@github.com:junrar/junrar.git

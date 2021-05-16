@@ -22,7 +22,7 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
-import com.github.junrar.testutil.ExtractArchive;
+import com.github.junrar.Junrar;
 
 import beans.Config;
 import beans.FileItem;
@@ -235,8 +235,11 @@ public class Unpack {
 
 			if( fi.extention.equals("cbr") ) {
 
-				// rar file
-				ExtractArchive.extractArchive( new File( fi.fullpathname) , new File( destFolder ) );
+				// rar file (not working at 100%)
+				
+				final File rar = new File( fi.fullpathname);  
+				final File destinationFolder = new File( destFolder );
+				Junrar.extract(rar, destinationFolder); 				
 			}
 			else if( fi.extention.equals("cbz") ) {
 				
