@@ -10,33 +10,30 @@ public class Config {
 	public String rootFolder = "D:/Scratch/manga";
 	
 	// archives related settings
-	// pdf, cbr source folder, 	
-	public String archiveFolder = rootFolder + "/archives";	
-	public boolean flatUnzip = true; // unpack all files to the same destination folder
+	public String archiveFolder = rootFolder + "/archives"; // folder that contain original pdf, cbz, cbr files 		
+	public boolean flatUnzip = true; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
 	public boolean resizeImg = false;
-	public int wantedHeight = 2010; // vivlio inkpad3 screen resolution  h= 1872px w= 1404px (ratio = 4/3)
+	public int wantedHeight = 1872; // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 	
-	// outlet for extraction of pdf, cbr, cbz
-	// or source of jpeg file
+	// outlet for extraction/unpack of pdf, cbr, cbz
+	// or/also source of picture file for AutoCropper
 	public String originalImgFolder = rootFolder + "/original-img";
 			
-	// outlet for cropping
+	// outlet for cropping operation
 	public String croppedImgFolder = rootFolder + "/cropped-img";	
-	public static boolean drawCroppingLine = false;  // just draw cropping lines instead of cropping
-	
+	public static boolean drawCroppingLine = false;  // if true : just draw cropping the lines instead of cropping
+
+	// PDF generation settings	
 	// outlet for pdf generation
 	public String outletPdfFolder = rootFolder + "/outlet-pdf";
-
-	// jpg to pdf
-	
-	public String pdfnamefmt = "Wakfu T%02d.pdf";
-	public String titlefmt   = "Wakfu No %d";
-	public String author  = "Tot - Azea - Saïd Sassine";
+	public String pdfnamefmt = "Wakfu T%02d.pdf"; // format of document using volumeNo
+	public String titlefmt   = "Wakfu No %d"; // title of document using volumeNo
+	public String author  = "Tot - Azea - Saïd Sassine"; // author
 	
 	public Config() {		
 	}
 	
-	public Config( int volumeNo ) {				
+	public Config( int volumeNo ) {
 		this.volumeNo = volumeNo;
 	}
 }

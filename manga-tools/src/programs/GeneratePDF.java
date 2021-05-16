@@ -74,8 +74,8 @@ public class GeneratePDF {
 
 		
 		locations.add( imgpath + "/std" );
-		locations.add( imgpath + "/std/_BIC" );
-		locations.add( imgpath + "/tocheck" );
+		//locations.add( imgpath + "/std/_BIC" );
+		//locations.add( imgpath + "/tocheck" );
 		locations.add( imgpath + "/tocheck/_BIC" );
 	}
 		

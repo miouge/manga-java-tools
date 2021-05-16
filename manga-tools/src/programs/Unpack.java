@@ -235,11 +235,9 @@ public class Unpack {
 
 			if( fi.extention.equals("cbr") ) {
 
-				// rar file (not working at 100%)
-				
-				final File rar = new File( fi.fullpathname);  
-				final File destinationFolder = new File( destFolder );
-				Junrar.extract(rar, destinationFolder); 				
+				// rar file
+				// using junrar (but however not working in all case)				
+				Junrar.extract( new File( fi.fullpathname), new File( destFolder ) ); 				
 			}
 			else if( fi.extention.equals("cbz") ) {
 				

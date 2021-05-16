@@ -68,15 +68,15 @@ public class AutoCropper {
 
 		// expected page number position 
 		
-		float fullH = 3956.0F;
-		float up      = 2886 / fullH;
-		float down    = 2958 / fullH;
+		float fullH = 1920.0F; // original image height on which the measurement has been done
+		float up      = 1800 / fullH;
+		float down    = 1886 / fullH;
 		
-		float fullW = 1952.0F;
-		float left1   =  141  / fullW;
-		float left2   =  276  / fullW;
-		float right1  =  1668  / fullW;
-		float right2  =  1776  / fullW;
+		float fullW = 1226.0F; // original image width on which the measurement has been done
+		float left1   =  80  / fullW;
+		float left2   =  180  / fullW;
+		float right1  =  1030  / fullW;
+		float right2  =  1130  / fullW;
 
 		//            left1         left2                 right1      right2   
 		//              v             v                     v            v
@@ -118,8 +118,8 @@ public class AutoCropper {
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
 		if( isIgnoreBorderZone  ( row, col, height, width )) { return true; }
-		if( isIgnoreZoneAbs     ( row, col, height, width )) { return true; }
-		//if( isIgnoreZoneRelative( row, col, height, width )) { return true; }
+		//if( isIgnoreZoneAbs     ( row, col, height, width )) { return true; }
+		if( isIgnoreZoneRelative( row, col, height, width )) { return true; }
 
 		return false;
 	}
