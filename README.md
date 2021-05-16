@@ -9,9 +9,11 @@ I share this code, without any assistance (more as a entry point on the subject)
 
 ## modules presentation
 
-UnpackCbz : will be used to unpack a lot of .CBZ (or .CBR) archives to separate subfolders
-
-UnpackPDF : will be used to unpack a lot of .PDF archives to separate subfolders
+Unpack : will be used to unpack images of original Manga (.CBZ or .CBR or .PDF) files
+- customize the Config object {rootFolder} & {archiveFolder} & {originalImgFolder}
+- place .CBZ or .CBR or .PDF files into the archive folder
+- run Unpack.main()
+- a subfolder T<volume Num>/ will be created for each manga file into the destination (original image folder}
 
 AutoCropper : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
 			  using this module require iterative try to set the customization parameter especially if used with non-official source images.
@@ -19,8 +21,8 @@ AutoCropper : will be used to crop the images (ie remove any useless part of the
 			  to do this step of work, i'm using the freeware program "BIC – Batch-Image-Cropper" (https://funk.eu/bic-batch-image-cropper/)	  
 			  			  
 GeneratePDF : will be used to repack into one or multiple PDF files the cropped images 
-			customize the config object about title template to use and author
-			customize getImagesLocations() to specify where to pickup the pictures
+- customize the config object about title template to use and author
+- customize getImagesLocations() to specify where to pickup the pictures
 
 Sequencer : is just a loop to repeat the process on multiple manga volumes
 
@@ -29,6 +31,8 @@ Sequencer : is just a loop to repeat the process on multiple manga volumes
 Java 8 + eclipse Java 2020-12
 
 ### Dependencies
+
+com.github.junrar
 
 xmpbox-2.0.21.jar
 commons-vfs2-2.6.0.jar
@@ -39,6 +43,7 @@ pdfbox-tools-2.0.21.jar
 pdf-renderer-1.0.5.jar
 com-sun-pdfview-1.0.5-201003191900.jar
 
+### referenced softwares
 
-
+BIC – Batch-Image-Cropper (https://funk.eu/bic-batch-image-cropper/)
 
