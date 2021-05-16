@@ -19,6 +19,8 @@ AutoCropper : will be used to crop the images (ie remove any useless part of the
 			  to do this step of work, i'm using the freeware program "BIC – Batch-Image-Cropper" (https://funk.eu/bic-batch-image-cropper/)	  
 			  			  
 GeneratePDF : will be used to repack into one or multiple PDF files the cropped images 
+			customize the config object about title template to use and author
+			customize getImagesLocations() to specify where to pickup the pictures
 
 Sequencer : is just a loop to repeat the process on multiple manga volumes
 

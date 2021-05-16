@@ -8,8 +8,8 @@ public class Sequencer {
 	public static void main(String[] args) {
 		
 		// [ firstVol - lastVol ] 
-		int firstVol = 2; 
-		int lastVol  = 2;
+		int firstVol = 4; 
+		int lastVol  = 5;
 		
 		// autocrop images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {

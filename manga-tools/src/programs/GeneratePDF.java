@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 import com.itextpdf.text.Document;
@@ -66,35 +67,44 @@ public class GeneratePDF {
         document.close();
     }
 		
-	@SuppressWarnings("unused")
+	// TODO : customize image locations path list
+	// each path will be checked to list all images (.jpg .jpeg or .png) it contains
+	// then images will be ordered by names	before insertion into the PDF document
+	public static void getImagesLocations( String imgpath, ArrayList<String> locations ) {
+
+		
+		locations.add( imgpath + "/std" );
+		locations.add( imgpath + "/std/_BIC" );
+		locations.add( imgpath + "/tocheck" );
+		locations.add( imgpath + "/tocheck/_BIC" );
+	}
+		
 	public static void generatePDF( Config config ) {
-		
-		
+				
 		String pdfname = String.format( config.pdfnamefmt, config.volumeNo );
 		String title   = String.format( config.titlefmt  , config.volumeNo );
 		
         String imgpath = config.croppedImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
 		String destFilePath =  config.outletPdfFolder;
                        		
-		TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered 
+		TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
 
 		try
 		{
 			// create output folders
 			Files.createDirectories(Paths.get( config.outletPdfFolder ));					
 			
+			ArrayList<String> locations = new ArrayList<String>();
+			getImagesLocations( imgpath, locations );
+
 			// compile file list
 			
-			//Tools.listInputFiles( imgpath + "/", ".*\\.jpe?g", files, true );
+			for(  String location : locations ) {
 
-			Tools.listInputFiles( imgpath + "/std"       , ".*\\.jpe?g", files, true );
-			//Tools.listInputFiles( imgpath + "/untouched" , ".*\\.jpe?g", files, true );
-			//Tools.listInputFiles( imgpath + "/tocheck"   , ".*\\.jpe?g", files, true );
-			//Tools.listInputFiles( imgpath + "/std/_BIC"       , ".*\\.jpe?g", files, true );			
-			Tools.listInputFiles( imgpath + "/tocheck/_BIC"   , ".*\\.jpe?g", files, true );
-			Tools.listInputFiles( imgpath + "/std/_BIC"       , ".*\\.png", files, true );			
-			Tools.listInputFiles( imgpath + "/tocheck/_BIC"   , ".*\\.png", files, true );
-			
+				Tools.listInputFiles( location, ".*\\.jpe?g", files, true );
+				Tools.listInputFiles( location, ".*\\.png", files, true );			
+			}
+
 			System.out.format( "total file count : %d files\n", files.size() );
 			
 			generatePDF( files, destFilePath + "/" + pdfname, title, config.author );
