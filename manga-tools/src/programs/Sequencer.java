@@ -8,9 +8,16 @@ public class Sequencer {
 	public static void main(String[] args) {
 		
 		// [ firstVol - lastVol ] 
-		int firstVol = 4; 
-		int lastVol  = 5;
+		int firstVol = 1; 
+		int lastVol  = 13;
 		
+		// computes some statistics about images
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+			
+			Config config = new Config( volumeNo );			
+			Stat.computeStatistics( config );
+		}
+				
 		// autocrop images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
@@ -22,7 +29,7 @@ public class Sequencer {
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );
-			GeneratePDF.generatePDF( config );
+			//GeneratePDF.generatePDF( config );
 		}
 		
 		System.out.format( "Sequenceur : complete\n");

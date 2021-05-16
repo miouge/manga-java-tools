@@ -66,17 +66,17 @@ public class AutoCropper {
 	// TODO : customize according to the page number position
 	static boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
 
-		// expected page number position 
+		// expected page numbers position 
 		
-		float fullH = 1920.0F; // original image height on which the measurement has been done
-		float up      = 1800 / fullH;
-		float down    = 1886 / fullH;
+		float fullH = 1772.0F; // original image height on which the measurement has been done
+		float up      = 1680 / fullH;
+		float down    = 1717 / fullH;
 		
-		float fullW = 1226.0F; // original image width on which the measurement has been done
-		float left1   =  80  / fullW;
-		float left2   =  180  / fullW;
-		float right1  =  1030  / fullW;
-		float right2  =  1130  / fullW;
+		float fullW = 1132.0F; // original image width on which the measurement has been done
+		float left1   =  40  / fullW;
+		float left2   =  150  / fullW;
+		float right1  =  967  / fullW;
+		float right2  =  1699  / fullW;
 
 		//            left1         left2                 right1      right2   
 		//              v             v                     v            v

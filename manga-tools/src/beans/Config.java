@@ -22,6 +22,7 @@ public class Config {
 	// outlet for cropping operation
 	public String croppedImgFolder = rootFolder + "/cropped-img";	
 	public static boolean drawCroppingLine = false;  // if true : just draw cropping the lines instead of cropping
+	public static boolean alsoCropBlackArea = false;  // if true : also try to crop black useless area
 
 	// PDF generation settings	
 	// outlet for pdf generation
