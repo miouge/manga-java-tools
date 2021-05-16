@@ -147,12 +147,35 @@ public class Unpack {
         System.out.format( "%d files saved\n", fileCount );
     }	
     
-    public static void unzipFile( Config config, FileItem fi, String destFolder ) throws IOException {
+    public static void unzipFile( Config config, FileItem fi, String destFolder ) throws Exception {
 
-    	// TODO : will try both method to decompress the zip file
+    	boolean success = false;
     	
-		//javaUtilUnzipFile( config, fi, destFolder );
-		apacheDecompressZip( config.flatUnzip, fi, destFolder );
+    	// try function #1
+    	try {
+
+    		apacheDecompressZip( config.flatUnzip, fi, destFolder );
+    		success = true;
+    	}
+    	catch( Exception e ) {
+    	}
+
+    	if( success ) {
+    		return;
+    	}
+    	
+    	// else try function #2
+    	try {
+
+    		javaUtilUnzipFile( config, fi, destFolder );
+    		success = true;
+    	}
+    	catch( Exception e ) {
+    	}
+    	
+    	if( success != true ) {
+    		throw new Exception( "fail to unzip" );
+    	}
     }
     
 	// PDF Unpack
