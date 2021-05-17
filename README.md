@@ -15,6 +15,8 @@ Unpack : will be used to unpack images of original Manga (.CBZ or .CBR or .PDF) 
 - run Unpack.main()
 - a subfolder T<volume Num>/ will be created for each manga file into the destination (original image folder}
 
+Stat : will be used to walk along the images of unpacked content then outpout statistics about theirs size (min/max/average/standard deviation)
+
 AutoCropper : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
 			  using this module require iterative try to set the customization parameter especially if used with non-official source images.
 			  it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually
@@ -24,19 +26,23 @@ GeneratePDF : will be used to repack into one or multiple PDF files the cropped 
 - customize the config object about title template to use and author
 - customize getImagesLocations() to specify where to pickup the pictures
 
-Sequencer : is just a loop to repeat the process on multiple manga volumes
+Sequencer : is just a loop to repeat a process on multiple manga volumes
+( like running Stat module on every volume)
 
-### Development environnement : 
+### Development/Running environnement : 
 
 Java 8 + eclipse Java 2020-12
 
 ### Dependencies
 
-com.github.junrar
+com.github.junrar (use as submodule)
+need slf4j-api-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/)
+need slf4j-ext-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-ext/1.7.9/)
+need slf4j-simple-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.9/)
 
-xmpbox-2.0.21.jar
 commons-vfs2-2.6.0.jar
 commons-compress-1.20.jar
+xmpbox-2.0.21.jar
 itextpdf-5.5.9.jar
 pdfbox-app-2.0.21.jar
 pdfbox-tools-2.0.21.jar
