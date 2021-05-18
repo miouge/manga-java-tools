@@ -1,4 +1,4 @@
-[submodule "junrar"]
+[submodule "submodules/junrar"]
 	path = submodules/junrar
 	url = git@github.com:junrar/junrar.git
 	branch = master
