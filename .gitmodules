@@ -1,0 +1,4 @@
+[submodule "junrar/bind"]
+	path = junrar/bind
+	url = git@github.com:junrar/junrar.git
+	branch = master
