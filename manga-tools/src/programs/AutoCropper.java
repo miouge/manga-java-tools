@@ -1,9 +1,13 @@
 package programs;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,18 +46,19 @@ public class AutoCropper {
 	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
 		
 		// ignore these pixels close to the borders as it could include some scan artifacts
-		// if borderMarginToIgnore = 5 -> ignore the 5 pixels zone close to the border  
-		int borderMarginToIgnore = 0;
+		// if borderMarginToIgnore = 5 -> ignore the 5 pixels zone close to the border
+		// 0 mean : does not ignore anything
+		int borderMarginToIgnore = 0; 
 		
 		if( borderMarginToIgnore == 0 ) {
 			return false;
 		}
 		
-		int borderLeft = borderMarginToIgnore;
-		int borderRight = width - borderMarginToIgnore; // 100 px - 5 = 95
+		final int borderLeft = borderMarginToIgnore;
+		final int borderRight = width - borderMarginToIgnore; // 100 px - 5 = 95
 		
-		int borderTop = borderMarginToIgnore;
-		int borderBottom = height - borderMarginToIgnore;
+		final int borderTop = borderMarginToIgnore;
+		final int borderBottom = height - borderMarginToIgnore;
 		
 		if( row < borderTop     ) { return true; } 
 		if( row >= borderBottom ) { return true; }
@@ -111,7 +116,6 @@ public class AutoCropper {
 		return false;
 	}
 	
-	// TODO : customize as needed
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
 		if( isIgnoreBorderZone  ( row, col, height, width )) { return true; }
@@ -466,6 +470,40 @@ public class AutoCropper {
 		return nonWhiteNb;
 	}	
 
+	private static BufferedImage rotateImage( BufferedImage srcImage, double angle ) {
+		
+	    double radian = Math.toRadians(angle);
+	    double sin = Math.abs(Math.sin(radian));
+	    double cos = Math.abs(Math.cos(radian));
+
+	    int width = srcImage.getWidth();
+	    int height = srcImage.getHeight();
+
+	    int nWidth = (int) Math.floor((double) width * cos + (double) height * sin);
+	    int nHeight = (int) Math.floor((double) height * cos + (double) width * sin);
+
+	    BufferedImage rotatedImage = new BufferedImage( nWidth, nHeight, BufferedImage.TYPE_INT_ARGB );
+	    Graphics2D graphics = rotatedImage.createGraphics();
+
+	    graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+
+	    graphics.translate( (nWidth - width) / 2, (nHeight - height) / 2 );
+	    // rotation around the center point
+	    graphics.rotate(radian, (double) (width / 2), (double) (height / 2));
+	    graphics.drawImage(srcImage, 0, 0, null);
+	    graphics.dispose();
+
+	    return rotatedImage;
+	}	
+	
+	@SuppressWarnings("unused")
+	private static void testRotateImage() throws FileNotFoundException, IOException {
+		
+	    BufferedImage image = null; // ImageIO.read(Test.class.getResourceAsStream("/resources/image.png"));
+	    BufferedImage rotated = rotateImage(image, 45);
+	    ImageIO.write(rotated, "png", new FileOutputStream("resources/rotated.png"));		
+	}
+	
 	// used for maison IKKOKU
 	static void findTypeScanned( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
@@ -710,7 +748,7 @@ public class AutoCropper {
 			return;
 		}
 	}
-	
+		
 	// TODO : select function to find type
 	static void processImg( Context context, FileImg img ) throws Exception  {
 
