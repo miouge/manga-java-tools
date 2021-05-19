@@ -2,6 +2,9 @@ package programs;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -12,50 +15,85 @@ import javax.imageio.ImageIO;
 import beans.Config;
 import beans.FileItem;
 import beans.Tools;
-import programs.autoCropper.FileImg;
 
 public class Stat {
 	
-	static ArrayList<Integer> widths = new ArrayList<>();	
+	static ArrayList<Integer> widths = new ArrayList<>();
 	static ArrayList<Integer> heights = new ArrayList<>();
 	
-	// TODO : select function to find type
-	static void processImg( FileImg img ) throws Exception  {
+	static boolean excludeFolderCreated = false;
+	static int excludedCount = 0;
+
+	// TODO : customize this function if you need to exclude some pictures (there will next be moved into a excludes/ subfolder ) 
+	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
+
+		int width = srcImage.getWidth();
+		int height = srcImage.getHeight();
+		
+		if(( width < 1000 ) || ( 1200 < width )) {
+			return true;	
+		}
+		if(( height < 1500 ) || ( 1700 < height )) {
+			return true;	
+		}
+
+		return false;
+	}	
+
+	static void checkOriginalImage( Config config, FileItem fi ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
 		
-		File file = new File( img.fullpathname );
+		File file = new File( fi.fullpathname );
 		BufferedImage srcImage = ImageIO.read( file );
+		
+		if( doExcludeImage( srcImage ) ) {
+
+			if( excludeFolderCreated == false ) {
+				String excludeFolder = fi.folderOnly + "/excludes";
+				
+				// drop output folders if already exist then re-create it
+				Tools.createFolder( excludeFolder, true );
+				excludeFolderCreated = true;
+			}
+			
+			String excludedPath = fi.folderOnly + "/excludes/" + fi.name;
+			Files.move(Paths.get( fi.fullpathname), Paths.get( excludedPath), StandardCopyOption.REPLACE_EXISTING);
+			
+			excludedCount++;
+			return;
+		}	
 		
 		widths.add(srcImage.getWidth());
 		heights.add(srcImage.getHeight());
 	}
 	
-	public static void computeStatistics( Config config ) {
+	public static void checkOriginalImages( Config config ) {
 			
 		try
 		{
 			widths.clear();
 			heights.clear();
+			excludedCount = 0;
+			excludeFolderCreated = false;
 			
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
 			String sourceFolder = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
 			
-			System.out.format( "%s content statistics : \n", sourceFolder );			
+			System.out.format( "%s content statistics : \n", sourceFolder );
 			
-			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, false ); // jpg or jpeg
-			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false );			
-			
-			System.out.format( "   Image count : %d \n", files.size() );
+			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
+			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false, false );						
 			
 			for( FileItem fi : files ) {
-				
-				FileImg img = new FileImg();
-				img.fullpathname = fi.fullpathname;
-				img.name = fi.name;
-				
-				processImg( img );
+
+				checkOriginalImage( config, fi );
+			}
+			
+			System.out.format( "   Total Images count : %d \n", files.size() );
+			if( excludedCount > 0 ) {
+				System.out.format( "   Excluded count : %d (moved into excludes/)\n", excludedCount );
 			}
 			
 			// compute statistics  
@@ -101,7 +139,7 @@ public class Stat {
 		
 		Config config = new Config();
 		
-		computeStatistics( config );
+		checkOriginalImages( config );
 		
 		System.out.format( "complete\n");
 	}

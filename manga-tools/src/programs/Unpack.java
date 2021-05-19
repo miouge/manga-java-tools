@@ -288,8 +288,8 @@ public class Unpack {
 		{
 			// compile file list
 			
-			Tools.listInputFiles( config.archiveFolder, ".*\\.cb.?", files, false ); // cbr & cbz
-			Tools.listInputFiles( config.archiveFolder, ".*\\.pdf", files, false ); // pdf
+			Tools.listInputFiles( config.archiveFolder, ".*\\.cb.?", files, true, false ); // cbr & cbz
+			Tools.listInputFiles( config.archiveFolder, ".*\\.pdf", files, true, false ); // pdf
 			
 			System.out.format( "folder <%s> : \n", config.archiveFolder );
 			System.out.format( "total file count : %d files\n", files.size() );

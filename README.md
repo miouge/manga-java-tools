@@ -9,13 +9,15 @@ I share this code, without any assistance (more as a entry point on the subject)
 
 ## modules presentation
 
-Unpack : will be used to unpack images of original Manga (.CBZ or .CBR or .PDF) files
-- customize the Config object {rootFolder} & {archiveFolder} & {originalImgFolder}
-- place .CBZ or .CBR or .PDF files into the archive folder
+Unpack : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF)
+- concerning CBR (rar 5 is not supported as we rely to com.github.junrar to uncompress such file)
+- customize the Config object {rootFolder}, {archiveFolder} and {originalImgFolder}
+- place .CBZ and/or .CBR and/or .PDF files into the archive folder
 - run Unpack.main()
-- a subfolder T<volume Num>/ will be created for each manga file into the destination (original image folder}
+- a subfolder will be created for each manga file into the destination {originalImgFolder} using the pattern {Config.srcSubFolderFmt}
 
-Stat : will be used to walk along the images of unpacked content then outpout statistics about theirs size (min/max/average/standard deviation)
+Stat : will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
+       can also be used to exclude images based on size consideration
 
 AutoCropper : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
 			  using this module require iterative try to set the customization parameter especially if used with non-official source images.
@@ -31,14 +33,14 @@ Sequencer : is just a loop to repeat a process on multiple manga volumes
 
 ### Development/Running environnement : 
 
-Java 8 + eclipse Java 2020-12
+Java 8 + eclipse Java 2020-12 or greater
 
 ### Dependencies
 
 com.github.junrar (use as submodule)
-need slf4j-api-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/)
-need slf4j-ext-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-ext/1.7.9/)
-need slf4j-simple-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.9/)
+- will need slf4j-api-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/)
+- will need slf4j-ext-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-ext/1.7.9/)
+- will need slf4j-simple-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.9/)
 
 commons-vfs2-2.6.0.jar
 commons-compress-1.20.jar

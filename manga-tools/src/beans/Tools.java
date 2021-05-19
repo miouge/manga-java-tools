@@ -13,39 +13,6 @@ import org.apache.commons.io.FileUtils;
 
 public class Tools {
 
-/* 
-
-    public static void main(String[] args) {
-
-        final File folder = new File("C:\\projects");
-
-        List<String> result = new ArrayList<>();
-
-        search(".*\\.java", folder, result);
-
-        for (String s : result) {
-            System.out.println(s);
-        }
-
-    }
-
-    public static void search(final String pattern, final File folder, List<String> result) {
-        for (final File f : folder.listFiles()) {
-
-            if (f.isDirectory()) {
-                search(pattern, f, result);
-            }
-
-            if (f.isFile()) {
-                if (f.getName().matches(pattern)) {
-                    result.add(f.getAbsolutePath());
-                }
-            }
-
-        }
-    }
- */
-	
 	static Optional<String> getExtension(String filename) {
 		
 	    return Optional.ofNullable(filename)
@@ -53,7 +20,7 @@ public class Tools {
 	      .map(f -> f.substring(filename.lastIndexOf(".") + 1));
 	}	
 	
-	public static int listInputFiles( String pathToSearch, String pattern, TreeSet<FileItem> files, boolean verbose ) throws IOException {
+	public static int listInputFiles( String pathToSearch, String pattern, TreeSet<FileItem> files, boolean recursive, boolean verbose ) throws IOException {
 		
 		int foundNb = 0;
 		
@@ -82,6 +49,7 @@ public class Tools {
 	            	FileItem fi = new FileItem();
 	            	fi.name = file.getName();
 	            	fi.fullpathname = path.toAbsolutePath().toString();
+	            	fi.folderOnly = path.getParent().toString(); 
 	            	Optional<String > ext = getExtension( file.getName() );
 	            	fi.extention = ext.get(); 
 	            	files.add( fi );
@@ -90,8 +58,10 @@ public class Tools {
 	            else {
 	            	
 	            	// recursive search
-	            	String newPathToSearch = path.toString();
-	            	foundNb += listInputFiles( newPathToSearch, pattern, files, false );
+	            	if( recursive ) {
+		            	String newPathToSearch = path.toString();
+		            	foundNb += listInputFiles( newPathToSearch, pattern, files, recursive, false );
+	            	}
 	            }
 	        }
 	    }

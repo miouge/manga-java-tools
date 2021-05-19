@@ -101,8 +101,8 @@ public class GeneratePDF {
 			
 			for(  String location : locations ) {
 
-				Tools.listInputFiles( location, ".*\\.jpe?g", files, true );
-				Tools.listInputFiles( location, ".*\\.png", files, true );			
+				Tools.listInputFiles( location, ".*\\.jpe?g", files, true, true );
+				Tools.listInputFiles( location, ".*\\.png", files, true, true );			
 			}
 
 			System.out.format( "total file count : %d files\n", files.size() );

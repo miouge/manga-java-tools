@@ -852,8 +852,8 @@ public class AutoCropper {
 			
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
-			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, true ); // jpg or jpeg
-			Tools.listInputFiles( context.srcpath, ".*\\.png", files, true );
+			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, true, true ); // jpg or jpeg
+			Tools.listInputFiles( context.srcpath, ".*\\.png", files, true, true );
 			
 			for( FileItem fi : files ) {
 				

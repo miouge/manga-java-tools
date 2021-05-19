@@ -14,14 +14,14 @@ public class Sequencer {
 		// computes some statistics about images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
-			Config config = new Config( volumeNo );			
-			Stat.computeStatistics( config );
+			Config config = new Config( volumeNo );
+			Stat.checkOriginalImages( config );
 		}
 				
 		// autocrop images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
-			Config config = new Config( volumeNo );			
+			Config config = new Config( volumeNo );
 			//AutoCropper.autoCrop( config );
 		}
 		

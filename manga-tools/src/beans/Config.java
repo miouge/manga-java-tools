@@ -6,8 +6,9 @@ public class Config {
 	public String srcSubFolderFmt = "T%02d";	
 	public String imgPattern = "";
 	
-	//public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/scratch";	
-	public String rootFolder = "D:/Scratch/manga";
+	// TODO : use en environnement variable to define this path
+	public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/scratch";	
+	//public String rootFolder = "D:/Scratch/manga";
 	
 	// archives related settings
 	public String archiveFolder = rootFolder + "/archives"; // folder that contain original pdf, cbz, cbr files 		
