@@ -68,15 +68,15 @@ public class AutoCropper {
 
 		// expected page numbers position 
 		
-		float fullH = 1772.0F; // original image height on which the measurement has been done
-		float up      = 1680 / fullH;
-		float down    = 1717 / fullH;
+		final float fullH = 1674.0F; // original image height on which the measurement has been done
+		final float up      = 1575 / fullH;
+		final float down    = 1626 / fullH;
 		
-		float fullW = 1132.0F; // original image width on which the measurement has been done
-		float left1   =  40  / fullW;
-		float left2   =  150  / fullW;
-		float right1  =  967  / fullW;
-		float right2  =  1699  / fullW;
+		final float fullW = 1177.0F; // original image width on which the measurement has been done
+		final float left1   =  90  / fullW;
+		final float left2   =  156  / fullW;
+		final float right1  =  1041  / fullW;
+		final float right2  =  1113  / fullW;
 
 		//            left1         left2                 right1      right2   
 		//              v             v                     v            v
@@ -107,10 +107,7 @@ public class AutoCropper {
 		
 		// v--- hauteur n° de page ---v       v--- en bas a gauche ---v         v--- en bas a droite ---v
 
-		if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
-		
-	   		
-		
+		// if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
 		return false;
 	}
 	
@@ -118,7 +115,7 @@ public class AutoCropper {
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
 		if( isIgnoreBorderZone  ( row, col, height, width )) { return true; }
-		//if( isIgnoreZoneAbs     ( row, col, height, width )) { return true; }
+		if( isIgnoreZoneAbs     ( row, col, height, width )) { return true; }
 		if( isIgnoreZoneRelative( row, col, height, width )) { return true; }
 
 		return false;
@@ -144,8 +141,7 @@ public class AutoCropper {
 	
 	// guess y & h
 	static void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
-				
-		
+
 		// useless white area detection
 		
 		double nonWhiteNbMin = (double)width * param.nonWhiteNbRatio;
@@ -156,8 +152,6 @@ public class AutoCropper {
 
 		for( int row = 0 ; row < height && wfirstRow == -1 ; row++ ) {
 
-
-			
 			int rowNonWhiteNb = 0;
 			
 			for( int col = 0 ; col < width && wfirstRow == -1 ; col++ ) {
@@ -206,6 +200,16 @@ public class AutoCropper {
 				//System.out.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb );
 				log.append(String.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb ));
 			}
+		}
+		
+		if( param.alsoCropBlackArea != true ) {
+
+			cdr.firstRow = wfirstRow;
+			cdr.lastRow = wlastRow;
+
+			log.append(String.format("delta Row =%d\n", cdr.lastRow - cdr.firstRow ));
+			cdr.vCrop = height - (( cdr.lastRow - cdr.firstRow )+1);
+			return;
 		}
 		
 		// useless black area detection
@@ -275,7 +279,6 @@ public class AutoCropper {
 	
 	// guess x & w	
 	static void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
-
 		 
 		// useless white area detection
 		
@@ -286,8 +289,6 @@ public class AutoCropper {
 		// from the left
 		
 		for( int col = 0; col < width && wfirstCol == -1 ; col++ ) {
-			
-
 			
 			int colNonWhiteNb = 0;
 			
@@ -331,6 +332,16 @@ public class AutoCropper {
 				// System.out.format( "last col %d non white pixel = %d\n", col, colNonWhiteNb );
 				log.append(String.format("last col %d non white pixel = %d\n", col, colNonWhiteNb ));
 			}
+		}
+		
+		if( param.alsoCropBlackArea != true ) {
+
+			cdr.firstCol = wfirstCol;
+			cdr.lastCol = wlastCol;
+
+			log.append(String.format("delta col=%d\n", cdr.lastCol - cdr.firstCol ));
+			cdr.hCrop = width - (( cdr.lastCol - cdr.firstCol )+1);
+			return;
 		}
 		
 		// useless black area detection
@@ -482,7 +493,7 @@ public class AutoCropper {
 		// find standard drawing at first
 		{	
 			DetectionParam param = new DetectionParam();
-			CropDetectionResult cdr = new CropDetectionResult();			
+			CropDetectionResult cdr = new CropDetectionResult();
 
 			param.nonWhiteNbRatio = 0.10; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = 125;    // below this level 
@@ -546,9 +557,9 @@ public class AutoCropper {
 			}
 		}
 		
-		// find fullpage drawing to be left untouched		
+		// find fullpage drawing to be left untouched
 		
-		int borderUse = countBorderUse( context, log, img, fastRGB, srcImage, height, width );		
+		int borderUse = countBorderUse( context, log, img, fastRGB, srcImage, height, width );
 		if( borderUse > 5000 ) {
 			
 			img.typeDetected = TypeDetected.untouched;
@@ -611,16 +622,19 @@ public class AutoCropper {
 		int width = srcImage.getWidth();		
 		// System.out.format( "%s : HxW %dx%d\n", img.name, height, width );
 		
+		// TODO : see to rotate automatically some images depending of the ratio
 		if( (double)height / (double)width < 1.0 ) { // vivlio screen ration = 4/3 (1.33)
 			
 			// h / w ratio is unusual
 			img.typeDetected = TypeDetected.tocheck;
+			System.out.format("%s -> tocheck (h/w ratio is unusual)\n", img.name );
 			return;
 		}
 		if( (double)height / (double)width > 2.0 ) { // vivlio screen ration = 4/3 (1.33)
 			
 			// h / w ratio is unusual
 			img.typeDetected = TypeDetected.tocheck;
+			System.out.format("%s -> tocheck (h/w ratio is unusual)\n", img.name );
 			return;
 		}
 		
@@ -636,6 +650,7 @@ public class AutoCropper {
 			param.nonBlackNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = 175;   // below this level
 			param.nonBlackLevel = 80;    // below this level
+			param.alsoCropBlackArea = Config.alsoCropBlackArea;
 			
 			try {
 				
@@ -644,6 +659,7 @@ public class AutoCropper {
 			catch( Exception e )
 			{
 				e.printStackTrace();
+				System.out.format("%s -> tocheck (findCropping() throw an exception)\n", img.name );
 				img.typeDetected = TypeDetected.tocheck;
 				return;
 			}
@@ -655,12 +671,14 @@ public class AutoCropper {
 			
 			if( cdr.firstCol == -1 || cdr.firstRow == -1 || cdr.lastCol == -1 || cdr.lastRow == -1 ) {
 				
+				System.out.format("%s -> tocheck (no crop directives)\n", img.name );
 				img.typeDetected = TypeDetected.tocheck;
 				return;
 			}
 			
 			if( ( cdr.vCrop > ( 0.25 * (double)height )) || ( cdr.hCrop > 0.25 * (double)width )) {
 				img.typeDetected = TypeDetected.tocheck;
+				System.out.format("%s -> tocheck (final image would have been hardly cropped)\n", img.name );
 				return;
 			}
 			
@@ -832,7 +850,7 @@ public class AutoCropper {
 		
 		Context context = new Context();
 		context.srcpath = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
-		context.outpath = config.croppedImgFolder  + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );		
+		context.outpath = config.croppedImgFolder  + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
 		String logfile = context.outpath + "/autoCropper.log";
 		
 		try {
@@ -850,10 +868,11 @@ public class AutoCropper {
 		{
 			context.writer = writer;
 			
-			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
+			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
 			
-			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, true, true ); // jpg or jpeg
-			Tools.listInputFiles( context.srcpath, ".*\\.png", files, true, true );
+			// list but not recursive to not process the excludes/ subfolder if this one exist
+			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, false, true ); // jpg or jpeg
+			Tools.listInputFiles( context.srcpath, ".*\\.png", files, false, true );
 			
 			for( FileItem fi : files ) {
 				
