@@ -2,13 +2,11 @@ package beans;
 
 public class Config {
 	
-	public int volumeNo = 1;
-	public String srcSubFolderFmt = "T%02d";	
-	public String imgPattern = "";
+	public int volumeNo = 1;	
+	public String srcSubFolderFmt = "T%02d"; // subfolder name for each manga file	
 	
-	// TODO : use en environnement variable to define this path
-	public String rootFolder = "C:/Users/pri/Documents/Archives Personnelles/scratch";	
-	//public String rootFolder = "D:/Scratch/manga";
+	// use environment variable MGTW_ROOT_FOLDER to define this path
+	public static String rootFolder;	
 	
 	// archives related settings
 	public String archiveFolder = rootFolder + "/archives"; // folder that contain original pdf, cbz, cbr files 		
@@ -21,21 +19,43 @@ public class Config {
 	public String originalImgFolder = rootFolder + "/original-img";
 			
 	// outlet for cropping operation
-	public String croppedImgFolder = rootFolder + "/cropped-img";	
+	public String croppedImgFolder = rootFolder + "/cropped-img";
 	public static boolean drawCroppingLine = false;  // if true : just draw cropping the lines instead of cropping
 	public static boolean alsoCropBlackArea = false;  // if true : also try to crop black useless area
 
 	// PDF generation settings	
 	// outlet for pdf generation
 	public String outletPdfFolder = rootFolder + "/outlet-pdf";
-	public String pdfnamefmt = "Wakfu T%02d.pdf"; // format of document using volumeNo
-	public String titlefmt   = "Wakfu No %d"; // title of document using volumeNo
-	public String author  = "Tot - Azea - Saïd Sassine"; // author
+	public String pdfnamefmt = "xxxx T%02d.pdf"; // format of document using volumeNo
+	public String titlefmt   = "xxxx No %d"; // title of document using volumeNo
+	public String author  = ""; // author
 	
 	public Config() {		
-	}
+	}	
 	
 	public Config( int volumeNo ) {
 		this.volumeNo = volumeNo;
+	}
+	
+	private static void init() throws Exception {
+
+		String rootFolderEnv = System.getenv( "MGTW_ROOT_FOLDER" );
+		if( rootFolderEnv == null ) {
+			throw new Exception( "MGTW_ROOT_FOLDER environment variable is undefined !" );
+		}
+		rootFolder = rootFolderEnv;
+	}
+	
+	// initialization
+	static {
+
+		try {
+			init();
+			
+		} catch ( Exception e ) {
+
+			String msg = "failed to initialize Config static object (" + e.toString() + ")";
+			System.err.println( msg );
+		}
 	}
 }

@@ -9,20 +9,20 @@ public class Sequencer {
 		
 		// [ firstVol - lastVol ] 
 		int firstVol = 1; 
-		int lastVol  = 13;
+		int lastVol  = 1;
 		
 		// computes some statistics about images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );
-			// Stat.checkOriginalImages( config );
+			Stat.checkOriginalImages( config );
 		}
 				
 		// autocrop images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );
-			AutoCropper.autoCrop( config );
+			//AutoCropper.autoCrop( config );
 		}
 		
 		// package image into PDF
