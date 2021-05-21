@@ -41,16 +41,39 @@ public class AutoCropper {
 	static boolean folderErrorCreated = false;
 	static boolean folderUntouchedCreated = false;
 	static boolean folderEmptyCreated = false;
+	
+	static int borderMarginToIgnore = -1;
 
-	// TODO : customize according to border to ignore	
+	static float heightFull;
+	static float pageNumbersUp;
+	static float pageNumbersDown;
+	static float widthFull;
+	static float pageNumbersLeft1;
+	static float pageNumbersLeft2;
+	static float pageNumbersRight1;
+	static float pageNumbersRight2;
+	
+	static void init( Config config ) {
+		
+		borderMarginToIgnore     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
+		
+		heightFull         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "heightFull"  , "-1" ));
+		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersUp"  , "-1" ));
+		pageNumbersDown    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersDown"  , "-1" ));
+		widthFull          = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "widthFull"  , "-1" ));
+		pageNumbersLeft1   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft1"  , "-1" ));
+		pageNumbersLeft2   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft2"  , "-1" ));
+		pageNumbersRight1  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight1"  , "-1" ));
+		pageNumbersRight2  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight2"  , "-1" ));
+	}	
+
 	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
 		
 		// ignore these pixels close to the borders as it could include some scan artifacts
 		// if borderMarginToIgnore = 5 -> ignore the 5 pixels zone close to the border
 		// 0 mean : does not ignore anything
-		int borderMarginToIgnore = 0; 
 		
-		if( borderMarginToIgnore == 0 ) {
+		if( borderMarginToIgnore <= 0 ) {
 			return false;
 		}
 		
@@ -68,20 +91,28 @@ public class AutoCropper {
 		return false;
 	}
 		
-	// TODO : customize according to the page number position
 	static boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
 
+		if( heightFull        <= 0.0F ) { return false; }
+		if( pageNumbersUp     <= 0.0F ) { return false; }
+		if( pageNumbersDown   <= 0.0F ) { return false; }
+		if( widthFull         <= 0.0F ) { return false; }
+		if( pageNumbersLeft1  <= 0.0F ) { return false; }
+		if( pageNumbersLeft2  <= 0.0F ) { return false; }
+		if( pageNumbersRight1 <= 0.0F ) { return false; }
+		if( pageNumbersRight2 <= 0.0F ) { return false; }
+		
 		// expected page numbers position 
 		
-		final float fullH = 1674.0F; // original image height on which the measurement has been done
-		final float up      = 1575 / fullH;
-		final float down    = 1626 / fullH;
+		final float fullH = heightFull; // original image height on which the measurement has been done
+		final float up      = pageNumbersUp / fullH;
+		final float down    = pageNumbersDown / fullH;
 		
-		final float fullW = 1177.0F; // original image width on which the measurement has been done
-		final float left1   =  90  / fullW;
-		final float left2   =  156  / fullW;
-		final float right1  =  1041  / fullW;
-		final float right2  =  1113  / fullW;
+		final float fullW = widthFull; // original image width on which the measurement has been done
+		final float left1   =  pageNumbersLeft1  / fullW;
+		final float left2   =  pageNumbersLeft2  / fullW;
+		final float right1  =  pageNumbersRight1 / fullW;
+		final float right2  =  pageNumbersRight2 / fullW;
 
 		//            left1         left2                 right1      right2   
 		//              v             v                     v            v
@@ -104,22 +135,9 @@ public class AutoCropper {
 		return false;
 	}
 
-	// TODO : customize according to the page number position
-	static boolean isIgnoreZoneAbs( int row, int col, int height, int width ) {
-		
-		// return true is the position could be a page marker position
-		// page number position :
-		
-		// v--- hauteur n° de page ---v       v--- en bas a gauche ---v         v--- en bas a droite ---v
-
-		// if( 2900 < row && row < 2960 ) { if(( 100 < col && col < 252 ) || ( 1695 < col && col < 1832 )) { return true; }}		
-		return false;
-	}
-	
 	static boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
 		if( isIgnoreBorderZone  ( row, col, height, width )) { return true; }
-		if( isIgnoreZoneAbs     ( row, col, height, width )) { return true; }
 		if( isIgnoreZoneRelative( row, col, height, width )) { return true; }
 
 		return false;
@@ -886,10 +904,14 @@ public class AutoCropper {
 		stdvCrops.clear();
 		stdhCrops.clear();
 		
+		init( config );
+		
 		Context context = new Context();
 		context.srcpath = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
 		context.outpath = config.croppedImgFolder  + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
 		String logfile = context.outpath + "/autoCropper.log";
+		
+		System.out.format( "[AutoCropper] will crop images of <%s> ...\n", context.srcpath );
 		
 		try {
 			
@@ -909,8 +931,8 @@ public class AutoCropper {
 			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
 			
 			// list but not recursive to not process the excludes/ subfolder if this one exist
-			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, false, true ); // jpg or jpeg
-			Tools.listInputFiles( context.srcpath, ".*\\.png", files, false, true );
+			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
+			Tools.listInputFiles( context.srcpath, ".*\\.png", files, false, false );
 			
 			for( FileItem fi : files ) {
 				
@@ -947,7 +969,7 @@ public class AutoCropper {
 			e.printStackTrace();
 		}
 
-		System.out.format( "complete\n");
+		System.out.format( "auto crop complete\n");
 	}
 	
 	public static void main(String[] args) {
