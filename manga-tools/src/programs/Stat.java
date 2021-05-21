@@ -27,15 +27,15 @@ public class Stat {
 	// TODO : customize this function if you need to exclude some pictures (there will next be moved into a excludes/ subfolder ) 
 	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
 
-		int width = srcImage.getWidth();
-		int height = srcImage.getHeight();
-		
-		if(( width < 1000 ) || ( 1200 < width )) {
-			return true;	
-		}
-		if(( height < 1500 ) || ( 1700 < height )) {
-			return true;	
-		}
+//		int width = srcImage.getWidth();
+//		int height = srcImage.getHeight();
+//		
+//		if(( width < 1000 ) || ( 1200 < width )) {
+//			return true;	
+//		}
+//		if(( height < 1500 ) || ( 1700 < height )) {
+//			return true;	
+//		}
 
 		return false;
 	}	
