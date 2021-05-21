@@ -12,7 +12,7 @@ I share this code, without any assistance (more as a entry point on the subject)
 Unpack : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF)
 - concerning CBR (rar 5 is not supported as we rely to com.github.junrar to uncompress such file)
 
-Stat : will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
+Stat : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
        can also be used to exclude images based on size consideration
 
 AutoCropper : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
@@ -21,25 +21,24 @@ AutoCropper : will be used to crop the images (ie remove any useless part of the
 			  to do this step of work, i'm using the freeware program "BIC – Batch-Image-Cropper" (https://funk.eu/bic-batch-image-cropper/)	  
 			  			  
 GeneratePDF : will be used to repack into one or multiple PDF files the cropped images 
-- customize the config object about title template to use and author
-- customize getImagesLocations() to specify where to pickup the pictures
 
 Sequencer : is just a loop to repeat a process on multiple manga volumes
 ( like running Stat module on every volume)
 
 ### Development/Running environnement : 
 
-Java 8 + eclipse Java 2020-12 or greater
-
+Java 8 + eclipse Java 2021-03 or greater
 
 ### How to use these code : 
 
-- You will need to have Java 8 + eclipse Java 2020-12 or greater installed
+- You will need to have Java 8 + eclipse Java 2021-03 or greater installed
 - You will need to have the jars dependencies installed (into ext/ of the jre)
 - You will have to set up the environmement variable MGTW_ROOT_FOLDER
 - Optionaly, customize the {Config.projectName} or use "default" as project name
 
 default folder tree is : (for default project name = "default")
+just create the %MGTW_ROOT_FOLDER% and default/
+drop the sample settings.ini into the %MGTW_ROOT_FOLDER% / default folder
 
 - %MGTW_ROOT_FOLDER% /
 - %MGTW_ROOT_FOLDER% / default / settings.ini
@@ -60,19 +59,16 @@ Unpack :
 
 ### Dependencies
 
-com.github.junrar (use as submodule)
-- will need slf4j-api-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/)
-- will need slf4j-ext-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-ext/1.7.9/)
-- will need slf4j-simple-1.7.9.jar (https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.9/)
+- https://repo1.maven.org/maven2/org/apache/commons/commons-compress/1.9/commons-compress-1.9.jar
+- https://repo1.maven.org/maven2/org/apache/commons/commons-io/1.3.2/commons-io-1.3.2.jar
+- https://repo1.maven.org/maven2/org/ini4j/ini4j/0.5.4/ini4j-0.5.4.jar
+- https://repo1.maven.org/maven2/com/itextpdf/itextpdf/5.5.9/itextpdf-5.5.9.jar
+- https://repo1.maven.org/maven2/org/apache/pdfbox/pdfbox/2.0.23/pdfbox-2.0.23.jar
+- https://repo1.maven.org/maven2/org/apache/pdfbox/pdfbox-tools/2.0.23/pdfbox-tools-2.0.23.jar
 
-commons-vfs2-2.6.0.jar
-commons-compress-1.20.jar
-xmpbox-2.0.21.jar
-itextpdf-5.5.9.jar
-pdfbox-app-2.0.21.jar
-pdfbox-tools-2.0.21.jar
-pdf-renderer-1.0.5.jar
-com-sun-pdfview-1.0.5-201003191900.jar
+com.github.junrar (use as submodule)
+
+- https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.9/slf4j-api-1.7.9.jar
 
 ### referenced softwares
 
