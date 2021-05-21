@@ -23,19 +23,37 @@ public class Stat {
 	
 	static boolean excludeFolderCreated = false;
 	static int excludedCount = 0;
-
-	// TODO : customize this function if you need to exclude some pictures (there will next be moved into a excludes/ subfolder ) 
+	
+	static int excludeWidthLessThan = -1;
+	static int excludeWidthGreaterThan = -1;
+	static int excludeHeightLessThan = -1;
+	static int excludeHeightGreaterThan = -1;	
+	
+	static void init( Config config ) {
+		
+		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthLessThan"     , "-1" ));
+		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthGreaterThan"  , "-1" ));
+		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightLessThan"    , "-1" ));
+		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightGreaterThan" , "-1" ));
+	}
+	 
 	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
 
-//		int width = srcImage.getWidth();
-//		int height = srcImage.getHeight();
-//		
-//		if(( width < 1000 ) || ( 1200 < width )) {
-//			return true;	
-//		}
-//		if(( height < 1500 ) || ( 1700 < height )) {
-//			return true;	
-//		}
+		int width = srcImage.getWidth();
+		int height = srcImage.getHeight();
+		
+		if( excludeWidthLessThan > 0 && ( width < excludeWidthLessThan )) {
+			return true;
+		}
+		if( excludeWidthLessThan > 0 && ( excludeWidthGreaterThan < width )) {
+			return true;
+		}
+		if( excludeWidthLessThan > 0 && ( height < excludeHeightLessThan )) {
+			return true;
+		}
+		if( excludeWidthLessThan > 0 && ( excludeHeightGreaterThan < height )) {
+			return true;
+		}
 
 		return false;
 	}	
@@ -53,7 +71,7 @@ public class Stat {
 				String excludeFolder = fi.folderOnly + "/excludes";
 				
 				// drop output folders if already exist then re-create it
-				Tools.createFolder( excludeFolder, true );
+				Tools.createFolder( excludeFolder, true, false );
 				excludeFolderCreated = true;
 			}
 			
@@ -77,14 +95,16 @@ public class Stat {
 			excludedCount = 0;
 			excludeFolderCreated = false;
 			
+			init( config );
+			
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
 			String sourceFolder = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
 			
-			System.out.format( "%s content statistics : \n", sourceFolder );
+			System.out.format( "[Stat] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
 			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
-			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false, false );						
+			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false, false );
 			
 			for( FileItem fi : files ) {
 
@@ -101,7 +121,7 @@ public class Stat {
 			if( widths.size() > 0 ) {
 				
 				OptionalInt maxW = widths.stream().mapToInt(Integer::intValue).max();
-				OptionalInt minW = widths.stream().mapToInt(Integer::intValue).min();				
+				OptionalInt minW = widths.stream().mapToInt(Integer::intValue).min();
 				OptionalDouble avgW = widths.stream().mapToInt(Integer::intValue).average();
 				
   		        // Variance
@@ -111,22 +131,22 @@ public class Stat {
 		        //Standard Deviation 
 		        double standardDeviation = Math.sqrt(variance);
 				
-				System.out.format( "   Width  : ( %d - %d ) avg = %.1f deviation =%.1f\n", minW.getAsInt(), maxW.getAsInt(), avgW.getAsDouble(), standardDeviation );
+				System.out.format( "   Width  : [ %d - %d ] avg = %.1f deviation = %.1f\n", minW.getAsInt(), maxW.getAsInt(), avgW.getAsDouble(), standardDeviation );
 			}
 			if( heights.size() > 0 ) {
 
 				OptionalInt maxH = heights.stream().mapToInt(Integer::intValue).max();
-				OptionalInt minH = heights.stream().mapToInt(Integer::intValue).min();				
-				OptionalDouble avgH = heights.stream().mapToInt(Integer::intValue).average();				
+				OptionalInt minH = heights.stream().mapToInt(Integer::intValue).min();
+				OptionalDouble avgH = heights.stream().mapToInt(Integer::intValue).average();
 
-  		        // Variance
+				// Variance
 				double mean = heights.stream().mapToInt(Integer::intValue).average().getAsDouble();
-		        double variance = heights.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();
+				double variance = heights.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();
 
-		        //Standard Deviation
-		        double standardDeviation = Math.sqrt(variance);
+				//Standard Deviation
+				double standardDeviation = Math.sqrt(variance);
 				
-				System.out.format( "   Height : ( %d - %d ) avg = %.1f deviation =%.1f\n", minH.getAsInt(), maxH.getAsInt(), avgH.getAsDouble(), standardDeviation );
+				System.out.format( "   Height : [ %d - %d ] avg = %.1f deviation = %.1f\n", minH.getAsInt(), maxH.getAsInt(), avgH.getAsDouble(), standardDeviation );
 			}
 			
 		} catch ( Exception e) {

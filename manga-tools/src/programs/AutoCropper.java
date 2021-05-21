@@ -884,7 +884,7 @@ public class AutoCropper {
 		stdWs.clear();
 		stdHs.clear();
 		stdvCrops.clear();
-		stdhCrops.clear();		
+		stdhCrops.clear();
 		
 		Context context = new Context();
 		context.srcpath = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
@@ -894,7 +894,7 @@ public class AutoCropper {
 		try {
 			
 			// drop output folders if already exist then re-create it
-			Tools.createFolder( context.outpath, true );
+			Tools.createFolder( context.outpath, true, false );
 		}
 		catch( IOException e ) {
 			

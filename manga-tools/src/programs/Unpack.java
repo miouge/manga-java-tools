@@ -28,7 +28,7 @@ import beans.Config;
 import beans.FileItem;
 import beans.Tools;
 
-public class Unpack {	
+public class Unpack {
 	
 	static int errorCount = 0 ;
 	
@@ -51,13 +51,13 @@ public class Unpack {
     			
     			String entryName = archiveEntry.getName();
     			   			    			
-                if( archiveEntry.isDirectory()) {            	
+                if( archiveEntry.isDirectory()) {
                 	
                 	if( flatUnzip ) {
                 		continue;
                 	}
                 	else {
-	                	// directory                	
+	                	// directory
 	                	File destFile = new File( destFolder, entryName );
 	                	String destFilePath = destFile.getCanonicalPath();
 	                	Files.createDirectories(Paths.get( destFilePath ));
@@ -77,7 +77,7 @@ public class Unpack {
 	        			}
 	        			else {
 	        				
-	        			}        			
+	        			}
 	        			if( splitAround != "" ) {
 	        				
 	        				String parts[] = entryName.split( splitAround );
@@ -120,13 +120,13 @@ public class Unpack {
         	
         	File destFile = new File( destFolder, zipEntry.getName());
             
-            if( zipEntry.isDirectory()) {            	
+            if( zipEntry.isDirectory()) {
             	
             	// directory
             	String destFilePath = destFile.getCanonicalPath();
             	Files.createDirectories(Paths.get( destFilePath ));
             }
-            else {            	
+            else {
             
 	            FileOutputStream fos = new FileOutputStream( destFile );
 	            
@@ -187,10 +187,10 @@ public class Unpack {
 		
 		Double ratio = null;
 		
-		if( currentHeight <= config.wantedHeight ) {			
+		if( currentHeight <= config.wantedHeight ) {
 			return null;
 		}
-		else {			
+		else {
 			ratio = config.wantedHeight / (double)(currentHeight);
 		}
 		
@@ -227,7 +227,7 @@ public class Unpack {
 	    
 	    for( int page = 0; page < document.getNumberOfPages(); ++page ) {
 	    	
-	    	String dest = String.format( "%s/img%03d.jpg", destFolder, page+1 );	    	
+	    	String dest = String.format( "%s/img%03d.jpg", destFolder, page+1 );
 	    	
 	        BufferedImage img = pdfRenderer.renderImageWithDPI( page, 300, ImageType.RGB );
 	        BufferedImage outImg = img;
@@ -241,7 +241,7 @@ public class Unpack {
 	        
 	        ImageIOUtil.writeImage( outImg, dest, 300 );
 			
-			System.out.format( "%d ", page + 1 );			
+			System.out.format( "%d ", page + 1 );
 	    }
 	    document.close();
 	    
@@ -254,13 +254,13 @@ public class Unpack {
 		
 		try
 		{
-			System.out.format( "extract content of %s ...\n", fi.name );
+			// System.out.format( "extract content of %s ...\n", fi.name );
 
 			if( fi.extention.equals("cbr") ) {
 
 				// rar file
-				// using junrar (but however not working in all case)				
-				Junrar.extract( new File( fi.fullpathname), new File( destFolder ) ); 				
+				// using junrar (but however not working in all case)
+				Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
 			}
 			else if( fi.extention.equals("cbz") ) {
 				
@@ -291,11 +291,11 @@ public class Unpack {
 			Tools.listInputFiles( config.archiveFolder, ".*\\.cb.?", files, true, false ); // cbr & cbz
 			Tools.listInputFiles( config.archiveFolder, ".*\\.pdf", files, true, false ); // pdf
 			
-			System.out.format( "folder <%s> : \n", config.archiveFolder );
+			System.out.format( "[Unpack] will unpack files of folder <%s> ...\n", config.archiveFolder );
 			System.out.format( "total file count : %d files\n", files.size() );
 			
 			// drop output folders if already exist then re-create it 
-			Tools.createFolder( config.originalImgFolder, false );
+			Tools.createFolder( config.originalImgFolder, false, false );
 			
 			int i = 0;
 			for( FileItem fi : files ) {
@@ -306,7 +306,7 @@ public class Unpack {
 				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( config.srcSubFolderFmt, i ), fi.name );				
 				
 				String destFolder = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, i );
-				Tools.createFolder( destFolder, true );
+				Tools.createFolder( destFolder, true, false );
 				
 				// unpack
 				unPackFile( config, fi, destFolder );
@@ -328,7 +328,7 @@ public class Unpack {
 	public static void main(String[] args) {
 
 		// This will list all .cbr or .cbz or .pdf from config.archiveFolder
-		// then unpack all file found to config.originalImgFolder + config.srcSubFolderFmt		
+		// then unpack all file found to config.originalImgFolder + config.srcSubFolderFmt
 		
 		Config config = new Config();
 				

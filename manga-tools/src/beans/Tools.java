@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
+import org.ini4j.Ini;
+import org.ini4j.Profile.Section;
 
 public class Tools {
 
@@ -76,13 +78,18 @@ public class Tools {
 	    return foundNb; 
 	}
 
-	public static void createFolder( String folderpath, boolean dropExisting ) throws IOException {
+	public static void createFolder( String folderpath, boolean dropExisting, boolean verbose ) throws IOException {
 		
 		if( dropExisting ) {
-			System.out.format( "drop & recreate folder %s\n", folderpath );
+			
+			if( verbose ) {
+				System.out.format( "drop & recreate folder %s\n", folderpath );
+			}
 		}
 		else {
-			System.out.format( "create folder %s\n", folderpath );
+			if( verbose ) {
+				System.out.format( "create folder %s\n", folderpath );
+			}
 		}
 		
 		File file = new File( folderpath );
@@ -91,5 +98,39 @@ public class Tools {
 			FileUtils.deleteDirectory( file );
 		}
 		Files.createDirectories(Paths.get( folderpath ));
+	}
+
+	public static String getIniSetting( String path, String section, String keyName, String defaultValue ) {
+
+		String keyValue = null;
+
+		try {
+
+			Ini iniFile = new Ini( new File( path ) );
+			org.ini4j.Config.getGlobal().setEscape(false);
+
+			Section iniSection = iniFile.get( section );
+			if( iniSection == null ) {
+				return defaultValue;
+			}
+
+			keyValue = iniSection.get( keyName );
+			if( keyValue == null ) {
+		
+				return defaultValue;
+			}
+
+			if( keyValue.length() == 0 ) {
+
+				return defaultValue;
+			}
+
+		} catch ( Exception e ) {
+
+			keyValue = defaultValue;
+			e.printStackTrace();
+		}
+
+		return keyValue;
 	}
 }

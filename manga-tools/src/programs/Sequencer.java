@@ -9,7 +9,7 @@ public class Sequencer {
 		
 		// [ firstVol - lastVol ] 
 		int firstVol = 1; 
-		int lastVol  = 1;
+		int lastVol  = 13;
 		
 		// computes some statistics about images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
