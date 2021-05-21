@@ -31,7 +31,8 @@ import beans.Tools;
 public class Unpack {
 	
 	static int errorCount = 0 ;
-	
+	static String subFolderFmt;
+		
 	// Zip Unpack (2 functions possibles to try)
 	
 	// function #1 to unzip
@@ -280,10 +281,19 @@ public class Unpack {
 		}
 	}	
 	
-	public static void unPackArchiveFolderContent( Config config ) {
+	static void init( Config config ) {
+		
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );		
+	}
+	
+	public static void unPackArchiveFolderContent() {
+		
+		Config config = new Config();
 		
 		TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
 
+		init( config );
+		
 		try
 		{
 			// compile file list
@@ -303,9 +313,9 @@ public class Unpack {
 				// for each file ...
 				i++;
 				
-				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( config.srcSubFolderFmt, i ), fi.name );				
+				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, i ), fi.name );				
 				
-				String destFolder = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, i );
+				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, i );
 				Tools.createFolder( destFolder, true, false );
 				
 				// unpack
@@ -329,10 +339,8 @@ public class Unpack {
 
 		// This will list all .cbr or .cbz or .pdf from config.archiveFolder
 		// then unpack all file found to config.originalImgFolder + config.srcSubFolderFmt
-		
-		Config config = new Config();
 				
-		unPackArchiveFolderContent( config );
+		unPackArchiveFolderContent();
 		
 		System.out.format( "complete\n");
 	}		

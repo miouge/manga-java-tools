@@ -18,27 +18,13 @@ import beans.Tools;
 
 public class GeneratePDF {
 	
+	static String subFolderFmt;
+	static String filenameFmt;	
+	static String titlefmt;
+	static String author;
+	
 	static void generatePDF( TreeSet<FileItem> files, String destFilePath, String title, String author )  throws Exception {
 
-		/*
-		String FILE = "D:/sampleiTextexample.pdf";
-		Document document = new Document();
-		PdfWriter.getInstance(document, 
-			new FileOutputStream(FILE));
-		document.open();
-		//To add the title to PDF
-		document.addTitle("iText Pdf");//
-		//To add the Author for the PDF
-		document.addAuthor("Selenium Easy");
-		//To add the subject to the PDF document
-		document.addSubject("iText Tutorial");
-		//To add the Keywords for the document
-		document.addKeywords("keyword1,keyword2,keyword3....etc");
-		document.add(new Paragraph("Hello iText advanced example "));
-		document.add(new Paragraph("Please check the properties of the PDF"));
-		document.close();
-		*/	        
-	        
         Document document = new Document();
         
         document.addTitle( title );
@@ -78,13 +64,23 @@ public class GeneratePDF {
 		//locations.add( imgpath + "/tocheck" );
 		locations.add( imgpath + "/tocheck/_BIC" );
 	}
+
+	static void init( Config config ) {
 		
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		filenameFmt  = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "filenameFmt", "xxx T%02d.pdf" );
+		titlefmt     = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "titleFmt", "xxx No %d" );
+		author       = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "author", "NA" );
+	}	
+	
 	public static void generatePDF( Config config ) {
 				
-		String pdfname = String.format( config.pdfnamefmt, config.volumeNo );
-		String title   = String.format( config.titlefmt  , config.volumeNo );
+		init( config );
 		
-        String imgpath = config.croppedImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
+		String pdfname = String.format( filenameFmt, config.volumeNo );
+		String title   = String.format( titlefmt  , config.volumeNo );
+		
+        String imgpath = config.croppedImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
 		String destFilePath =  config.outletPdfFolder;
                        		
 		TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
@@ -107,7 +103,7 @@ public class GeneratePDF {
 
 			System.out.format( "total file count : %d files\n", files.size() );
 			
-			generatePDF( files, destFilePath + "/" + pdfname, title, config.author );
+			generatePDF( files, destFilePath + "/" + pdfname, title, author );
 			
 		} catch ( Exception e ) {
 

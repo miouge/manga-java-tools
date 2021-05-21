@@ -53,19 +53,13 @@ public class AutoCropper {
 	static float pageNumbersRight1;
 	static float pageNumbersRight2;
 	
-	static void init( Config config ) {
-		
-		borderMarginToIgnore     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
-		
-		heightFull         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "heightFull"  , "-1" ));
-		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersUp"  , "-1" ));
-		pageNumbersDown    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersDown"  , "-1" ));
-		widthFull          = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "widthFull"  , "-1" ));
-		pageNumbersLeft1   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft1"  , "-1" ));
-		pageNumbersLeft2   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft2"  , "-1" ));
-		pageNumbersRight1  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight1"  , "-1" ));
-		pageNumbersRight2  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight2"  , "-1" ));
-	}	
+	static float nonWhiteNbRatio;
+	static float nonBlackNbRatio;
+	static int nonWhiteLevel;
+	static int nonBlackLevel;
+	static int alsoCropBlackArea;
+	
+	static String subFolderFmt;	
 
 	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
 		
@@ -224,7 +218,7 @@ public class AutoCropper {
 			}
 		}
 		
-		if( param.alsoCropBlackArea != true ) {
+		if( param.alsoCropBlackArea <= 0 ) {
 
 			cdr.firstRow = wfirstRow;
 			cdr.lastRow = wlastRow;
@@ -356,7 +350,7 @@ public class AutoCropper {
 			}
 		}
 		
-		if( param.alsoCropBlackArea != true ) {
+		if( param.alsoCropBlackArea <= 0 ) {
 
 			cdr.firstCol = wfirstCol;
 			cdr.lastCol = wlastCol;
@@ -702,11 +696,11 @@ public class AutoCropper {
 			DetectionParam param = new DetectionParam();
 			CropDetectionResult cdr = new CropDetectionResult();
 			
-			param.nonWhiteNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
-			param.nonBlackNbRatio = 0.005; // 0.25 = 25% = 1 sur 4
-			param.nonWhiteLevel = 175;   // below this level
-			param.nonBlackLevel = 80;    // below this level
-			param.alsoCropBlackArea = Config.alsoCropBlackArea;
+			param.nonWhiteNbRatio = nonWhiteNbRatio; // 0.25 = 25% = 1 sur 4
+			param.nonBlackNbRatio = nonBlackNbRatio; // 0.25 = 25% = 1 sur 4
+			param.nonWhiteLevel = nonWhiteLevel; // below this grey level
+			param.nonBlackLevel = nonBlackLevel; // greater than this grey level
+			param.alsoCropBlackArea = alsoCropBlackArea;
 			
 			try {
 				
@@ -891,6 +885,28 @@ public class AutoCropper {
 		}
 	}
 	
+	static void init( Config config ) {
+		
+		borderMarginToIgnore     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
+		
+		heightFull         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "heightFull"  , "-1" ));
+		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersUp"  , "-1" ));
+		pageNumbersDown    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersDown"  , "-1" ));
+		widthFull          = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "widthFull"  , "-1" ));
+		pageNumbersLeft1   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft1"  , "-1" ));
+		pageNumbersLeft2   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft2"  , "-1" ));
+		pageNumbersRight1  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight1"  , "-1" ));
+		pageNumbersRight2  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight2"  , "-1" ));
+		
+		nonWhiteNbRatio    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonWhiteNbRatio"   , "0.005" ));
+		nonBlackNbRatio    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonBlackNbRatio"   , "0.005" ));
+		nonWhiteLevel      = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonWhiteLevel"     , "175" ));
+		nonBlackLevel      = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonBlackLevel"     , "80" ));
+		alsoCropBlackArea  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "alsoCropBlackArea" , "0" ));
+		
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+	}	
+	
 	public static void autoCrop( Config config ) {
 		
 		folderStdCreated = false;
@@ -907,8 +923,8 @@ public class AutoCropper {
 		init( config );
 		
 		Context context = new Context();
-		context.srcpath = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
-		context.outpath = config.croppedImgFolder  + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
+		context.srcpath = config.originalImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
+		context.outpath = config.croppedImgFolder  + "/" + String.format( subFolderFmt, config.volumeNo );
 		String logfile = context.outpath + "/autoCropper.log";
 		
 		System.out.format( "[AutoCropper] will crop images of <%s> ...\n", context.srcpath );

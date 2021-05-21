@@ -4,8 +4,7 @@ import java.io.File;
 
 public class Config {
 	
-	public int volumeNo = 1;	
-	public String srcSubFolderFmt = "T%02d"; // subfolder name for each manga file	
+	public int volumeNo = 1;
 	
 	// use environment variable MGTW_ROOT_FOLDER to define this path
 	public static String rootFolder;	
@@ -27,15 +26,9 @@ public class Config {
 	// outlet for cropping operation
 	public String croppedImgFolder = rootFolder + "/" + projetName + "/cropped-img";
 	public static boolean drawCroppingLine = false;  // if true : just draw cropping the lines instead of cropping
-	public static boolean alsoCropBlackArea = false;  // if true : also try to crop black useless area
 
-	// PDF generation settings	
 	// outlet for pdf generation
 	public String outletPdfFolder = rootFolder + "/" + projetName + "/outlet-pdf";
-	public String pdfnamefmt = "xxxx T%02d.pdf"; // format of document using volumeNo
-	public String titlefmt   = "xxxx No %d"; // title of document using volumeNo
-	public String author  = ""; // author
-	
 	public Config() {		
 	}	
 	

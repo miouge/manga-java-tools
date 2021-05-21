@@ -27,16 +27,10 @@ public class Stat {
 	static int excludeWidthLessThan = -1;
 	static int excludeWidthGreaterThan = -1;
 	static int excludeHeightLessThan = -1;
-	static int excludeHeightGreaterThan = -1;	
+	static int excludeHeightGreaterThan = -1;
 	
-	static void init( Config config ) {
-		
-		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthLessThan"     , "-1" ));
-		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthGreaterThan"  , "-1" ));
-		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightLessThan"    , "-1" ));
-		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightGreaterThan" , "-1" ));
-	}
-	 
+	static String subFolderFmt;
+		 
 	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
 
 		int width = srcImage.getWidth();
@@ -86,6 +80,16 @@ public class Stat {
 		heights.add(srcImage.getHeight());
 	}
 	
+	static void init( Config config ) {
+		
+		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthLessThan"     , "-1" ));
+		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthGreaterThan"  , "-1" ));
+		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightLessThan"    , "-1" ));
+		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightGreaterThan" , "-1" ));
+		
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+	}	
+	
 	public static void checkOriginalImages( Config config ) {
 			
 		try
@@ -99,7 +103,7 @@ public class Stat {
 			
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
-			String sourceFolder = config.originalImgFolder + "/" + String.format( config.srcSubFolderFmt, config.volumeNo );
+			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
 			
 			System.out.format( "[Stat] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
