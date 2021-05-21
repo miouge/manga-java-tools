@@ -11,10 +11,6 @@ I share this code, without any assistance (more as a entry point on the subject)
 
 Unpack : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF)
 - concerning CBR (rar 5 is not supported as we rely to com.github.junrar to uncompress such file)
-- customize the Config object {rootFolder}, {archiveFolder} and {originalImgFolder}
-- place .CBZ and/or .CBR and/or .PDF files into the archive folder
-- run Unpack.main()
-- a subfolder will be created for each manga file into the destination {originalImgFolder} using the pattern {Config.srcSubFolderFmt}
 
 Stat : will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
        can also be used to exclude images based on size consideration
@@ -34,6 +30,33 @@ Sequencer : is just a loop to repeat a process on multiple manga volumes
 ### Development/Running environnement : 
 
 Java 8 + eclipse Java 2020-12 or greater
+
+
+### How to use these code : 
+
+- You will need to have Java 8 + eclipse Java 2020-12 or greater installed
+- You will need to have the jars dependencies installed (into ext/ of the jre)
+- You will have to set up the environmement variable MGTW_ROOT_FOLDER
+- Optionaly, customize the {Config.projectName} or use "default" as project name
+
+default folder tree is : (for default project name = "default")
+
+- %MGTW_ROOT_FOLDER% /
+- %MGTW_ROOT_FOLDER% / default / settings.ini
+- %MGTW_ROOT_FOLDER% / default / archives /
+- %MGTW_ROOT_FOLDER% / default / original-img /
+- %MGTW_ROOT_FOLDER% / default / original-img / excludes /
+- %MGTW_ROOT_FOLDER% / default / cropped-img /
+- %MGTW_ROOT_FOLDER% / default / cropped-img / tocheck /
+- %MGTW_ROOT_FOLDER% / default / cropped-img / std /
+- %MGTW_ROOT_FOLDER% / default / cropped-img / empty /
+- %MGTW_ROOT_FOLDER% / default / cropped-img / errors /
+- %MGTW_ROOT_FOLDER% / default / outlet-pdf /
+
+Unpack :
+- place .CBZ and/or .CBR and/or .PDF files into the archive folder (by default %MGTW_ROOT_FOLDER%/default/archives)
+- run Unpack.main()
+- a subfolder will be created for each manga file into the destination (by default %MGTW_ROOT_FOLDER%/default/original-img)  using the pattern {Config.srcSubFolderFmt}
 
 ### Dependencies
 
