@@ -80,7 +80,7 @@ public class Stat {
 		heights.add(srcImage.getHeight());
 	}
 	
-	static void init( Config config ) {
+	static void init( Config config ) throws Exception {
 		
 		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthLessThan"     , "-1" ));
 		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthGreaterThan"  , "-1" ));
@@ -88,6 +88,10 @@ public class Stat {
 		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightGreaterThan" , "-1" ));
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		
+		if( Config.initOK == false ) {
+			throw new Exception( "Config object not correctly initialized !" );
+		}		
 	}	
 	
 	public static void checkOriginalImages( Config config ) {

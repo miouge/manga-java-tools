@@ -18,21 +18,21 @@ public class Sequencer {
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );
-			//Stat.checkOriginalImages( config );
+			// Stat.checkOriginalImages( config );
 		}
 				
 		// autocrop images
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );
-			//AutoCropper.autoCrop( config );
+			// AutoCropper.autoCrop( config );
 		}
 		
 		// package image into PDF
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			Config config = new Config( volumeNo );
-			GeneratePDF.generatePDF( config );
+			// GeneratePDF.generatePDF( config );
 		}
 		
 		System.out.format( "Sequenceur : complete\n");

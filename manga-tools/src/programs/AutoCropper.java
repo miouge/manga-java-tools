@@ -12,11 +12,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
+
+import org.apache.commons.math.fraction.Fraction;
+import org.apache.commons.math.fraction.FractionFormat;
 
 import beans.Config;
 import beans.FileItem;
@@ -44,10 +48,10 @@ public class AutoCropper {
 	
 	static int borderMarginToIgnore = -1;
 
-	static float heightFull;
+	static float fullHeight;
 	static float pageNumbersUp;
 	static float pageNumbersDown;
-	static float widthFull;
+	static float fullWidth;
 	static float pageNumbersLeft1;
 	static float pageNumbersLeft2;
 	static float pageNumbersRight1;
@@ -58,6 +62,10 @@ public class AutoCropper {
 	static int nonWhiteLevel;
 	static int nonBlackLevel;
 	static int alsoCropBlackArea;
+	static int drawCroppingLine;	
+	
+	static double toCheckCroppedFinalWidthRatio;
+	static double toCheckCroppedFinalHeightRatio;	
 	
 	static String subFolderFmt;	
 
@@ -87,10 +95,10 @@ public class AutoCropper {
 		
 	static boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
 
-		if( heightFull        <= 0.0F ) { return false; }
+		if( fullHeight        <= 0.0F ) { return false; }
 		if( pageNumbersUp     <= 0.0F ) { return false; }
 		if( pageNumbersDown   <= 0.0F ) { return false; }
-		if( widthFull         <= 0.0F ) { return false; }
+		if( fullWidth         <= 0.0F ) { return false; }
 		if( pageNumbersLeft1  <= 0.0F ) { return false; }
 		if( pageNumbersLeft2  <= 0.0F ) { return false; }
 		if( pageNumbersRight1 <= 0.0F ) { return false; }
@@ -98,11 +106,11 @@ public class AutoCropper {
 		
 		// expected page numbers position 
 		
-		final float fullH = heightFull; // original image height on which the measurement has been done
+		final float fullH = fullHeight; // original image height on which the measurement has been done
 		final float up      = pageNumbersUp / fullH;
 		final float down    = pageNumbersDown / fullH;
 		
-		final float fullW = widthFull; // original image width on which the measurement has been done
+		final float fullW = fullWidth; // original image width on which the measurement has been done
 		final float left1   =  pageNumbersLeft1  / fullW;
 		final float left2   =  pageNumbersLeft2  / fullW;
 		final float right1  =  pageNumbersRight1 / fullW;
@@ -140,7 +148,7 @@ public class AutoCropper {
 	static void drawCroppingLineOnSource( Context context, FastRGB fastRGB, BufferedImage srcImage, CropDetectionResult cdr, int height, int width ) {
 		
 		int red  = new Color(255,0,0).getRGB();
-		int green = new Color(0,255,0).getRGB();
+		int blue = new Color(0,0,255).getRGB();
 
 		for( int row = 0 ; row < height ; row++ ) {
 			
@@ -150,8 +158,8 @@ public class AutoCropper {
 		
 		for( int col = 0 ; col < width ; col++ ) {
 			
-			srcImage.setRGB( col, cdr.firstRow, green  );
-			srcImage.setRGB( col, cdr.lastRow , green );
+			srcImage.setRGB( col, cdr.firstRow, blue  );
+			srcImage.setRGB( col, cdr.lastRow , blue );
 		}
 	}
 	
@@ -444,7 +452,7 @@ public class AutoCropper {
 			return;
 		}		
 		
-		if( Config.drawCroppingLine ) {
+		if( drawCroppingLine > 0 ) {
 			drawCroppingLineOnSource( context, fastRGB, srcImage, cdr, height, width );
 		}
 		// cropping directives
@@ -726,10 +734,18 @@ public class AutoCropper {
 				return;
 			}
 			
-			if( ( cdr.vCrop > ( 0.25 * (double)height )) || ( cdr.hCrop > 0.25 * (double)width )) {
+			if( ((double)(height - cdr.vCrop)/(double)height) < toCheckCroppedFinalHeightRatio ) {
+
 				img.typeDetected = TypeDetected.tocheck;
-				System.out.format("%s -> tocheck (final image would have been hardly cropped)\n", img.name );
-				return;
+				System.out.format("%s -> tocheck (final image height ratio would have been %.3f (< %.3f) of original\n", img.name, ((double)(height - cdr.vCrop)/(double)height), toCheckCroppedFinalHeightRatio );
+				return;				
+			}
+
+			if( ((double)(width - cdr.hCrop)/(double)width) < toCheckCroppedFinalWidthRatio ) {
+
+				img.typeDetected = TypeDetected.tocheck;
+				System.out.format("%s -> tocheck (final image width ratio would have been %.3f (< %.3f) of original\n", img.name, ((double)(width - cdr.hCrop)/(double)width), toCheckCroppedFinalWidthRatio );
+				return;				
 			}
 			
 			// standard case as previously defined
@@ -811,7 +827,7 @@ public class AutoCropper {
 				File outputfile = new File( context.outpath + "/std/" + img.name );
 				BufferedImage croppedImage = srcImage.getSubimage( img.x, img.y, img.w, img.h );
 
-				if( Config.drawCroppingLine ) {
+				if( drawCroppingLine > 0 ) { 
 					
 					// instead of cropped image write the source image with the cropping lines
 					ImageIO.write( srcImage, format, outputfile );
@@ -885,24 +901,33 @@ public class AutoCropper {
 		}
 	}
 	
-	static void init( Config config ) {
+	static void init( Config config ) throws ParseException {
 		
-		borderMarginToIgnore     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
+		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
 		
-		heightFull         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "heightFull"  , "-1" ));
-		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersUp"  , "-1" ));
+		fullHeight         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "fullHeight"       , "-1" ));
+		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersUp"    , "-1" ));
 		pageNumbersDown    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersDown"  , "-1" ));
-		widthFull          = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "widthFull"  , "-1" ));
-		pageNumbersLeft1   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft1"  , "-1" ));
-		pageNumbersLeft2   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft2"  , "-1" ));
-		pageNumbersRight1  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight1"  , "-1" ));
-		pageNumbersRight2  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight2"  , "-1" ));
+		fullWidth          = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "fullWidth"        , "-1" ));
+		pageNumbersLeft1   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft1" , "-1" ));
+		pageNumbersLeft2   = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersLeft2" , "-1" ));
+		pageNumbersRight1  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight1", "-1" ));
+		pageNumbersRight2  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersRight2", "-1" ));
 		
 		nonWhiteNbRatio    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonWhiteNbRatio"   , "0.005" ));
 		nonBlackNbRatio    = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonBlackNbRatio"   , "0.005" ));
 		nonWhiteLevel      = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonWhiteLevel"     , "175" ));
 		nonBlackLevel      = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "nonBlackLevel"     , "80" ));
 		alsoCropBlackArea  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "alsoCropBlackArea" , "0" ));
+		drawCroppingLine   = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "drawCroppingLine"  , "0" ));
+		
+		FractionFormat ff = new FractionFormat();
+		Fraction fraction;				
+		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalWidthRatio"   , "0/100" ) );
+		toCheckCroppedFinalWidthRatio = (float) fraction.doubleValue();
+
+		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalHeightRatio"  , "0/100" ) );
+		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 	}	
@@ -920,7 +945,13 @@ public class AutoCropper {
 		stdvCrops.clear();
 		stdhCrops.clear();
 		
-		init( config );
+		try {
+			
+			init( config );
+		} catch (ParseException e1) {
+			e1.printStackTrace();
+			return;
+		}
 		
 		Context context = new Context();
 		context.srcpath = config.originalImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
@@ -965,19 +996,28 @@ public class AutoCropper {
 			
 			if( stdWs.size() > 0 ) {
 				OptionalDouble avgW = stdWs.stream().mapToInt(Integer::intValue).average();
-				System.out.format( "std avg Width = %.1f\n", avgW.getAsDouble());
+				System.out.format( "std final avg Width  = %.1f ", avgW.getAsDouble());
+				
+				if( stdvCrops.size() > 0 ) {
+					OptionalDouble avgCropW = stdvCrops.stream().mapToInt(Integer::intValue).average();
+					System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
+				}
+				else {
+					System.out.format( "\n" );
+				}
 			}
 			if( stdHs.size() > 0 ) {
+				
 				OptionalDouble avgH = stdHs.stream().mapToInt(Integer::intValue).average();
-				System.out.format( "std avg Heigth = %.1f\n", avgH.getAsDouble());
-			}
-			if( stdvCrops.size() > 0 ) {
-				OptionalDouble avgW = stdvCrops.stream().mapToInt(Integer::intValue).average();
-				System.out.format( "std avg vertical crop = %.1f\n", avgW.getAsDouble());
-			}
-			if( stdhCrops.size() > 0 ) {
-				OptionalDouble avgH = stdhCrops.stream().mapToInt(Integer::intValue).average();
-				System.out.format( "std avg horizontal crop = %.1f\n", avgH.getAsDouble());
+				System.out.format( "std final avg Heigth = %.1f ", avgH.getAsDouble());
+				
+				if( stdhCrops.size() > 0 ) {
+					OptionalDouble avgCropH = stdhCrops.stream().mapToInt(Integer::intValue).average();
+					System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
+				}	
+				else {
+					System.out.format( "\n" );
+				}				
 			}
 			
 		} catch ( Exception e) {

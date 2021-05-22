@@ -3,6 +3,8 @@ package beans;
 import java.io.File;
 
 public class Config {
+		
+	public static boolean initOK = false;
 	
 	public int volumeNo = 1;
 	
@@ -13,22 +15,23 @@ public class Config {
 	
 	public static String settingsFilePath; // settings.ini that need to be located into project folders (will hold custom settings about the project)
 	
-	// archives related settings
+	// unpack archives related settings
 	public String archiveFolder = rootFolder + "/" + projetName + "/archives"; // folder that contain original pdf, cbz, cbr files 		
 	public boolean flatUnzip = true; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
 	public boolean resizeImg = false;
 	public int wantedHeight = 1872; // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 	
 	// outlet for extraction/unpack of pdf, cbr, cbz
-	// or/also source of picture file for AutoCropper
+	// and/or also source of picture file for AutoCropper module
 	public String originalImgFolder = rootFolder + "/" + projetName + "/original-img";
 			
 	// outlet for cropping operation
+	// and/or also source of picture file for GeneratePDF module 
 	public String croppedImgFolder = rootFolder + "/" + projetName + "/cropped-img";
-	public static boolean drawCroppingLine = false;  // if true : just draw cropping the lines instead of cropping
 
 	// outlet for pdf generation
 	public String outletPdfFolder = rootFolder + "/" + projetName + "/outlet-pdf";
+	
 	public Config() {		
 	}	
 	
@@ -56,6 +59,7 @@ public class Config {
 
 		try {
 			init();
+			initOK = true;
 			
 		} catch ( Exception e ) {
 
