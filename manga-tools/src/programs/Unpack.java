@@ -30,13 +30,12 @@ import beans.Tools;
 
 public class Unpack {
 	
-	static int errorCount = 0 ;
 	static String subFolderFmt;
 		
 	// Zip Unpack (2 functions possibles to try)
 	
 	// function #1 to unzip
-	public static void apacheDecompressZip( boolean flatUnzip, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
+	static void apacheDecompressZip( boolean flatUnzip, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
 		
 		File fromFile = new File( fi.fullpathname);
 		
@@ -107,7 +106,7 @@ public class Unpack {
     }	
 	
 	// function #2 to unzip
-    public static void javaUtilUnzipFile( Config config, FileItem fi, String destFolder ) throws IOException {
+    static void javaUtilUnzipFile( Config config, FileItem fi, String destFolder ) throws IOException {
 	       
     	System.out.format( "unzip content of %s ...", fi.name );
     	
@@ -148,7 +147,7 @@ public class Unpack {
         System.out.format( "%d files saved\n", fileCount );
     }	
     
-    public static void unzipFile( Config config, FileItem fi, String destFolder ) throws Exception {
+    static void unzipFile( Config config, FileItem fi, String destFolder ) throws Exception {
 
     	boolean success = false;
     	
@@ -165,7 +164,7 @@ public class Unpack {
     		return;
     	}
     	
-    	// else try function #2
+    	// else if an error occur try function #2
     	try {
 
     		javaUtilUnzipFile( config, fi, destFolder );
@@ -181,7 +180,7 @@ public class Unpack {
     
 	// PDF Unpack
 	
-	public static BufferedImage resizeImage( Config config, BufferedImage image ) {
+	static BufferedImage resizeImage( Config config, BufferedImage image ) {
 	
 		int currentHeight = image.getHeight();
 		int currentWidth  = image.getWidth();
@@ -216,7 +215,7 @@ public class Unpack {
         return resizedImage;
 	}	
 	
-	public static void extractPdfContent( Config config, FileItem fi, String destFolder ) throws IOException {
+	static void extractPdfContent( Config config, FileItem fi, String destFolder ) throws IOException {
 		
 		System.out.format( "extract content of %s ...\n", fi.name );
 		
@@ -251,97 +250,109 @@ public class Unpack {
 
 	// -----------------------
 	
-	public static void unPackFile( Config config, FileItem fi, String destFolder ) throws IOException {
+	static void unpackFile( Config config, FileItem fi, String destFolder ) throws Exception {
 		
-		try
-		{
-			// System.out.format( "extract content of %s ...\n", fi.name );
+		// System.out.format( "extract content of %s ...\n", fi.name );
 
-			if( fi.extention.equals("cbr") ) {
+		if( fi.extention.equals("cbr") ) {
 
-				// rar file
-				// using junrar (but however not working in all case)
-				Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
-			}
-			else if( fi.extention.equals("cbz") ) {
-				
-				// zipped file
-				unzipFile( config, fi, destFolder );
-			}
-			else if( fi.extention.equals("pdf") ) {
-
-				// pdf document
-				extractPdfContent( config, fi, destFolder );
-			}
+			// rar file
+			// using junrar (but junrar does not support yet RAR5 format)
+			Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
+		}
+		else if( fi.extention.equals("cbz") ) {
 			
-		} catch ( Exception e ) {
-	
-			errorCount++;
-			e.printStackTrace();
+			// zipped file
+			unzipFile( config, fi, destFolder );
+		}
+		else if( fi.extention.equals("pdf") ) {
+
+			// pdf document
+			extractPdfContent( config, fi, destFolder );
 		}
 	}	
 	
-	static void init( Config config ) {
+	static void init( Config config ) throws Exception {
 		
-		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );		
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		
+		if( Config.initOK == false ) {
+			throw new Exception( "Config object not correctly initialized !" );
+		}
 	}
+
+	// -----------------------	
 	
 	public static void unPackArchiveFolderContent() {
-		
-		Config config = new Config();
-		
-		TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
-
-		init( config );
-		
+				
 		try
 		{
+			Config config = new Config();
+			
+			init( config );			
+			
+			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
+			
 			// compile file list
 			
-			Tools.listInputFiles( config.archiveFolder, ".*\\.cb.?", files, true, false ); // cbr & cbz
-			Tools.listInputFiles( config.archiveFolder, ".*\\.pdf", files, true, false ); // pdf
+			Tools.listInputFiles( config.archiveFolder, ".*\\.cb.?", files, false, false ); // cbr & cbz
+			Tools.listInputFiles( config.archiveFolder, ".*\\.pdf" , files, false, false ); // pdf
 			
 			System.out.format( "[Unpack] will unpack files of folder <%s> ...\n", config.archiveFolder );
-			System.out.format( "total file count : %d files\n", files.size() );
+			System.out.format( "file count to unpack : %d\n", files.size() );
+			
+			if( files.size() == 0 ) {
+				return;
+			}
 			
 			// drop output folders if already exist then re-create it 
-			Tools.createFolder( config.originalImgFolder, false, false );
-			
-			int i = 0;
+			Tools.createFolder( config.originalImgFolder, true, true );
+
+			int num = 1;
+			int errorCount = 0;
 			for( FileItem fi : files ) {
 
-				// for each file ...
-				i++;
-				
-				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, i ), fi.name );				
-				
-				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, i );
+				// for each file ...				
+				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, num ), fi.name );				
+
+				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, num );
 				Tools.createFolder( destFolder, true, false );
-				
-				// unpack
-				unPackFile( config, fi, destFolder );
-			}			
+
+				// unpack ...
+				try
+				{
+					unpackFile( config, fi, destFolder );
+					
+				} catch ( Exception e ) {
+
+					e.printStackTrace();
+					errorCount++;
+				}
+
+				num++;
+			}
+			
+			if( errorCount > 0 ) {
+				System.out.format( "%d error(s) during the processing\n", errorCount );
+			}
+			else {
+				System.out.format( "no error : all was fine !\n" );
+			}
 			
 		} catch ( Exception e ) {
 
 			e.printStackTrace();
 		}
 		
-		if( errorCount > 0 ) {
-			System.out.format( "%d error during the processing\n", errorCount );
-		}
-		else {
-			System.out.format( "all was fine !\n" );
-		}
 	}
 	
 	public static void main(String[] args) {
 
 		// This will list all .cbr or .cbz or .pdf from config.archiveFolder
-		// then unpack all file found to config.originalImgFolder + config.srcSubFolderFmt
+		// then unpack all files found to a separate subfolder
 				
 		unPackArchiveFolderContent();
 		
-		System.out.format( "complete\n");
+		System.out.format( "complete\n" );
 	}		
 }
