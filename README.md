@@ -9,14 +9,13 @@ I share this code, without any assistance (more as a entry point on the subject)
 
 ## modules presentation
 
-Unpack : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF)
-- concerning CBR (RAR 5 format is not supported as we rely to com.github.junrar to uncompress such kind of file)
+Unpack : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF) but not yet CBR with RAR5 format.
 
-Stat : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
-       can also be used to exclude images based on size consideration
+Analyse : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
+          it can also be used to exclude images based on size consideration
 
 AutoCropper : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
-			  using this module require iterative try to set the customization parameter especially if used with non-official source images.
+			  using this module require usely iterative try to set the correct detection parameters especially if used with non-official source images.
 			  it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually
 			  to do this step of work, i'm using the freeware program "BIC – Batch-Image-Cropper" (https://funk.eu/bic-batch-image-cropper/)	  
 			  			  

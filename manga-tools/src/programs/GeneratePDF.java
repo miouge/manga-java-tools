@@ -61,21 +61,33 @@ public class GeneratePDF {
 		
 		locations.add( imgpath + "/std" );
 		//locations.add( imgpath + "/std/_BIC" );
-		//locations.add( imgpath + "/tocheck" );
-		locations.add( imgpath + "/tocheck/_BIC" );
+		locations.add( imgpath + "/tocheck" );
+		//locations.add( imgpath + "/tocheck/_BIC" );
 	}
 
-	static void init( Config config ) {
+	static void init( Config config ) throws Exception {
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		filenameFmt  = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "filenameFmt", "xxx T%02d.pdf" );
 		titlefmt     = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "titleFmt", "xxx No %d" );
 		author       = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "author", "NA" );
+		
+		if( Config.initOK == false ) {
+			throw new Exception( "Config object not correctly initialized !" );
+		}
 	}	
 	
 	public static void generatePDF( Config config ) {
 				
-		init( config );
+		try {
+			
+			init( config );
+			
+		} catch (Exception e1) {
+
+			e1.printStackTrace();
+			return;
+		}
 		
 		String pdfname = String.format( filenameFmt, config.volumeNo );
 		String title   = String.format( titlefmt  , config.volumeNo );

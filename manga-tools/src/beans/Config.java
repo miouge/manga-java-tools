@@ -18,18 +18,18 @@ public class Config {
 	// unpack archives related settings
 	public String archiveFolder = rootFolder + "/" + projetName + "/archives"; // folder that contain original pdf, cbz, cbr files 		
 	public boolean flatUnzip = true; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
+	
+	// when extracting image from pdf, should we resize the images
 	public boolean resizeImg = false;
 	public int wantedHeight = 1872; // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 	
-	// outlet for extraction/unpack of pdf, cbr, cbz
-	// and/or also source of picture file for AutoCropper module
+	// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
 	public String originalImgFolder = rootFolder + "/" + projetName + "/original-img";
 			
-	// outlet for cropping operation
-	// and/or also source of picture file for GeneratePDF module 
+	// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module 
 	public String croppedImgFolder = rootFolder + "/" + projetName + "/cropped-img";
 
-	// outlet for pdf generation
+	// outlet for PDF generation
 	public String outletPdfFolder = rootFolder + "/" + projetName + "/outlet-pdf";
 	
 	public Config() {		

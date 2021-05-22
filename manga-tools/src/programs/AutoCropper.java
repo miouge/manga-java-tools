@@ -12,7 +12,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 import java.util.TreeSet;
@@ -263,6 +262,13 @@ public class AutoCropper {
 				bfirstRow = row;
 				//System.out.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb );
 				log.append( String.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb ));
+			}
+			
+			if( row == (height - 1) && bfirstRow == -1 ) {
+				
+				// image if nearly full of black like pixel
+				cdr.isEmpty = true;
+				return;
 			}			
 		}
 		
@@ -455,7 +461,7 @@ public class AutoCropper {
 		if( drawCroppingLine > 0 ) {
 			drawCroppingLineOnSource( context, fastRGB, srcImage, cdr, height, width );
 		}
-		// cropping directives
+		// record cropping directives
 		
 		img.x = cdr.firstCol;
 		img.w = cdr.lastCol - cdr.firstCol; 
@@ -523,156 +529,8 @@ public class AutoCropper {
 	    BufferedImage rotated = rotateImage(image, 45);
 	    ImageIO.write(rotated, "png", new FileOutputStream("resources/rotated.png"));		
 	}
-	
-	// used for maison IKKOKU
-	static void findTypeScanned( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
-		
-		// specification de la dimension standard du cadre attendue (dans la majorite des cas)
 
-		int stdHeight =  1158;
-		int stdWidth  =  1042;	
-		int tolerancy =   35;
-		
-		int ymargin = 3; // height padding after cropping detection
-		int xmargin = 3; // width padding after cropping detection
-		
-		log.append( String.format("--- %s ---\n", img.name ) );
-		
-		int height = srcImage.getHeight();
-		int width = srcImage.getWidth();
-		// System.out.format( "%s : HxW %dx%d\n", img.name, height, width );
-		
-		int stdHeightMin = stdHeight - tolerancy;
-		int stdHeightMax = stdHeight + tolerancy;
-		
-		int stdWidthMin = stdWidth - tolerancy;
-		int stdWidthMax = stdWidth + tolerancy;
-		
-		// find standard drawing at first
-		{	
-			DetectionParam param = new DetectionParam();
-			CropDetectionResult cdr = new CropDetectionResult();
-
-			param.nonWhiteNbRatio = 0.10; // 0.25 = 25% = 1 sur 4
-			param.nonWhiteLevel = 125;    // below this level 
-			
-			findCropping( context, log, img, fastRGB, srcImage, param, cdr );
-					
-			if( img.w >= stdWidthMin && img.h >= stdHeightMin && img.w <= stdWidthMax && img.h <= stdHeightMax ) {
-				
-				// standard case as previously defined
-				
-				stdWs.add( img.w );
-				stdHs.add( img.h );			
-				
-				// add margin if possible
-				if(( img.x - xmargin ) > 0 ) {
-					img.x -= xmargin;
-				}
-				if(( img.y - ymargin ) > 0 ) {
-					img.y -= ymargin;
-				}			
-				if(( img.x + img.w + xmargin*2) < width ) {
-					img.w += xmargin*2;
-				}			
-				if((img.y + img.h + ymargin*2) < height) {
-					img.h += ymargin*2;
-				}
-				
-				System.out.format( "%s : cropping ...", img.name );
-				System.out.format( "rows (y=%d h=%d) columns (x=%d w=%d) \n", img.y, img.h, img.x, img.w );		
-				
-				img.typeDetected = TypeDetected.standard;
-				return;
-			}
-			
-			/*
-			if( img.w < stdWidthMin  && img.h < stdHeightMin ) {
-				
-				// to small : cancel cropping
-				img.typeDetected = TypeDetected.untouched;
-				return;				
-			}
-			*/
-		}
-		
-		// find small image to be left untouched
-		
-		{	
-			DetectionParam param = new DetectionParam();
-			CropDetectionResult cdr = new CropDetectionResult();
-			
-			param.nonWhiteNbRatio = 0.05; // 0.25 = 25% = 1 sur 4
-			param.nonWhiteLevel = 170;    // below this level 
-			
-			findCropping( context, log, img, fastRGB, srcImage, param, cdr );
-
-			if( img.w < (stdWidthMin*0.8)  && img.h < (stdHeightMin*0.8) ) {
-				
-				// to small : cancel cropping
-				img.typeDetected = TypeDetected.untouched;
-				return;				
-			}
-		}
-		
-		// find fullpage drawing to be left untouched
-		
-		int borderUse = countBorderUse( context, log, img, fastRGB, srcImage, height, width );
-		if( borderUse > 5000 ) {
-			
-			img.typeDetected = TypeDetected.untouched;
-			return;				
-		}		
-
-		/*
-		// find fullpage drawing
-		{	
-			DetectionParam param = new DetectionParam(); 
-			
-			param.border = 5;             // ignore these pixels close to the borders	
-			param.nonWhiteNbRatio = 0.05; // 0.25 = 25% = 1 sur 4
-			param.nonWhiteLevel = 200;    // below this level 
-			
-			findCropping( context, log, img, fastRGB, srcImage, param );
-
-			int littleCropCount = 0;
-			if( img.firstRow < minCropFromBorder ) littleCropCount++;
-			if( img.firstCol < minCropFromBorder ) littleCropCount++;
-			if( (height - img.lastCol) < minCropFromBorder ) littleCropCount++;
-			if( (width  - img.lastCol) < minCropFromBorder ) littleCropCount++;
-			
-			if( littleCropCount >= 3 ) {
-				
-				img.typeDetected = TypeDetected.untouched;
-				return;				
-			}
-		}
-	
-		if( img.w > (width-40) && img.h > (heigth-30) ) {
-			
-			// plus rien a cropper
-			// full page graphic
-			img.typeDetected = TypeDetected.untouched;
-			return;
-		}
-		
-		if( img.w < stdWidthMin && img.h < stdHeightMin ) {
-		
-			// to small : cancel cropping
-			img.typeDetected = TypeDetected.untouched;
-			return;				
-		}
-		*/
-		
-		System.out.format( "%s : to check ...\n", img.name );
-		img.typeDetected = TypeDetected.tocheck;
-
-	}
-
-	// find type for official clean Cbz
-	// TODO : configure DetectionParam if needed
-	
-	static void findTypeOfficial( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
+	static void findImageType( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
 		log.append( String.format("--- %s ---\n", img.name ) );
 		
@@ -748,6 +606,15 @@ public class AutoCropper {
 				return;				
 			}
 			
+			// find fullpage drawing to be left untouched
+			
+			/*
+			 * int borderUse = countBorderUse( context, log, img, fastRGB, srcImage, height,
+			 * width ); if( borderUse > 5000 ) {
+			 * 
+			 * img.typeDetected = TypeDetected.untouched; return; }
+			 */
+			
 			// standard case as previously defined
 			
 			stdWs.add( img.w );
@@ -777,7 +644,6 @@ public class AutoCropper {
 		}
 	}
 		
-	// TODO : select function to find type
 	static void processImg( Context context, FileImg img ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
@@ -789,9 +655,7 @@ public class AutoCropper {
 
 		StringBuffer log = new StringBuffer();
 		
-		// configure what if the best detection function to use
-		// findTypeScanned( context, log, img, fastRGB, srcImage );
-		findTypeOfficial( context, log, img, fastRGB, srcImage );
+		findImageType( context, log, img, fastRGB, srcImage );
 
 		context.writer.write(log.toString());
 		
@@ -901,7 +765,7 @@ public class AutoCropper {
 		}
 	}
 	
-	static void init( Config config ) throws ParseException {
+	static void init( Config config ) throws Exception {
 		
 		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
 		
@@ -930,6 +794,10 @@ public class AutoCropper {
 		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		
+		if( Config.initOK == false ) {
+			throw new Exception( "Config object not correctly initialized !" );
+		}		
 	}	
 	
 	public static void autoCrop( Config config ) {
@@ -948,7 +816,8 @@ public class AutoCropper {
 		try {
 			
 			init( config );
-		} catch (ParseException e1) {
+			
+		} catch ( Exception e1 ) {
 			e1.printStackTrace();
 			return;
 		}
@@ -1000,7 +869,7 @@ public class AutoCropper {
 				
 				if( stdvCrops.size() > 0 ) {
 					OptionalDouble avgCropW = stdvCrops.stream().mapToInt(Integer::intValue).average();
-					System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
+					System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgCropW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
 				}
 				else {
 					System.out.format( "\n" );
@@ -1013,7 +882,7 @@ public class AutoCropper {
 				
 				if( stdhCrops.size() > 0 ) {
 					OptionalDouble avgCropH = stdhCrops.stream().mapToInt(Integer::intValue).average();
-					System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
+					System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgCropH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
 				}	
 				else {
 					System.out.format( "\n" );

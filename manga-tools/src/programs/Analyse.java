@@ -16,7 +16,7 @@ import beans.Config;
 import beans.FileItem;
 import beans.Tools;
 
-public class Stat {
+public class Analyse {
 	
 	static ArrayList<Integer> widths = new ArrayList<>();
 	static ArrayList<Integer> heights = new ArrayList<>();
@@ -82,10 +82,10 @@ public class Stat {
 	
 	static void init( Config config ) throws Exception {
 		
-		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthLessThan"     , "-1" ));
-		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeWidthGreaterThan"  , "-1" ));
-		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightLessThan"    , "-1" ));
-		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Stat", "excludeHeightGreaterThan" , "-1" ));
+		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
+		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
+		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
+		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		
