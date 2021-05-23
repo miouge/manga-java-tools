@@ -109,7 +109,7 @@ public class Analyse {
 			
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
 			
-			System.out.format( "[Stat] will compute statistics about content of <%s> ...\n", sourceFolder );
+			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
 			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
 			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false, false );
@@ -165,10 +165,17 @@ public class Analyse {
 	
 	public static void main(String[] args) {
 		
-		Config config = new Config();
-		
-		checkOriginalImages( config );
+		// [ firstVol - lastVol ] 
+		int firstVol = 3; 
+		int lastVol  = 3;
+						
+		// autocrop images
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+			
+			Config config = new Config( volumeNo );
+			checkOriginalImages( config );
+		}
 		
 		System.out.format( "complete\n");
-	}
+	}		
 }

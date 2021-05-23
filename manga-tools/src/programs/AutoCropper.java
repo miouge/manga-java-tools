@@ -146,19 +146,37 @@ public class AutoCropper {
 
 	static void drawCroppingLineOnSource( Context context, FastRGB fastRGB, BufferedImage srcImage, CropDetectionResult cdr, int height, int width ) {
 		
-		int red  = new Color(255,0,0).getRGB();
-		int blue = new Color(0,0,255).getRGB();
+		int red   = new Color(255,0,0).getRGB();
+		int blue  = new Color(0,0,255).getRGB();
+		int white = new Color(255,255,255).getRGB();
+		int black = new Color(0,0,0).getRGB();
 
 		for( int row = 0 ; row < height ; row++ ) {
 			
-			srcImage.setRGB( cdr.firstCol, row, red  );
-			srcImage.setRGB( cdr.lastCol , row, red );
+			int color = red;
+			if( row % 3 == 0 ) {
+				color = black;
+			}
+			else if( row % 5 == 0 ) {
+				color = white;
+			}
+			
+			srcImage.setRGB( cdr.firstCol, row, color  );
+			srcImage.setRGB( cdr.lastCol , row, color );
 		}
 		
 		for( int col = 0 ; col < width ; col++ ) {
 			
-			srcImage.setRGB( col, cdr.firstRow, blue  );
-			srcImage.setRGB( col, cdr.lastRow , blue );
+			int color = blue;
+			if( col % 3 == 0 ) {
+				color = black;
+			}
+			else if( col % 5 == 0 ) {
+				color = white;
+			}
+			
+			srcImage.setRGB( col, cdr.firstRow, color  );
+			srcImage.setRGB( col, cdr.lastRow , color );
 		}
 	}
 	
@@ -899,9 +917,16 @@ public class AutoCropper {
 	
 	public static void main(String[] args) {
 		
-		Config config = new Config();
-		
-		autoCrop( config );
+		// [ firstVol - lastVol ] 
+		int firstVol = 3; 
+		int lastVol  = 3;
+						
+		// autocrop images
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+			
+			Config config = new Config( volumeNo );
+			AutoCropper.autoCrop( config );
+		}
 		
 		System.out.format( "complete\n");
 	}	

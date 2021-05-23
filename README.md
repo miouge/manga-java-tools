@@ -21,9 +21,6 @@ AutoCropper : will be used to crop the images (ie remove any useless part of the
 			  			  
 GeneratePDF : will be used to repack into one or multiple PDF files the cropped images 
 
-Sequencer : is just a loop to repeat a process on multiple manga volumes
-( like running Stat module on every volume)
-
 ### Development/Running environnement : 
 
 Java 8 + eclipse Java 2021-03 or greater

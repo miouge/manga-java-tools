@@ -125,10 +125,17 @@ public class GeneratePDF {
 	
 	public static void main(String[] args) {
 		
-		Config config = new Config();
-		
-		generatePDF( config );
+		// [ firstVol - lastVol ] 
+		int firstVol = 3; 
+		int lastVol  = 3;
+						
+		// autocrop images
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+			
+			Config config = new Config( volumeNo );
+			generatePDF( config );
+		}
 		
 		System.out.format( "complete\n");
-	}	
+	}		
 }
