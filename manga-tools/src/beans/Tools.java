@@ -125,6 +125,12 @@ public class Tools {
 				return defaultValue;
 			}
 
+						
+		} catch ( java.io.FileNotFoundException e ) {
+
+			// if ini file not found just return the default value specified
+			keyValue = defaultValue;
+
 		} catch ( Exception e ) {
 
 			keyValue = defaultValue;

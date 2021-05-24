@@ -31,11 +31,12 @@ import beans.Tools;
 public class Unpack {
 	
 	static String subFolderFmt;
+	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)	
 		
 	// Zip Unpack (2 functions possibles to try)
 	
 	// function #1 to unzip
-	static void apacheDecompressZip( boolean flatUnzip, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
+	static void apacheDecompressZip( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
 		
 		File fromFile = new File( fi.fullpathname);
 		
@@ -53,7 +54,7 @@ public class Unpack {
     			   			    			
                 if( archiveEntry.isDirectory()) {
                 	
-                	if( flatUnzip ) {
+                	if( flatUnpack > 0 ) {
                 		continue;
                 	}
                 	else {
@@ -65,7 +66,8 @@ public class Unpack {
                 }
                 else {
                 	
-                	if( flatUnzip ) {
+                	if( flatUnpack > 0 ) {
+
 	        			// remove any subfolders, only take the last part of the path (the filename and extension)
 	                	// so flat unzip all the file to the same destination folder 
 	        			String splitAround = "";
@@ -154,7 +156,7 @@ public class Unpack {
     	// try function #1
     	try {
 
-    		apacheDecompressZip( config.flatUnzip, fi, destFolder );
+    		apacheDecompressZip( flatUnpack, fi, destFolder );
     		success = true;
     	}
     	catch( Exception e ) {
@@ -275,10 +277,7 @@ public class Unpack {
 	static void init( Config config ) throws Exception {
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		
-		if( Config.initOK == false ) {
-			throw new Exception( "Config object not correctly initialized !" );
-		}
+		flatUnpack = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Unpack", "flatUnpack", "0" ));		
 	}
 
 	// -----------------------	

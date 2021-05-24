@@ -785,7 +785,7 @@ public class AutoCropper {
 	
 	static void init( Config config ) throws Exception {
 		
-		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "-1" ));
+		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "0" ));
 		
 		fullHeight         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "fullHeight"       , "-1" ));
 		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "pageNumbersUp"    , "-1" ));
@@ -811,11 +811,7 @@ public class AutoCropper {
 		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalHeightRatio"  , "0/100" ) );
 		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
 		
-		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		
-		if( Config.initOK == false ) {
-			throw new Exception( "Config object not correctly initialized !" );
-		}		
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );		
 	}	
 	
 	public static void autoCrop( Config config ) {

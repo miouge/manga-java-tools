@@ -68,13 +68,9 @@ public class GeneratePDF {
 	static void init( Config config ) throws Exception {
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		filenameFmt  = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "filenameFmt", "xxx T%02d.pdf" );
-		titlefmt     = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "titleFmt", "xxx No %d" );
-		author       = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "author", "NA" );
-		
-		if( Config.initOK == false ) {
-			throw new Exception( "Config object not correctly initialized !" );
-		}
+		filenameFmt  = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "filenameFmt", Config.projetName + " T%02d.pdf" );
+		titlefmt     = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "titleFmt", Config.projetName + " No %d" );
+		author       = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "author", "NA" );		
 	}	
 	
 	public static void generatePDF( Config config ) {

@@ -3,21 +3,23 @@ package beans;
 import java.io.File;
 
 public class Config {
-		
-	public static boolean initOK = false;
-	
+
 	public int volumeNo = 1;
 	
 	// use environment variable MGTW_ROOT_FOLDER to define this path
-	public static String rootFolder;	
+	public static String rootFolder;
 	
-	public static String projetName = "default"; // current project name to easily switch between several project  
+	// current project name to easily switch between several projects
+	// then project folder will be %MGTW_ROOT_FOLDER%/<projetName>/
 	
-	public static String settingsFilePath; // settings.ini that need to be located into project folders (will hold custom settings about the project)
+	public static String projetName = "default"; 
+		
+	// settings.ini that can hold any override custom directives about the project
+	public static String settingsFilePath;
 	
-	// unpack archives related settings
-	public String archiveFolder = rootFolder + "/" + projetName + "/archives"; // folder that contain original pdf, cbz, cbr files 		
-	public boolean flatUnzip = true; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
+	// folder that contain original pdf, cbz, cbr files
+	// Unpack module source when looking for archives to unpack	
+	public String archiveFolder = rootFolder + "/" + projetName + "/archives"; 		
 	
 	// when extracting image from pdf, should we resize the images
 	public boolean resizeImg = false;
@@ -26,7 +28,7 @@ public class Config {
 	// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
 	public String originalImgFolder = rootFolder + "/" + projetName + "/original-img";
 			
-	// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module 
+	// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module
 	public String croppedImgFolder = rootFolder + "/" + projetName + "/cropped-img";
 
 	// outlet for PDF generation
@@ -46,11 +48,12 @@ public class Config {
 			throw new Exception( "MGTW_ROOT_FOLDER environment variable is undefined !" );
 		}
 		rootFolder = rootFolderEnv;
-		settingsFilePath = rootFolder + "/" + projetName + "/settings.ini";
+		settingsFilePath = rootFolder + "/" + projetName + "/settings.inix";
 		
 		File settingFile = new File( settingsFilePath );
 		if( settingFile.exists() == false ) {
-			throw new Exception( "file not found : " + settingFile.toString() );
+			
+			System.err.println( settingFile + " was not found : will use default settings." );
 		}
 	}
 	
@@ -58,8 +61,8 @@ public class Config {
 	static {
 
 		try {
+			
 			init();
-			initOK = true;
 			
 		} catch ( Exception e ) {
 
