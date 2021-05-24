@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -261,6 +262,25 @@ public class Unpack {
 			// rar file
 			// using junrar (but junrar does not support yet RAR5 format)
 			Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
+			
+			if( flatUnpack > 0 ) {
+				
+				TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
+				
+				// list recursive images
+				Tools.listInputFiles( destFolder, ".*\\.jpe?g", files, true, false ); // jpg or jpeg
+				Tools.listInputFiles( destFolder, ".*\\.png", files, true, false );
+
+				for( FileItem img : files ) {
+
+					if( img.folderOnly.length() != destFolder.length() ) {
+
+						// move it to the volume sub folder ...
+						String destination = destFolder + "/" + img.name;
+						Files.move(Paths.get( img.fullpathname), Paths.get( destination), StandardCopyOption.REPLACE_EXISTING);
+					}
+				}
+			}			
 		}
 		else if( fi.extention.equals("cbz") ) {
 			

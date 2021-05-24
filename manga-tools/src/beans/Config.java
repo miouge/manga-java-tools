@@ -48,7 +48,7 @@ public class Config {
 			throw new Exception( "MGTW_ROOT_FOLDER environment variable is undefined !" );
 		}
 		rootFolder = rootFolderEnv;
-		settingsFilePath = rootFolder + "/" + projetName + "/settings.inix";
+		settingsFilePath = rootFolder + "/" + projetName + "/settings.ini";
 		
 		File settingFile = new File( settingsFilePath );
 		if( settingFile.exists() == false ) {
