@@ -45,6 +45,11 @@ public class AutoCropper {
 	static boolean folderUntouchedCreated = false;
 	static boolean folderEmptyCreated = false;
 	
+	// loaded from settings.ini
+	
+	static Integer firstVol;
+	static Integer lastVol;	
+	
 	static int borderMarginToIgnore = -1;
 
 	static float fullHeight;
@@ -61,12 +66,12 @@ public class AutoCropper {
 	static int nonWhiteLevel;
 	static int nonBlackLevel;
 	static int alsoCropBlackArea;
-	static int drawCroppingLine;	
+	static int drawCroppingLine;
 	
 	static double toCheckCroppedFinalWidthRatio;
-	static double toCheckCroppedFinalHeightRatio;	
+	static double toCheckCroppedFinalHeightRatio;
 	
-	static String subFolderFmt;	
+	static String subFolderFmt;
 
 	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
 		
@@ -785,6 +790,9 @@ public class AutoCropper {
 	
 	static void init( Config config ) throws Exception {
 		
+		firstVol = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "firstVolume", "1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "lastVolume" , "1" ));
+		
 		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "0" ));
 		
 		fullHeight         = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "AutoCropper", "fullHeight"       , "-1" ));
@@ -814,116 +822,98 @@ public class AutoCropper {
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );		
 	}	
 	
-	public static void autoCrop( Config config ) {
+	public static void autoCrop() throws Exception {
+
+		Config config = new Config();
 		
-		folderStdCreated = false;
-		folderCheckCreated = false;
-		folderErrorCreated = false;
-		folderUntouchedCreated = false;
-		folderEmptyCreated = false;
+		init( config );
 		
-		stdWs.clear();
-		stdHs.clear();
-		stdvCrops.clear();
-		stdhCrops.clear();
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 		
-		try {
+			folderStdCreated = false;
+			folderCheckCreated = false;
+			folderErrorCreated = false;
+			folderUntouchedCreated = false;
+			folderEmptyCreated = false;
 			
-			init( config );
+			stdWs.clear();
+			stdHs.clear();
+			stdvCrops.clear();
+			stdhCrops.clear();
 			
-		} catch ( Exception e1 ) {
-			e1.printStackTrace();
-			return;
-		}
-		
-		Context context = new Context();
-		context.srcpath = config.originalImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
-		context.outpath = config.croppedImgFolder  + "/" + String.format( subFolderFmt, config.volumeNo );
-		String logfile = context.outpath + "/autoCropper.log";
-		
-		System.out.format( "[AutoCropper] will crop images of <%s> ...\n", context.srcpath );
-		
-		try {
+			Context context = new Context();
+			context.srcpath = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
+			context.outpath = config.croppedImgFolder  + "/" + String.format( subFolderFmt, volumeNo );
+			String logfile = context.outpath + "/autoCropper.log";
+			
+			System.out.format( "[AutoCropper] will crop images of <%s> ...\n", context.srcpath );
 			
 			// drop output folders if already exist then re-create it
 			Tools.createFolder( context.outpath, true, false );
-		}
-		catch( IOException e ) {
-			
-			System.out.format( "create output directories failed\n");
-			System.exit( 1 );
-		}
-
-		try ( BufferedWriter writer = new BufferedWriter(new FileWriter(logfile)) )
-		{
-			context.writer = writer;
-			
-			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
-			
-			// list but not recursive to not process the excludes/ subfolder if this one exist
-			Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
-			Tools.listInputFiles( context.srcpath, ".*\\.png", files, false, false );
-			
-			for( FileItem fi : files ) {
+	
+			try ( BufferedWriter writer = new BufferedWriter(new FileWriter(logfile)) )
+			{
+				context.writer = writer;
 				
-				FileImg img = new FileImg();
-				img.fullpathname = fi.fullpathname;
-				img.name = fi.name;
+				TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
 				
-				processImg( context, img );
-			}
-			
-			// compute statistics
-			
-			System.out.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
-			
-			if( stdWs.size() > 0 ) {
-				OptionalDouble avgW = stdWs.stream().mapToInt(Integer::intValue).average();
-				System.out.format( "std final avg Width  = %.1f ", avgW.getAsDouble());
+				// list but not recursive to not process the excludes/ subfolder if this one exist
+				Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
+				Tools.listInputFiles( context.srcpath, ".*\\.png", files, false, false );
 				
-				if( stdvCrops.size() > 0 ) {
-					OptionalDouble avgCropW = stdvCrops.stream().mapToInt(Integer::intValue).average();
-					System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgCropW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
+				for( FileItem fi : files ) {
+					
+					FileImg img = new FileImg();
+					img.fullpathname = fi.fullpathname;
+					img.name = fi.name;
+					
+					processImg( context, img );
 				}
-				else {
-					System.out.format( "\n" );
+				
+				// compute statistics
+				
+				System.out.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
+				
+				if( stdWs.size() > 0 ) {
+					OptionalDouble avgW = stdWs.stream().mapToInt(Integer::intValue).average();
+					System.out.format( "std final avg Width  = %.1f ", avgW.getAsDouble());
+					
+					if( stdvCrops.size() > 0 ) {
+						OptionalDouble avgCropW = stdvCrops.stream().mapToInt(Integer::intValue).average();
+						System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgCropW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
+					}
+					else {
+						System.out.format( "\n" );
+					}
+				}
+				if( stdHs.size() > 0 ) {
+					
+					OptionalDouble avgH = stdHs.stream().mapToInt(Integer::intValue).average();
+					System.out.format( "std final avg Heigth = %.1f ", avgH.getAsDouble());
+					
+					if( stdhCrops.size() > 0 ) {
+						OptionalDouble avgCropH = stdhCrops.stream().mapToInt(Integer::intValue).average();
+						System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgCropH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
+					}	
+					else {
+						System.out.format( "\n" );
+					}
 				}
 			}
-			if( stdHs.size() > 0 ) {
-				
-				OptionalDouble avgH = stdHs.stream().mapToInt(Integer::intValue).average();
-				System.out.format( "std final avg Heigth = %.1f ", avgH.getAsDouble());
-				
-				if( stdhCrops.size() > 0 ) {
-					OptionalDouble avgCropH = stdhCrops.stream().mapToInt(Integer::intValue).average();
-					System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgCropH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
-				}	
-				else {
-					System.out.format( "\n" );
-				}				
-			}
-			
-		} catch ( Exception e) {
-
-			e.printStackTrace();
 		}
-
-		System.out.format( "auto crop complete\n");
 	}
 	
 	public static void main(String[] args) {
 		
-		// [ firstVol - lastVol ] 
-		int firstVol = 3; 
-		int lastVol  = 3;
-						
-		// autocrop images
-		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+		try {
+
+			autoCrop();
+			System.out.format( "complete\n" );
 			
-			Config config = new Config( volumeNo );
-			AutoCropper.autoCrop( config );
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
-		
-		System.out.format( "complete\n");
-	}	
+	}
+
 }

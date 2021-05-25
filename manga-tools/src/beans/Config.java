@@ -3,8 +3,6 @@ package beans;
 import java.io.File;
 
 public class Config {
-
-	public int volumeNo = 1;
 	
 	// use environment variable MGTW_ROOT_FOLDER to define this path
 	public static String rootFolder;
@@ -12,14 +10,14 @@ public class Config {
 	// current project name to easily switch between several projects
 	// then project folder will be %MGTW_ROOT_FOLDER%/<projetName>/
 	
-	public static String projetName = "default"; 
-		
+	public static String projetName = "default";
+
 	// settings.ini that can hold any override custom directives about the project
 	public static String settingsFilePath;
 	
 	// folder that contain original pdf, cbz, cbr files
 	// Unpack module source when looking for archives to unpack	
-	public String archiveFolder = rootFolder + "/" + projetName + "/archives"; 		
+	public String archiveFolder = rootFolder + "/" + projetName + "/archives";
 	
 	// when extracting image from pdf, should we resize the images
 	public boolean resizeImg = false;
@@ -34,11 +32,7 @@ public class Config {
 	// outlet for PDF generation
 	public String outletPdfFolder = rootFolder + "/" + projetName + "/outlet-pdf";
 	
-	public Config() {		
-	}	
-	
-	public Config( int volumeNo ) {
-		this.volumeNo = volumeNo;
+	public Config() {
 	}
 	
 	private static void init() throws Exception {

@@ -23,13 +23,17 @@ public class Analyse {
 	
 	static boolean excludeFolderCreated = false;
 	static int excludedCount = 0;
+
+	// loaded from settings.ini
 	
+	static Integer firstVol;
+	static Integer lastVol;
+	static String subFolderFmt;
+
 	static int excludeWidthLessThan = -1;
 	static int excludeWidthGreaterThan = -1;
 	static int excludeHeightLessThan = -1;
 	static int excludeHeightGreaterThan = -1;
-	
-	static String subFolderFmt;
 		 
 	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
 
@@ -82,28 +86,32 @@ public class Analyse {
 	
 	static void init( Config config ) throws Exception {
 		
+		firstVol = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "firstVolume", "1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "lastVolume" , "1" ));
+		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		
 		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
 		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
 		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
-		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
-		
-		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );		
+		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));				
 	}	
 	
-	public static void checkOriginalImages( Config config ) {
+	public static void checkOriginalImages() throws Exception {
+
+		Config config = new Config();
+
+		init( config );
+		
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
-		try
-		{
 			widths.clear();
 			heights.clear();
 			excludedCount = 0;
 			excludeFolderCreated = false;
-			
-			init( config );
-			
+		
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
-			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
+			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
 			
 			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
@@ -111,7 +119,7 @@ public class Analyse {
 			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false, false );
 			
 			for( FileItem fi : files ) {
-
+	
 				checkOriginalImage( config, fi );
 			}
 			
@@ -128,7 +136,7 @@ public class Analyse {
 				OptionalInt minW = widths.stream().mapToInt(Integer::intValue).min();
 				OptionalDouble avgW = widths.stream().mapToInt(Integer::intValue).average();
 				
-  		        // Variance
+		        // Variance
 				double mean = widths.stream().mapToInt(Integer::intValue).average().getAsDouble();
 		        double variance = widths.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();
 		        
@@ -138,40 +146,33 @@ public class Analyse {
 				System.out.format( "   Width  : [ %d - %d ] avg = %.1f deviation = %.1f\n", minW.getAsInt(), maxW.getAsInt(), avgW.getAsDouble(), standardDeviation );
 			}
 			if( heights.size() > 0 ) {
-
+	
 				OptionalInt maxH = heights.stream().mapToInt(Integer::intValue).max();
 				OptionalInt minH = heights.stream().mapToInt(Integer::intValue).min();
 				OptionalDouble avgH = heights.stream().mapToInt(Integer::intValue).average();
-
+	
 				// Variance
 				double mean = heights.stream().mapToInt(Integer::intValue).average().getAsDouble();
 				double variance = heights.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();
-
+	
 				//Standard Deviation
 				double standardDeviation = Math.sqrt(variance);
 				
 				System.out.format( "   Height : [ %d - %d ] avg = %.1f deviation = %.1f\n", minH.getAsInt(), maxH.getAsInt(), avgH.getAsDouble(), standardDeviation );
 			}
-			
-		} catch ( Exception e) {
-
-			e.printStackTrace();
 		}
 	}
 	
 	public static void main(String[] args) {
 		
-		// [ firstVol - lastVol ] 
-		int firstVol = 3; 
-		int lastVol  = 3;
-						
-		// autocrop images
-		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+		try {
 			
-			Config config = new Config( volumeNo );
-			checkOriginalImages( config );
+			checkOriginalImages();
+			System.out.format( "complete\n" );
+			
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
-		
-		System.out.format( "complete\n");
-	}		
+	}
 }

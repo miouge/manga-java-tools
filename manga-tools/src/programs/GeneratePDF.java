@@ -17,9 +17,13 @@ import beans.FileItem;
 import beans.Tools;
 
 public class GeneratePDF {
+
+	// loaded from settings.ini
 	
+	static Integer firstVol;
+	static Integer lastVol;
 	static String subFolderFmt;
-	static String filenameFmt;	
+	static String filenameFmt;
 	static String titlefmt;
 	static String author;
 	
@@ -40,10 +44,10 @@ public class GeneratePDF {
         	System.out.format( "add %s\n", f.fullpathname );
         	
             document.newPage();
-            Image image = Image.getInstance( f.fullpathname );            
+            Image image = Image.getInstance( f.fullpathname );
             image.setAbsolutePosition(0, 0);
             image.setBorderWidth(0);
-            image.scaleAbsolute(PageSize.A4);            
+            image.scaleAbsolute(PageSize.A4);
             document.add( image );
             pageCount++;
         }
@@ -56,16 +60,18 @@ public class GeneratePDF {
 	// TODO : customize image locations path list
 	// each path will be checked to list all images (.jpg .jpeg or .png) it contains
 	// then images will be ordered by names	before insertion into the PDF document
-	public static void getImagesLocations( String imgpath, ArrayList<String> locations ) {
-
+	public static void getImagesLocations( String baseSourcePath, ArrayList<String> locations ) {
 		
-		locations.add( imgpath + "/std" );
+		locations.add( baseSourcePath + "/std" );
 		//locations.add( imgpath + "/std/_BIC" );
-		locations.add( imgpath + "/tocheck" );
+		locations.add( baseSourcePath + "/tocheck" );
 		//locations.add( imgpath + "/tocheck/_BIC" );
 	}
 
 	static void init( Config config ) throws Exception {
+		
+		firstVol = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "firstVolume", "1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "lastVolume" , "1" ));
 		
 		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		filenameFmt  = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "filenameFmt", Config.projetName + " T%02d.pdf" );
@@ -73,65 +79,53 @@ public class GeneratePDF {
 		author       = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "author", "NA" );		
 	}	
 	
-	public static void generatePDF( Config config ) {
-				
-		try {
-			
-			init( config );
-			
-		} catch (Exception e1) {
-
-			e1.printStackTrace();
-			return;
-		}
+	public static void generatePDF() throws Exception {
 		
-		String pdfname = String.format( filenameFmt, config.volumeNo );
-		String title   = String.format( titlefmt  , config.volumeNo );
-		
-        String imgpath = config.croppedImgFolder + "/" + String.format( subFolderFmt, config.volumeNo );
-		String destFilePath =  config.outletPdfFolder;
-                       		
-		TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
+		Config config = new Config();
 
-		try
-		{
+		init( config );
+		
+		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+
+			String pdfname = String.format( filenameFmt, volumeNo );
+			String title   = String.format( titlefmt   , volumeNo );
+			
+	        String baseSourcePath = config.croppedImgFolder + "/" + String.format( subFolderFmt, volumeNo );
+			String destFilePath =  config.outletPdfFolder;
+
+			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
+	
 			// create output folders
-			Files.createDirectories(Paths.get( config.outletPdfFolder ));					
+			Files.createDirectories(Paths.get( config.outletPdfFolder ));
 			
 			ArrayList<String> locations = new ArrayList<String>();
-			getImagesLocations( imgpath, locations );
-
-			// compile file list
 			
+			// get list of folder to browse to collect images to include in the PDF
+			getImagesLocations( baseSourcePath, locations );
+
+			// compile picture list
 			for(  String location : locations ) {
 
 				Tools.listInputFiles( location, ".*\\.jpe?g", files, true, true );
-				Tools.listInputFiles( location, ".*\\.png", files, true, true );			
+				Tools.listInputFiles( location, ".*\\.png", files, true, true );
 			}
 
-			System.out.format( "total file count : %d files\n", files.size() );
+			System.out.format( "total images count : %d files\n", files.size() );
 			
 			generatePDF( files, destFilePath + "/" + pdfname, title, author );
-			
-		} catch ( Exception e ) {
-
-			e.printStackTrace();
 		}
 	}	
 	
 	public static void main(String[] args) {
-		
-		// [ firstVol - lastVol ] 
-		int firstVol = 3; 
-		int lastVol  = 3;
-						
-		// autocrop images
-		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
-			
-			Config config = new Config( volumeNo );
-			generatePDF( config );
+
+		try {
+
+			generatePDF();
+			System.out.format( "complete\n" );
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
 		}
-		
-		System.out.format( "complete\n");
-	}		
+	}
 }
