@@ -1,23 +1,23 @@
 ## manga-java-tool
 
-manga-java-tool is a set/collection of piece of JAVA code,
+manga-java-tool is a set/collection of JAVA code piece,
 that i personnaly use to automate some tasks
-when i want to process PDF/CBZ/CBR MANGA files in order to crop out most of the useless pictures areas.
-I then finally produce cropped manga PDF file to be use on my B&W Reader (a Vilio Ink Pad 3), maximizing the display of the device.
+when i want to process PDF/CBZ/CBR MANGA files in order to crop out most of the useless pictures areas (white or black margins) then repack the result into PDF files.
+I do this because, i read my mangas on my 7'8 inch B&W Reader (a Vilio Ink Pad 3), and i like to maximize the display of the device to ease the reading.
 
-I share this code, without any assistance (more as a entry point on the subject), to help anyone who could have the same needs as mine.
+I share this code, without any support (more as a entry point on the subject), to help anyone who could have the same or close needs as mine.
 
 ## modules presentation
 
 Unpack : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF) but not yet CBR with RAR5 format.
 
 Analyse : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
-          it can also be used to exclude images based on size consideration
+          it can also be used to exclude images based on size consideration. (Will be done next the splitting of dual page images)
 
 AutoCropper : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
-			  using this module require usely iterative try to set the correct detection parameters especially if used with non-official source images.
+			  using this module usely require iterative try to set the correct detection parameters especially if used with non-official source images.
 			  it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually
-			  to do this step of work, i'm using the freeware program "BIC – Batch-Image-Cropper" (https://funk.eu/bic-batch-image-cropper/)	  
+			  to do this step of work, i'm using the freeware program [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
 			  			  
 GeneratePDF : will be used to repack into one or multiple PDF files the cropped images 
 
@@ -25,19 +25,16 @@ GeneratePDF : will be used to repack into one or multiple PDF files the cropped 
 
 Java 8 + eclipse Java 2021-03 or greater
 
-### How to use these code : 
+### How to use this code : 
 
 - You will need to have Java 8 + eclipse Java 2021-03 or greater installed
 - You will need to have the jars dependencies installed (into ext/ of the jre)
-- You will have to set up the environmement variable MGTW_ROOT_FOLDER
-- Optionaly, customize the {Config.projectName} or use "default" as project name
+- You will have to set up the environmement variable MGTW_ROOT_FOLDER (that the workspace base folder)
+- Create the %MGTW_ROOT_FOLDER% and subfolder default/ inside ("default" is the default project subfolder)
+- Drop the sample settings.ini you will found inside the template folder into the %MGTW_ROOT_FOLDER%/default/ folder
+- Create the %MGTW_ROOT_FOLDER%/default/archives/ and put it the CBZ or CBR or PDF manga files
 
-default folder tree is : (for default project name = "default")
-just create the %MGTW_ROOT_FOLDER% and default/
-drop the sample settings.ini into the %MGTW_ROOT_FOLDER% / default folder
-
-- %MGTW_ROOT_FOLDER% /
-- %MGTW_ROOT_FOLDER% / default / settings.ini
+- %MGTW_ROOT_FOLDER% / default /
 - %MGTW_ROOT_FOLDER% / default / archives /
 - %MGTW_ROOT_FOLDER% / default / original-img /
 - %MGTW_ROOT_FOLDER% / default / analysed-img /
@@ -49,13 +46,7 @@ drop the sample settings.ini into the %MGTW_ROOT_FOLDER% / default folder
 - %MGTW_ROOT_FOLDER% / default / cropped-img / errors /
 - %MGTW_ROOT_FOLDER% / default / outlet-pdf /
 
-
 - archives/ -> {Unpack} -> original-img/ -> {Analyse} -> analysed-img/ -> {AutoCropper} -> cropped-img/ -> {GeneratePDF} -> outlet-pdf/
-
-Unpack Module :
-- place .CBZ and/or .CBR and/or .PDF files into the archive folder (by default %MGTW_ROOT_FOLDER%/default/archives)
-- run Unpack.main()
-- for each manga file found then a subfolder will be created into the unpack destination (by default  %MGTW_ROOT_FOLDER%/default/original-img/T%02d )
 
 ## Dependencies
 
