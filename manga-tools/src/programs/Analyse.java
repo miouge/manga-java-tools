@@ -39,7 +39,7 @@ public class Analyse {
 
 		int width = srcImage.getWidth();
 		int height = srcImage.getHeight();
-		
+				
 		if( excludeWidthLessThan > 0 && ( width < excludeWidthLessThan )) {
 			return true;
 		}
@@ -56,29 +56,34 @@ public class Analyse {
 		return false;
 	}	
 
-	static void checkOriginalImage( Config config, FileItem fi ) throws Exception  {
+	static void checkOriginalImage( Config config, int volumeNo, FileItem fi ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
 		
 		File file = new File( fi.fullpathname );
 		BufferedImage srcImage = ImageIO.read( file );
 		
+		String destinationPath;
+		
 		if( doExcludeImage( srcImage ) ) {
 
+			String excludeFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) +  "/excludes";
+
 			if( excludeFolderCreated == false ) {
-				String excludeFolder = fi.folderOnly + "/excludes";
-				
+
 				// drop output folders if already exist then re-create it
 				Tools.createFolder( excludeFolder, true, false );
 				excludeFolderCreated = true;
 			}
 			
-			String excludedPath = fi.folderOnly + "/excludes/" + fi.name;
-			Files.move(Paths.get( fi.fullpathname), Paths.get( excludedPath), StandardCopyOption.REPLACE_EXISTING);
-			
+			destinationPath = excludeFolder + "/" + fi.name;
 			excludedCount++;
-			return;
-		}	
+		}
+		else {
+			destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) + "/" + fi.name;
+ 		}
+		
+		Files.copy(Paths.get( fi.fullpathname), Paths.get( destinationPath), StandardCopyOption.REPLACE_EXISTING );
 		
 		widths.add(srcImage.getWidth());
 		heights.add(srcImage.getHeight());
@@ -102,6 +107,8 @@ public class Analyse {
 
 		init( config );
 		
+		Tools.createFolder( config.analysedFolder, true, false );
+		
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 			
 			widths.clear();
@@ -112,20 +119,23 @@ public class Analyse {
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
 			
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
+			String outputFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
+			
+			Tools.createFolder( outputFolder, true, false );
 			
 			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
-			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, false, false ); // jpg or jpeg
-			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, false, false );
+			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, true, false ); // jpg or jpeg
+			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, true, false );
 			
 			for( FileItem fi : files ) {
 	
-				checkOriginalImage( config, fi );
+				checkOriginalImage( config, volumeNo, fi );
 			}
 			
 			System.out.format( "   Total Images count : %d \n", files.size() );
 			if( excludedCount > 0 ) {
-				System.out.format( "   Excluded count : %d (moved into excludes/)\n", excludedCount );
+				System.out.format( "   Excluded count : %d (moved apart to excludes/)\n", excludedCount );
 			}
 			
 			// compute statistics  

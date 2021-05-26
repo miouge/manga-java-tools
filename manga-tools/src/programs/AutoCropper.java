@@ -842,7 +842,7 @@ public class AutoCropper {
 			stdhCrops.clear();
 			
 			Context context = new Context();
-			context.srcpath = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
+			context.srcpath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 			context.outpath = config.croppedImgFolder  + "/" + String.format( subFolderFmt, volumeNo );
 			String logfile = context.outpath + "/autoCropper.log";
 			

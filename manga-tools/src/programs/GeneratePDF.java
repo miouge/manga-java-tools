@@ -60,6 +60,7 @@ public class GeneratePDF {
 	// TODO : customize image locations path list
 	// each path will be checked to list all images (.jpg .jpeg or .png) it contains
 	// then images will be ordered by names	before insertion into the PDF document
+	// TODO : if BIC exist use it instead of base folder
 	public static void getImagesLocations( String baseSourcePath, ArrayList<String> locations ) {
 		
 		locations.add( baseSourcePath + "/std" );

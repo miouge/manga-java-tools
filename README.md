@@ -40,13 +40,17 @@ drop the sample settings.ini into the %MGTW_ROOT_FOLDER% / default folder
 - %MGTW_ROOT_FOLDER% / default / settings.ini
 - %MGTW_ROOT_FOLDER% / default / archives /
 - %MGTW_ROOT_FOLDER% / default / original-img /
-- %MGTW_ROOT_FOLDER% / default / original-img / excludes /
+- %MGTW_ROOT_FOLDER% / default / analysed-img /
+- %MGTW_ROOT_FOLDER% / default / analysed-img / excludes /
 - %MGTW_ROOT_FOLDER% / default / cropped-img /
 - %MGTW_ROOT_FOLDER% / default / cropped-img / tocheck /
 - %MGTW_ROOT_FOLDER% / default / cropped-img / std /
 - %MGTW_ROOT_FOLDER% / default / cropped-img / empty /
 - %MGTW_ROOT_FOLDER% / default / cropped-img / errors /
 - %MGTW_ROOT_FOLDER% / default / outlet-pdf /
+
+
+- archives/ -> {Unpack} -> original-img/ -> {Analyse} -> analysed-img/ -> {AutoCropper} -> cropped-img/ -> {GeneratePDF} -> outlet-pdf/
 
 Unpack Module :
 - place .CBZ and/or .CBR and/or .PDF files into the archive folder (by default %MGTW_ROOT_FOLDER%/default/archives)

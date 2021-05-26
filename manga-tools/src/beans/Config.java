@@ -15,9 +15,12 @@ public class Config {
 	// settings.ini that can hold any override custom directives about the project
 	public static String settingsFilePath;
 	
-	// folder that contain original pdf, cbz, cbr files
+	// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 	// Unpack module source when looking for archives to unpack	
 	public String archiveFolder = rootFolder + "/" + projetName + "/archives";
+
+	// folder that contain analysed image and/or also source of picture file for AutoCropper module
+	public String analysedFolder = rootFolder + "/" + projetName + "/analysed-img";
 	
 	// when extracting image from pdf, should we resize the images
 	public boolean resizeImg = false;
