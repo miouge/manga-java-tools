@@ -57,16 +57,32 @@ public class GeneratePDF {
         document.close();
     }
 		
-	// TODO : customize image locations path list
+	// TODO : customize image locations path list if needed
 	// each path will be checked to list all images (.jpg .jpeg or .png) it contains
 	// then images will be ordered by names	before insertion into the PDF document
-	// TODO : if BIC exist use it instead of base folder
 	public static void getImagesLocations( String baseSourcePath, ArrayList<String> locations ) {
+				
+		// select std/_BIC/ subfolder content (manually cropped) if exit instead of std/ content
 		
-		locations.add( baseSourcePath + "/std" );
-		//locations.add( imgpath + "/std/_BIC" );
-		locations.add( baseSourcePath + "/tocheck" );
-		//locations.add( imgpath + "/tocheck/_BIC" );
+		File stdBIC = new File( baseSourcePath + "/std/_BIC" );
+		if( stdBIC.exists() && stdBIC.isDirectory() ) {
+			
+			locations.add( baseSourcePath + "/std/_BIC" );
+		}
+		else {
+		
+			locations.add( baseSourcePath + "/std" );
+		}
+		
+		// select tocheck/_BIC/ subfolder content (manually cropped) if exit instead of tocheck/ content
+		
+		File tocheckBIC = new File( baseSourcePath + "/tocheck/_BIC" );
+		if( tocheckBIC.exists() && tocheckBIC.isDirectory() ) {
+			locations.add( baseSourcePath + "/tocheck/_BIC" );
+		}
+		else {
+			locations.add( baseSourcePath + "/tocheck" );
+		}
 	}
 
 	static void init( Config config ) throws Exception {
