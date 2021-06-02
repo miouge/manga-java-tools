@@ -15,6 +15,30 @@ import org.ini4j.Profile.Section;
 
 public class Tools {
 
+	public static String getImageFormat( String fileName ) throws Exception {
+		
+		// auto detect the image format from the file it's extension
+		String format = null;
+		
+		String[] parts = fileName.split("\\.");
+		
+		if( parts.length >= 2 ) {
+
+			String ext = parts[ parts.length - 1 ].toLowerCase();
+			switch( ext ) {
+				case "jpeg" :
+				case "jpg" : { format = "jpg"; break; }
+				case "png" : { format = "png"; break; }
+			}
+		}
+		
+		if( format == null ) {
+			throw new Exception( "unable to detect the image format from filename");
+		}
+
+ 		return format;
+	}
+	
 	static Optional<String> getExtension(String filename) {
 		
 	    return Optional.ofNullable(filename)

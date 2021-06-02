@@ -1,5 +1,7 @@
 package programs;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
@@ -33,12 +35,18 @@ public class Analyse {
 	static Integer lastVol;
 	static String subFolderFmt;
 
+	// exclusion
+	
 	static int excludeWidthLessThan = -1;
 	static int excludeWidthGreaterThan = -1;
 	static int excludeHeightLessThan = -1;
 	static int excludeHeightGreaterThan = -1;
+	
+	// rotation
+	static double rotateImageBy = -90.0;
+	
 
-
+	// Spitting
 	//  0     X1        X2      X3           X4   Width
 	//        |          |       |            |
 	//  Y1 ----------------------------------------
@@ -52,16 +60,42 @@ public class Analyse {
 	//        |          |       |            |
 	//  Height
 	
-	static int splitDoublePageImage = 0;
-	static float splitIfRatioGreaterThan = 99F;
-	static int firstPageIsRightHalf = 1;	
+	static int forceSplitDoublePageImage = 0;
+	static float splitOnlyIfRatioGreaterThan = 99F;
+	static int firstPageIsLeftHalf = 1;	
 	static double splitY1Ratio = 0.0;
 	static double splitY2Ratio = 1.0;
 	static double splitX1Ratio = 0.0;
 	static double splitX2Ratio = 0.5;
 	static double splitX3Ratio = 0.5;
-	static double splitX4Ratio = 1.0;	
+	static double splitX4Ratio = 1.0;
 	
+	private static BufferedImage rotateImage( BufferedImage srcImage, double angle ) {
+		
+		double radian = Math.toRadians(angle);
+		double sin = Math.abs(Math.sin(radian));
+		double cos = Math.abs(Math.cos(radian));
+
+		int width = srcImage.getWidth();
+		int height = srcImage.getHeight();
+
+		int nWidth = (int) Math.floor((double) width * cos + (double) height * sin);
+		int nHeight = (int) Math.floor((double) height * cos + (double) width * sin);
+
+		BufferedImage rotatedImage = new BufferedImage( nWidth, nHeight, srcImage.getType() );
+		Graphics2D graphics = rotatedImage.createGraphics();
+
+		graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
+
+		graphics.translate( (nWidth - width) / 2, (nHeight - height) / 2 );
+		// rotation around the center point
+		graphics.rotate(radian, (double) (width / 2), (double) (height / 2));
+		graphics.drawImage(srcImage, 0, 0, null);
+		graphics.dispose();
+
+		return rotatedImage;
+	}
+
 	static void splitImage( BufferedImage srcImage, FileItem fi, String destFolder ) throws Exception {
 		
 		int width = srcImage.getWidth();
@@ -70,7 +104,7 @@ public class Analyse {
 		int leftX = 0;
 		int rightX = width/2;
 		
-		int leftW = rightX - leftX;		
+		int leftW = rightX - leftX;
 		int rightW = width - rightX;
 		
 		int leftY = (int)Math.floor((double)height * splitY1Ratio);
@@ -83,46 +117,31 @@ public class Analyse {
 		BufferedImage rightHalf = srcImage.getSubimage( rightX, rightY, rightW, rightH );
 		
 		// auto detect the image format from the file it's extension
-		String format = null;
-		String fileName = fi.name;
-		
-		String[] parts = fileName.split("\\.");
-		
-		if( parts.length >= 2 ) {
-
-			String ext = parts[ parts.length - 1 ].toLowerCase();
-			switch( ext ) {
-				case "jpeg" :
-				case "jpg" : { format = "jpg"; break; }
-				case "png" : { format = "png"; break; }
-			}
-		}
+		String format = Tools.getImageFormat(fi.name);
 		
 		String filenameL = "";
 		String filenameR = "";
 		
+		String[] parts = fi.name.split("\\.");
 		for( int i = 0 ; i < (parts.length-1) ; i++ ) {
 			
 			filenameL += parts[i];
 			filenameR += parts[i];
 		}
 		
-		if( firstPageIsRightHalf == 1 ) {
-			
-			filenameL += "b" + "." + format;
-			filenameR += "a" + "." + format;
-			
-		} else {
-			
+		if( firstPageIsLeftHalf == 1 ) {
+
 			// first page is left half
 			filenameL += "a" + "." + format;
 			filenameR += "b" + "." + format;
+			
+		} else {
+
+			
+			filenameL += "b" + "." + format;
+			filenameR += "a" + "." + format;
 		}
 
-		if( format == null ) {
-			throw new Exception( " unable to detect the image format ");
-		}
-		
 		File outputfileL = new File( destFolder + "/" + filenameL );
 		File outputfileR = new File( destFolder + "/" + filenameR );
 		ImageIO.write( leftHalf , format, outputfileL );
@@ -130,10 +149,30 @@ public class Analyse {
 	}
 	
 	static boolean doSplitImage( BufferedImage srcImage ) throws Exception  {
+
+		if( forceSplitDoublePageImage == 1 ) {
+			return true;
+		}
 		
+		float width = (float)srcImage.getWidth();
+		float height = (float)srcImage.getHeight();
 		
-		return true;
-	}	
+		float ratio = width / height;
+		if( ratio > splitOnlyIfRatioGreaterThan ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	static boolean doRotageImage( BufferedImage srcImage ) throws Exception  {
+
+		if(( -0.001 > rotateImageBy)||(rotateImageBy >= 0.001) ) {
+			return true;
+		}
+
+		return false;
+	}
 	
 	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
 
@@ -155,15 +194,14 @@ public class Analyse {
 
 		return false;
 	}	
-
+	
 	static void checkOriginalImage( Config config, int volumeNo, FileItem fi ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
 		
 		File file = new File( fi.fullpathname );
 		BufferedImage srcImage = ImageIO.read( file );
-		
-		
+
 		if( doExcludeImage( srcImage ) ) {
 
 			String excludeFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) +  "/excludes";
@@ -178,13 +216,27 @@ public class Analyse {
 			String destinationPath = excludeFolder + "/" + fi.name;
 			Files.copy(Paths.get( fi.fullpathname), Paths.get( destinationPath), StandardCopyOption.REPLACE_EXISTING );			
 			excludedCount++;
+			return;
 		}
-		else if( doSplitImage( srcImage ) ) {
+		
+		boolean copyOriginal = true;
+		
+		if( doRotageImage( srcImage ) ) {
+			
+			srcImage = rotateImage( srcImage, rotateImageBy );
+			copyOriginal = false;
+			// TODO output srcImage to disk
+		}
+		
+		if( doSplitImage( srcImage ) ) {
 			
 			String destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 			splitImage( srcImage, fi, destinationPath );
+			copyOriginal = false;
 		}
-		else {
+		
+		if( copyOriginal ) {
+			
 			String destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) + "/" + fi.name;
 			Files.copy(Paths.get( fi.fullpathname), Paths.get( destinationPath), StandardCopyOption.REPLACE_EXISTING );
  		}
@@ -204,9 +256,11 @@ public class Analyse {
 		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
 		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
 		
-		splitDoublePageImage     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitDoublePageImage"     , "0" ));
-		splitIfRatioGreaterThan  = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitIfRatioGreaterThan"  , "99" ));
-		firstPageIsRightHalf     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "firstPageIsRightHalf"     , "1" ));
+		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));
+		
+		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "forceSplitDoublePageImage"    , "0"  ));
+		splitOnlyIfRatioGreaterThan = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitOnlyIfRatioGreaterThan"  , "99" ));
+		firstPageIsLeftHalf         = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "firstPageIsLeftHalf"          , "0"  ));
 		
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;

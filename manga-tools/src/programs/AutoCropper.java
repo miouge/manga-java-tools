@@ -1,13 +1,9 @@
 package programs;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -518,40 +514,6 @@ public class AutoCropper {
 		log.append(String.format("%s countBorderUse : on border close nonWhiteNb=%d\n", img.name, nonWhiteNb ));
 		return nonWhiteNb;
 	}	
-
-	private static BufferedImage rotateImage( BufferedImage srcImage, double angle ) {
-		
-	    double radian = Math.toRadians(angle);
-	    double sin = Math.abs(Math.sin(radian));
-	    double cos = Math.abs(Math.cos(radian));
-
-	    int width = srcImage.getWidth();
-	    int height = srcImage.getHeight();
-
-	    int nWidth = (int) Math.floor((double) width * cos + (double) height * sin);
-	    int nHeight = (int) Math.floor((double) height * cos + (double) width * sin);
-
-	    BufferedImage rotatedImage = new BufferedImage( nWidth, nHeight, BufferedImage.TYPE_INT_ARGB );
-	    Graphics2D graphics = rotatedImage.createGraphics();
-
-	    graphics.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC );
-
-	    graphics.translate( (nWidth - width) / 2, (nHeight - height) / 2 );
-	    // rotation around the center point
-	    graphics.rotate(radian, (double) (width / 2), (double) (height / 2));
-	    graphics.drawImage(srcImage, 0, 0, null);
-	    graphics.dispose();
-
-	    return rotatedImage;
-	}	
-	
-	@SuppressWarnings("unused")
-	private static void testRotateImage() throws FileNotFoundException, IOException {
-		
-	    BufferedImage image = null; // ImageIO.read(Test.class.getResourceAsStream("/resources/image.png"));
-	    BufferedImage rotated = rotateImage(image, 45);
-	    ImageIO.write(rotated, "png", new FileOutputStream("resources/rotated.png"));		
-	}
 
 	static void findImageType( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
