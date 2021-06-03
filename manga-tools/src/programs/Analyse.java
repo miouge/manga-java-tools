@@ -43,7 +43,7 @@ public class Analyse {
 	static int excludeHeightGreaterThan = -1;
 	
 	// rotation
-	static double rotateImageBy = -90.0;
+	static double rotateImageBy = 0.0;
 	
 
 	// Spitting
@@ -167,7 +167,9 @@ public class Analyse {
 
 	static boolean doRotageImage( BufferedImage srcImage ) throws Exception  {
 
-		if(( -0.001 > rotateImageBy)||(rotateImageBy >= 0.001) ) {
+		if(( rotateImageBy < -0.0001 )||( 0.0001 < rotateImageBy ) ) {
+			
+			// rotateImageBy not equal to 0.0 
 			return true;
 		}
 
@@ -195,7 +197,7 @@ public class Analyse {
 		return false;
 	}	
 	
-	static void checkOriginalImage( Config config, int volumeNo, FileItem fi ) throws Exception  {
+	static void processOriginalImage( Config config, int volumeNo, FileItem fi ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
 		
@@ -203,6 +205,8 @@ public class Analyse {
 		BufferedImage srcImage = ImageIO.read( file );
 
 		if( doExcludeImage( srcImage ) ) {
+
+			// copy original image to analysed-img/T.../excludes/ ...
 
 			String excludeFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) +  "/excludes";
 
@@ -225,22 +229,31 @@ public class Analyse {
 			
 			srcImage = rotateImage( srcImage, rotateImageBy );
 			copyOriginal = false;
-			// TODO output srcImage to disk
 		}
 		
 		if( doSplitImage( srcImage ) ) {
 			
+			// split current srcImage and save the two half into analysed-img/Tn/ ...
+			
 			String destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 			splitImage( srcImage, fi, destinationPath );
-			copyOriginal = false;
+			return;
 		}
 		
+		String destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) + "/" + fi.name;
+		
 		if( copyOriginal ) {
-			
-			String destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo ) + "/" + fi.name;
+						
 			Files.copy(Paths.get( fi.fullpathname), Paths.get( destinationPath), StandardCopyOption.REPLACE_EXISTING );
  		}
-		
+		else {
+			// output srcImage to analysed-img/Tn/ ...
+			// auto detect the image format from the file it's extension
+			String format = Tools.getImageFormat(fi.name);
+			File outputfile = new File( destinationPath );
+			ImageIO.write( srcImage , format, outputfile );
+		}
+
 		widths.add(srcImage.getWidth());
 		heights.add(srcImage.getHeight());
 	}
@@ -279,7 +292,7 @@ public class Analyse {
 		splitX4Ratio = fraction.doubleValue();
 	}	
 	
-	public static void checkOriginalImages() throws Exception {
+	public static void processOriginalImages() throws Exception {
 
 		Config config = new Config();
 
@@ -308,7 +321,7 @@ public class Analyse {
 			
 			for( FileItem fi : files ) {
 	
-				checkOriginalImage( config, volumeNo, fi );
+				processOriginalImage( config, volumeNo, fi );
 			}
 			
 			System.out.format( "   Total Images count : %d \n", files.size() );
@@ -355,7 +368,7 @@ public class Analyse {
 		
 		try {
 			
-			checkOriginalImages();
+			processOriginalImages();
 			System.out.format( "complete\n" );
 			
 		} catch (Exception e) {
