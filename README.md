@@ -7,34 +7,32 @@ I do this because, i read my mangas on my 7'8 inch B&W Reader (a Vilio Ink Pad 3
 
 I share this code, as an entry point on the subject, to help anyone who could have the same or close needs as mine.
 
+
 ## modules presentation
 
 **Unpack** : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF) but not yet CBR with RAR5 format.
 
-**Analyse** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation)
-              it can also be used to exclude images based on size consideration.
-			  it can also be used to rotate original images.
-			  it can also be used to split rotate original dual page images.
+**Analyse** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation). it can also be used to exclude images based on size consideration.
+it can also be used to rotate original images. it can also be used to split rotate original dual page images.
 
 **AutoCropper** : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
 			  using this module usely require iterative try to set the correct detection parameters especially if used with non-official source images.
 			  it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually
 			  to do this step of work, i'm using the freeware program [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
-			  			  
+
 **GeneratePDF** : will be used to repack into one or multiple PDF files the cropped images 
 
-### Development/Running environnement : 
-
-Java 8 + eclipse Java 2021-03 or greater
 
 ### How to use this code : 
 
-- You will need to have Java 8 + eclipse Java 2021-03 or greater installed
-- You will need to have the jars dependencies installed (into ext/ of the jre)
-- You will have to set up the environmement variable MGTW_ROOT_FOLDER (that the workspace base folder)
-- Create the %MGTW_ROOT_FOLDER% and subfolder default/ inside ("default" is the default project subfolder)
-- Drop the sample settings.ini you will found inside the template folder into the %MGTW_ROOT_FOLDER%/default/ folder
-- Create the %MGTW_ROOT_FOLDER%/default/archives/ and put it the CBZ or CBR or PDF manga files
+- [ ] You will need to have Java 8 + eclipse Java 2021-03 or greater installed
+- [ ] You will need to have the jars dependencies installed (into ext/ of the jre)
+- [ ] You will have to set up the environmement variable MGTW_ROOT_FOLDER (that the workspace base folder)
+- [ ] Create the %MGTW_ROOT_FOLDER% and subfolder default/ inside ("default" is the default project name)
+- [ ] Drop the sample file *settings.ini*(/manga-tools/template/settings.ini) you will found inside the template folder into your %MGTW_ROOT_FOLDER%/default/ folder
+- [ ] Create the %MGTW_ROOT_FOLDER%/default/archives/ and put into the CBZ or CBR or PDF manga files
+
+### Folders structure : 
 
 - %MGTW_ROOT_FOLDER% / default /
 - %MGTW_ROOT_FOLDER% / default / archives /
@@ -49,6 +47,10 @@ Java 8 + eclipse Java 2021-03 or greater
 - %MGTW_ROOT_FOLDER% / default / outlet-pdf /
 
 - archives/ -> {Unpack} -> original-img/ -> {Analyse} -> analysed-img/ -> {AutoCropper} -> cropped-img/ -> {GeneratePDF} -> outlet-pdf/
+
+### Development/Running environnement : 
+
+Java 8 + eclipse Java 2021-03 or greater
 
 ## Dependencies
 
@@ -65,7 +67,7 @@ com.github.junrar (use as submodule)
 - [slf4j-api-1.7.30.jar](https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar)
 - [slf4j-simple-1.7.30.jar](https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.30/slf4j-simple-1.7.30.jar)
 
-## referenced softwares
+## Referenced softwares
 
 [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
 
