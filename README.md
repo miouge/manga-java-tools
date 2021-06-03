@@ -15,10 +15,8 @@ I share this code, as an entry point on the subject, to help anyone who could ha
 **Analyse** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation). it can also be used to exclude images based on size consideration.
 it can also be used to rotate original images. it can also be used to split rotate original dual page images.
 
-**AutoCropper** : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).
-			  using this module usely require iterative try to set the correct detection parameters especially if used with non-official source images.
-			  it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually
-			  to do this step of work, i'm using the freeware program [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
+**AutoCropper** : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).using this module usely require iterative try to set the correct detection parameters especially if used with non-official source images.
+it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually to do this step of work, i'm using the freeware program [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
 
 **GeneratePDF** : will be used to repack into one or multiple PDF files the cropped images 
 
@@ -29,7 +27,7 @@ it can also be used to rotate original images. it can also be used to split rota
 - [ ] You will need to have the jars dependencies installed (into ext/ of the jre)
 - [ ] You will have to set up the environmement variable MGTW_ROOT_FOLDER (that the workspace base folder)
 - [ ] Create the %MGTW_ROOT_FOLDER% and subfolder default/ inside ("default" is the default project name)
-- [ ] Drop the sample file *settings.ini*(/manga-tools/template/settings.ini) you will found inside the template folder into your %MGTW_ROOT_FOLDER%/default/ folder
+- [ ] Drop the sample file *settings.ini*(https://github.com/miouge/manga-java-tools/tree/main/manga-tools/template/settings.ini) of the template folder into your %MGTW_ROOT_FOLDER%/default/ folder
 - [ ] Create the %MGTW_ROOT_FOLDER%/default/archives/ and put into the CBZ or CBR or PDF manga files
 
 ### Folders structure : 
