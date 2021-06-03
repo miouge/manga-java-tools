@@ -123,11 +123,15 @@ public class GeneratePDF {
 			// compile picture list
 			for(  String location : locations ) {
 
-				Tools.listInputFiles( location, ".*\\.jpe?g", files, true, true );
-				Tools.listInputFiles( location, ".*\\.png", files, true, true );
+				Tools.listInputFiles( location, ".*\\.jpe?g", files, false, true );
+				Tools.listInputFiles( location, ".*\\.png", files, false, true );
 			}
 
 			System.out.format( "total images count : %d files\n", files.size() );
+			
+			if( files.size() == 0 ) {
+				continue;
+			}
 			
 			generatePDF( files, destFilePath + "/" + pdfname, title, author );
 		}

@@ -101,17 +101,17 @@ public class Analyse {
 		int width = srcImage.getWidth();
 		int height = srcImage.getHeight();
 		
-		int leftX = 0;
-		int rightX = width/2;
+		int leftX  = (int)Math.floor((double)width * splitX1Ratio);
+		int rightX = (int)Math.floor((double)width * splitX3Ratio);
 		
-		int leftW = rightX - leftX;
-		int rightW = width - rightX;
+		int leftW  = (int)Math.ceil((double)width * splitX2Ratio) - leftX;
+		int rightW = (int)Math.ceil((double)width * splitX4Ratio) - rightX;
 		
 		int leftY = (int)Math.floor((double)height * splitY1Ratio);
-		int rightY = leftY;  
+		int rightY = leftY;
 		
 		int leftH = (int)Math.ceil((double)height * splitY2Ratio) - leftY;
-		int rightH = leftH; 
+		int rightH = leftH;
 				
 		BufferedImage leftHalf  = srcImage.getSubimage( leftX, leftY, leftW, leftH );
 		BufferedImage rightHalf = srcImage.getSubimage( rightX, rightY, rightW, rightH );
@@ -146,6 +146,11 @@ public class Analyse {
 		File outputfileR = new File( destFolder + "/" + filenameR );
 		ImageIO.write( leftHalf , format, outputfileL );
 		ImageIO.write( rightHalf, format, outputfileR );
+		
+		widths.add(leftHalf.getWidth());
+		heights.add(leftHalf.getHeight());
+		widths.add(rightHalf.getWidth());
+		heights.add(rightHalf.getHeight());
 	}
 	
 	static boolean doSplitImage( BufferedImage srcImage ) throws Exception  {
@@ -245,6 +250,8 @@ public class Analyse {
 		if( copyOriginal ) {
 						
 			Files.copy(Paths.get( fi.fullpathname), Paths.get( destinationPath), StandardCopyOption.REPLACE_EXISTING );
+			widths.add(srcImage.getWidth());
+			heights.add(srcImage.getHeight());
  		}
 		else {
 			// output srcImage to analysed-img/Tn/ ...
@@ -252,10 +259,9 @@ public class Analyse {
 			String format = Tools.getImageFormat(fi.name);
 			File outputfile = new File( destinationPath );
 			ImageIO.write( srcImage , format, outputfile );
+			widths.add(srcImage.getWidth());
+			heights.add(srcImage.getHeight());
 		}
-
-		widths.add(srcImage.getWidth());
-		heights.add(srcImage.getHeight());
 	}
 	
 	static void init( Config config ) throws Exception {
