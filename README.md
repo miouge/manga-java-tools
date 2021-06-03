@@ -27,7 +27,8 @@ it can however lead to crop automatically and reproductively ~90%-95% of the man
 - [ ] You will need to have the jars dependencies installed (into ext/ of the jre)
 - [ ] You will have to set up the environmement variable MGTW_ROOT_FOLDER (that the workspace base folder)
 - [ ] Create the %MGTW_ROOT_FOLDER% and subfolder default/ inside ("default" is the default project name)
-- [ ] Drop the sample file *settings.ini*(https://github.com/miouge/manga-java-tools/tree/main/manga-tools/template/settings.ini) of the template folder into your %MGTW_ROOT_FOLDER%/default/ folder
+- [ ] Drop the sample file [*settings.ini*](/manga-tools/template/settings.ini) of the template folder into your %MGTW_ROOT_FOLDER%/default/ folder
+- [ ] Drop the sample file [*settings.ini*](https://github.com/miouge/manga-java-tools/tree/main/manga-tools/template/settings.ini) of the template folder into your %MGTW_ROOT_FOLDER%/default/ folder
 - [ ] Create the %MGTW_ROOT_FOLDER%/default/archives/ and put into the CBZ or CBR or PDF manga files
 
 ### Folders structure : 
