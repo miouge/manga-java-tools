@@ -87,13 +87,13 @@ public class GeneratePDF {
 
 	static void init( Config config ) throws Exception {
 		
-		firstVol = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "lastVolume" , "1" ));
+		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
 		
-		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		filenameFmt  = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "filenameFmt", Config.projetName + " T%02d.pdf" );
-		titlefmt     = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "titleFmt", Config.projetName + " No %d" );
-		author       = Tools.getIniSetting( Config.settingsFilePath, "GeneratePDF", "author", "NA" );		
+		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "GeneratePDF", "filenameFmt", config.projectName + " T%02d.pdf" );
+		titlefmt     = Tools.getIniSetting( config.settingsFilePath, "GeneratePDF", "titleFmt", config.projectName + " No %d" );
+		author       = Tools.getIniSetting( config.settingsFilePath, "GeneratePDF", "author", "NA" );
 	}	
 	
 	public static void generatePDF() throws Exception {

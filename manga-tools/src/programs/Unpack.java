@@ -296,8 +296,8 @@ public class Unpack {
 	
 	static void init( Config config ) throws Exception {
 		
-		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		flatUnpack = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Unpack", "flatUnpack", "0" ));		
+		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		flatUnpack = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "flatUnpack", "0" ));		
 	}
 
 	// -----------------------	

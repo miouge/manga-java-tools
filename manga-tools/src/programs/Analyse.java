@@ -266,35 +266,35 @@ public class Analyse {
 	
 	static void init( Config config ) throws Exception {
 		
-		firstVol = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "General", "lastVolume" , "1" ));
-		subFolderFmt = Tools.getIniSetting( Config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
+		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		
-		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
-		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
-		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
-		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
+		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
+		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
+		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
+		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
 		
-		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));
+		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));
 		
-		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "forceSplitDoublePageImage"    , "0"  ));
-		splitOnlyIfRatioGreaterThan = Float.parseFloat( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitOnlyIfRatioGreaterThan"  , "99" ));
-		firstPageIsLeftHalf         = Integer.parseInt( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "firstPageIsLeftHalf"          , "0"  ));
+		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "forceSplitDoublePageImage"    , "0"  ));
+		splitOnlyIfRatioGreaterThan = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitOnlyIfRatioGreaterThan"  , "99" ));
+		firstPageIsLeftHalf         = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "firstPageIsLeftHalf"          , "0"  ));
 		
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;
 
-		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitY1Ratio", "0/100" ) );
-		splitY1Ratio = fraction.doubleValue();
-		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitY2Ratio", "100/100" ) );
-		splitY2Ratio = fraction.doubleValue();
-		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitX1Ratio", "0/100" ) );
-		splitX1Ratio = fraction.doubleValue();
-		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitX2Ratio", "50/100" ) );
-		splitX2Ratio = fraction.doubleValue();
-		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitX3Ratio", "50/100" ) );
-		splitX3Ratio = fraction.doubleValue();
-		fraction = ff.parse( Tools.getIniSetting( Config.settingsFilePath, "Analyse", "splitX4Ratio", "100/100" ) );
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitY1Ratio", "0/100" ) );
+		splitY1Ratio = fraction.doubleValue();    
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitY2Ratio", "100/100" ) );
+		splitY2Ratio = fraction.doubleValue();    
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitX1Ratio", "0/100" ) );
+		splitX1Ratio = fraction.doubleValue();    
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitX2Ratio", "50/100" ) );
+		splitX2Ratio = fraction.doubleValue();    
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitX3Ratio", "50/100" ) );
+		splitX3Ratio = fraction.doubleValue();    
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitX4Ratio", "100/100" ) );
 		splitX4Ratio = fraction.doubleValue();
 	}	
 	
