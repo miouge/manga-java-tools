@@ -8,7 +8,7 @@ public class Config {
 	public String rootFolder;
 	
 	// current project name to easily switch between several projects
-	// then project folder will be %MGTW_ROOT_FOLDER%/<projetName>/
+	// then project folder will be %MGT_SCRATCH_FOLDER%/<projetName>/
 	
 	public String projectName = "default";
 
@@ -37,9 +37,9 @@ public class Config {
 
 	private void init() throws Exception {
 
-		String rootFolderEnv = System.getenv( "MGTW_ROOT_FOLDER" );
+		String rootFolderEnv = System.getenv( "MGT_SCRATCH_FOLDER" );
 		if( rootFolderEnv == null ) {
-			throw new Exception( "MGTW_ROOT_FOLDER environment variable is undefined !" );
+			throw new Exception( "MGT_SCRATCH_FOLDER environment variable is undefined !" );
 		}
 		this.rootFolder = rootFolderEnv;
 		settingsFilePath = this.rootFolder + "/" + this.projectName + "/settings.ini";
