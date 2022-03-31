@@ -31,8 +31,13 @@ import beans.Tools;
 
 public class Unpack {
 	
-	static String subFolderFmt;
+	// loaded from settings.ini
+	
+	static Integer firstVol;
+	static Integer lastVol;	
+	static String subFolderFmt;	
 	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)	
+	static int appendOnly = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
 		
 	// Zip Unpack (2 functions possibles to try)
 	
@@ -296,8 +301,11 @@ public class Unpack {
 	
 	static void init( Config config ) throws Exception {
 		
+		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));		
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		flatUnpack = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "flatUnpack", "0" ));		
+		flatUnpack = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "flatUnpack", "1" ));
+		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "appendOnly", "0" ));
 	}
 
 	// -----------------------	
@@ -324,10 +332,17 @@ public class Unpack {
 				return;
 			}
 			
-			// drop output folders if already exist then re-create it 
-			Tools.createFolder( config.originalImgFolder, true, true );
+			if( appendOnly == 1 ) {
+			
+				// create folder if not already existing
+				Tools.createFolder( config.originalImgFolder, false, true );
+			}
+			else {
+				// drop output folders if already exist then re-create it 
+				Tools.createFolder( config.originalImgFolder, true, true );
+			}
 
-			int num = 1;
+			int num = firstVol;
 			int errorCount = 0;
 			for( FileItem fi : files ) {
 
