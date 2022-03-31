@@ -25,15 +25,17 @@ public class Analyse {
 	
 	static ArrayList<Integer> widths = new ArrayList<>();
 	static ArrayList<Integer> heights = new ArrayList<>();
-	
+			
 	static boolean excludeFolderCreated = false;
 	static int excludedCount = 0;
+	static int splittedCount = 0;
 
 	// loaded from settings.ini
 	
 	static Integer firstVol;
 	static Integer lastVol;
 	static String subFolderFmt;
+	static int appendOnly = 1; // ask to append only analysed content to analysed-img/ (default behavior is to drop existing analysed-img/ then recreate it)
 
 	// exclusion
 	
@@ -242,6 +244,7 @@ public class Analyse {
 			
 			String destinationPath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 			splitImage( srcImage, fi, destinationPath );
+			splittedCount++;
 			return;
 		}
 		
@@ -270,6 +273,8 @@ public class Analyse {
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		
+		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "appendOnly", "0" ));
+		
 		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
 		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
 		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
@@ -277,12 +282,15 @@ public class Analyse {
 		
 		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));
 		
-		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "forceSplitDoublePageImage"    , "0"  ));
-		splitOnlyIfRatioGreaterThan = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitOnlyIfRatioGreaterThan"  , "99" ));
-		firstPageIsLeftHalf         = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "firstPageIsLeftHalf"          , "0"  ));
-		
+		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "forceSplitDoublePageImage", "0"  ));
+
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;
+		
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitOnlyIfRatioGreaterThan"  , "100/1" ) );		
+		splitOnlyIfRatioGreaterThan = fraction.floatValue();		
+		
+		firstPageIsLeftHalf         = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "firstPageIsLeftHalf", "0"  ));		
 
 		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitY1Ratio", "0/100" ) );
 		splitY1Ratio = fraction.doubleValue();    
@@ -318,7 +326,15 @@ public class Analyse {
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
 			String outputFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 			
-			Tools.createFolder( outputFolder, true, false );
+			if( appendOnly == 1 ) {
+				
+				// create folder if not already existing
+				Tools.createFolder( outputFolder, false, true );
+			}
+			else {
+				// drop output folders if already exist then re-create it 
+				Tools.createFolder( outputFolder, true, true );
+			}			
 			
 			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
@@ -334,6 +350,9 @@ public class Analyse {
 			if( excludedCount > 0 ) {
 				System.out.format( "   Excluded count : %d (moved apart to excludes/)\n", excludedCount );
 			}
+			if( splittedCount > 0 ) {
+				System.out.format( "   Splitted count : %d\n", splittedCount );
+			}			
 			
 			// compute statistics  
 			
@@ -350,7 +369,14 @@ public class Analyse {
 		        //Standard Deviation 
 		        double standardDeviation = Math.sqrt(variance);
 				
-				System.out.format( "   Width  : [ %d - %d ] avg = %.1f deviation = %.1f\n", minW.getAsInt(), maxW.getAsInt(), avgW.getAsDouble(), standardDeviation );
+		        if( minW.getAsInt() == maxW.getAsInt() )
+		        {
+		        	System.out.format( "   Width  : [ %d ] \n", minW.getAsInt() );		        	
+		        }
+		        else
+		        {
+		        	System.out.format( "   Width  : [ %d - %d ] avg = %.1f deviation = %.1f\n", minW.getAsInt(), maxW.getAsInt(), avgW.getAsDouble(), standardDeviation );
+		        }
 			}
 			if( heights.size() > 0 ) {
 	
@@ -364,8 +390,15 @@ public class Analyse {
 	
 				//Standard Deviation
 				double standardDeviation = Math.sqrt(variance);
-				
-				System.out.format( "   Height : [ %d - %d ] avg = %.1f deviation = %.1f\n", minH.getAsInt(), maxH.getAsInt(), avgH.getAsDouble(), standardDeviation );
+
+		        if( minH.getAsInt() == maxH.getAsInt() )
+		        {
+		        	System.out.format( "   Height  : [ %d ] \n", minH.getAsInt() );		        	
+		        }
+		        else
+		        {
+		        	System.out.format( "   Height : [ %d - %d ] avg = %.1f deviation = %.1f\n", minH.getAsInt(), maxH.getAsInt(), avgH.getAsDouble(), standardDeviation );
+		        }
 			}
 		}
 	}
