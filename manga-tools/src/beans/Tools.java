@@ -65,8 +65,11 @@ public class Tools {
 	            	File file = path.toFile();
 	            	
 	            	// System.out.format( "item %s\n", file.getName() );
-	            	
-	                if( file.getName().matches(pattern) == false ) {
+	            		            	
+	            	// (?i) = case-insensitive mode ON
+	            	// (?-i) = case-insensitive mode OFF	            	
+	                if( file.getName().matches("(?i).*" + pattern + ".*") == false ) 
+	                {
 	                	continue;
 	                }
 
