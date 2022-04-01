@@ -34,6 +34,8 @@ public class AutoCropper {
 	static ArrayList<Integer> stdHs = new ArrayList<>();
 	static ArrayList<Integer> stdvCrops = new ArrayList<>();
 	static ArrayList<Integer> stdhCrops = new ArrayList<>();
+	static double initialPixelsAmountCumul = 0.0;
+	static double finalPixelsAmountCumul = 0.0;
 	
 	static boolean folderStdCreated = false;
 	static boolean folderCheckCreated = false;
@@ -674,6 +676,9 @@ public class AutoCropper {
 
 				File outputfile = new File( context.outpath + "/std/" + img.name );
 				BufferedImage croppedImage = srcImage.getSubimage( img.x, img.y, img.w, img.h );
+				
+				initialPixelsAmountCumul += (double)(srcImage.getWidth() * srcImage.getHeight());
+				finalPixelsAmountCumul += (double)(croppedImage.getWidth() * croppedImage.getHeight());
 
 				if( drawCroppingLine > 0 ) { 
 					
@@ -833,33 +838,44 @@ public class AutoCropper {
 				
 				// compute statistics
 				
-				System.out.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
+				if( context.error > 0 ) {
+				
+					System.err.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
+				}
+				else {
+					
+					System.out.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
+				}
 				
 				if( stdWs.size() > 0 ) {
-					OptionalDouble avgW = stdWs.stream().mapToInt(Integer::intValue).average();
-					System.out.format( "std final avg Width  = %.1f ", avgW.getAsDouble());
+					//OptionalDouble avgW = stdWs.stream().mapToInt(Integer::intValue).average();
+					//System.out.format( "std final avg Width  = %.1f ", avgW.getAsDouble());
 					
 					if( stdvCrops.size() > 0 ) {
-						OptionalDouble avgCropW = stdvCrops.stream().mapToInt(Integer::intValue).average();
-						System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgCropW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
+						//OptionalDouble avgCropW = stdvCrops.stream().mapToInt(Integer::intValue).average();
+						//System.out.format( "avg horizontal crop = %.1f (%.2f%%)\n", avgCropW.getAsDouble(), avgCropW.getAsDouble()/avgW.getAsDouble()*100.0 );
 					}
 					else {
-						System.out.format( "\n" );
+						//System.out.format( "\n" );
 					}
 				}
 				if( stdHs.size() > 0 ) {
 					
-					OptionalDouble avgH = stdHs.stream().mapToInt(Integer::intValue).average();
-					System.out.format( "std final avg Heigth = %.1f ", avgH.getAsDouble());
+					//OptionalDouble avgH = stdHs.stream().mapToInt(Integer::intValue).average();
+					//System.out.format( "std final avg Heigth = %.1f ", avgH.getAsDouble());
 					
 					if( stdhCrops.size() > 0 ) {
-						OptionalDouble avgCropH = stdhCrops.stream().mapToInt(Integer::intValue).average();
-						System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgCropH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
+						//OptionalDouble avgCropH = stdhCrops.stream().mapToInt(Integer::intValue).average();
+						//System.out.format( "avg vertical crop = %.1f (%.2f%%)\n", avgCropH.getAsDouble(), avgCropH.getAsDouble()/avgH.getAsDouble()*100.0 );
 					}	
 					else {
-						System.out.format( "\n" );
+						//System.out.format( "\n" );
 					}
 				}
+				
+				if( initialPixelsAmountCumul > 0.0 && finalPixelsAmountCumul > 0.0 ) {					
+					System.out.format( "pixels cropped = %.2f%%\n", ( 1 - finalPixelsAmountCumul/initialPixelsAmountCumul)*100.0 );	
+				}				
 			}
 		}
 	}

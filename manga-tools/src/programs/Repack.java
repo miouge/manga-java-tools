@@ -15,17 +15,20 @@ import com.itextpdf.text.pdf.PdfWriter;
 import beans.Config;
 import beans.FileItem;
 import beans.Tools;
+import beans.ZipFileCompressUtils;
 
-public class GeneratePDF {
+public class Repack {
 
 	// loaded from settings.ini
 	
 	static Integer firstVol;
 	static Integer lastVol;
 	static String subFolderFmt;
+	static int appendOnly; // ask to append only content to outlet/ (default behavior is to drop existing outlet/ then recreate it)
+	static String format; // cbz, cbr or pdf	
 	static String filenameFmt;
 	static String titlefmt;
-	static String author;
+	static String author;	
 	
 	static void generatePDF( TreeSet<FileItem> files, String destFilePath, String title, String author )  throws Exception {
 
@@ -33,7 +36,7 @@ public class GeneratePDF {
         
         document.addTitle( title );
         document.addAuthor( author );
-        document.addSubject("cropped by fifou in 2020");
+        document.addSubject("cropped by fifou in 2022");
         
         PdfWriter.getInstance(document, new FileOutputStream(new File(destFilePath)));
         document.open();
@@ -83,38 +86,50 @@ public class GeneratePDF {
 		else {
 			locations.add( baseSourcePath + "/tocheck" );
 		}
+		
+		locations.add( baseSourcePath );
 	}
 
 	static void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
-		
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));		
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "GeneratePDF", "filenameFmt", config.projectName + " T%02d.pdf" );
-		titlefmt     = Tools.getIniSetting( config.settingsFilePath, "GeneratePDF", "titleFmt", config.projectName + " No %d" );
-		author       = Tools.getIniSetting( config.settingsFilePath, "GeneratePDF", "author", "NA" );
+		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "appendOnly", "0" ));
+
+		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "pdf" );		
+		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "Repack", "filenameFmt", config.projectName + " T%02d" );
+		titlefmt     = Tools.getIniSetting( config.settingsFilePath, "Repack", "titleFmt", config.projectName + " No %d" );
+		author       = Tools.getIniSetting( config.settingsFilePath, "Repack", "author", "NA" );		
 	}	
 	
-	public static void generatePDF() throws Exception {
+	public static void createArchives() throws Exception {
 		
 		Config config = new Config();
 
 		init( config );
 		
+		if( appendOnly == 1 ) {
+			
+			// create folder if not already existing
+			Tools.createFolder( config.outletFolder, false, true );
+		}
+		else {
+		
+			// drop output folders if already exist then re-create it 
+			Tools.createFolder( config.outletFolder, true, true );
+		}
+		
+		
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 
-			String pdfname = String.format( filenameFmt, volumeNo );
-			String title   = String.format( titlefmt   , volumeNo );
+			String archiveName = String.format( filenameFmt, volumeNo ) + "." + format;
+			String archiveFile = config.outletFolder + "/" + archiveName;
+			String title       = String.format( titlefmt   , volumeNo );			
 			
 	        String baseSourcePath = config.croppedImgFolder + "/" + String.format( subFolderFmt, volumeNo );
-			String destFilePath =  config.outletPdfFolder;
 
-			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered 
-	
-			// create output folders
-			Files.createDirectories(Paths.get( config.outletPdfFolder ));
-			
+			TreeSet<FileItem> files = new TreeSet<>(); // is Naturally ordered 			
 			ArrayList<String> locations = new ArrayList<String>();
 			
 			// get list of folder to browse to collect images to include in the PDF
@@ -126,14 +141,27 @@ public class GeneratePDF {
 				Tools.listInputFiles( location, ".*\\.jpe?g", files, false, true );
 				Tools.listInputFiles( location, ".*\\.png", files, false, true );
 			}
-
+			
 			System.out.format( "total images count : %d files\n", files.size() );
 			
 			if( files.size() == 0 ) {
 				continue;
 			}
 			
-			generatePDF( files, destFilePath + "/" + pdfname, title, author );
+			if( format.equalsIgnoreCase("pdf") ) {
+				
+				generatePDF( files, archiveFile, title, author );
+			}
+			else if( format.equalsIgnoreCase("cbz") ) {
+
+
+		        ZipFileCompressUtils zipFileCompressUtils = new ZipFileCompressUtils();
+		        zipFileCompressUtils.createZipFile( files, archiveFile );
+			}
+			else if( format.equalsIgnoreCase("cbr") ) {
+				
+				// TODO : implement
+			}
 		}
 	}	
 	
@@ -141,7 +169,7 @@ public class GeneratePDF {
 
 		try {
 
-			generatePDF();
+			createArchives();
 			System.out.format( "complete\n" );
 
 		} catch (Exception e) {

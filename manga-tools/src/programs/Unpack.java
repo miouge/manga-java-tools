@@ -37,7 +37,7 @@ public class Unpack {
 	static Integer lastVol;	
 	static String subFolderFmt;	
 	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)	
-	static int appendOnly = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
+	static int appendOnly;     // ask to append only unpacked content to original-img/ (default behavior is to drop existing original-img/ then recreate it)
 		
 	// Zip Unpack (2 functions possibles to try)
 	
@@ -302,10 +302,10 @@ public class Unpack {
 	static void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));		
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
+		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "appendOnly", "0" ));				
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		flatUnpack = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "flatUnpack", "1" ));
-		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "appendOnly", "0" ));
 	}
 
 	// -----------------------	
@@ -338,6 +338,7 @@ public class Unpack {
 				Tools.createFolder( config.originalImgFolder, false, true );
 			}
 			else {
+			
 				// drop output folders if already exist then re-create it 
 				Tools.createFolder( config.originalImgFolder, true, true );
 			}
@@ -381,7 +382,7 @@ public class Unpack {
 	}
 	
 	public static void main(String[] args) {
-
+		
 		// This will list all .cbr or .cbz or .pdf from config.archiveFolder
 		// then unpack all files found to a separate subfolder
 				

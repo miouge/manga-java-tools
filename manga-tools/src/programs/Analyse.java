@@ -35,7 +35,7 @@ public class Analyse {
 	static Integer firstVol;
 	static Integer lastVol;
 	static String subFolderFmt;
-	static int appendOnly = 1; // ask to append only analysed content to analysed-img/ (default behavior is to drop existing analysed-img/ then recreate it)
+	static int appendOnly; // ask to append only analysed content to analysed-img/ (default behavior is to drop existing analysed-img/ then recreate it)
 
 	// exclusion
 	
@@ -273,7 +273,7 @@ public class Analyse {
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		
-		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "appendOnly", "0" ));
+		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "appendOnly", "0" ));
 		
 		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
 		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));

@@ -46,6 +46,33 @@ public class Renamer {
 		return null;
 	}
 	
+	static void listFolders( String pathToSearch, TreeSet<FileItemComparable> folders ) throws Exception {
+		
+    	System.out.format( "browsing %s ...\n", pathToSearch );
+		
+	    try( DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(pathToSearch)) ) {
+	    	
+	        for( Path path : stream)
+	        {	        
+	            if( Files.isDirectory(path) == false ) {
+	            	continue;
+	            }
+	            
+	            // is a directory
+            	File file = path.toFile();
+            	System.out.format( "found %s\n", path.toAbsolutePath().toString() );
+            	
+            	//String filename = file.getName();
+            	
+            	FileItemComparable fi = new FileItemComparable();
+            	fi.name = file.getName();
+            	fi.fullpathname = path.toAbsolutePath().toString();
+            	fi.location = pathToSearch;
+            	folders.add( fi );
+	        }
+	    }
+	}
+	
 	static void listInputFiles( String pathToSearch, TreeSet<FileItemComparable> folders ) throws Exception {
 		
     	System.out.format( "browsing %s ...\n", pathToSearch );
@@ -97,26 +124,26 @@ public class Renamer {
 			
 		TreeSet<FileItemComparable> folders = new TreeSet<>(); // naturaly ordered
 		
-		String pathToSearch  = "C:/Scratch/download/BitTorrent/Bibliotheque FNA propre";
+		String pathToSearch  = "D:/Scratch/manga/Mustang";
 		
 		try
 		{
 			
-			listInputFiles( pathToSearch, folders );
+			listFolders( pathToSearch, folders );
 			
-			/*
-			for( FileItem fi : folders ) {
+			int num = 54;
+			for( FileItemComparable fi : folders ) {
 
-				String newPathName = String.format("%s\\%d - %s", fi.location, fi.num, fi.shortname );
+				//String newPathName = String.format("%s\\%d - %s", fi.location, fi.num, fi.shortname );
+				String newPathName = String.format("%s\\%d", fi.location, num );
 				System.out.format( "renaming to %s ...\n", newPathName );
 				
 				
 				Path path = Paths.get( fi.fullpathname );
 				File file = path.toFile();
 				file.renameTo(  Paths.get( newPathName ).toFile() );
-			}
-			*/
-			
+				num++;
+			}		
 			
 		} catch ( Exception e) {
 

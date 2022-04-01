@@ -32,8 +32,8 @@ public class Config {
 	// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module
 	public String croppedImgFolder;
 
-	// outlet for PDF generation
-	public String outletPdfFolder;
+	// outlet for archive generation (pdf/cbz/cbr)
+	public String outletFolder;
 
 	private void init() throws Exception {
 
@@ -68,7 +68,7 @@ public class Config {
 		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/cropped-img";
 
 		// outlet for PDF generation
-		this.outletPdfFolder = rootFolder + "/" + this.projectName + "/outlet-pdf";
+		this.outletFolder = rootFolder + "/" + this.projectName + "/outlet";
 	}
 	
 	
