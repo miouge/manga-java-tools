@@ -35,7 +35,7 @@ public class Analyse {
 	static Integer firstVol;
 	static Integer lastVol;
 	static String subFolderFmt;
-	static int appendOnly; // ask to append only analysed content to analysed-img/ (default behavior is to drop existing analysed-img/ then recreate it)
+	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 
 	// exclusion
 	
@@ -272,16 +272,14 @@ public class Analyse {
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		
-		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "appendOnly", "0" ));
+		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
 		
 		excludeWidthLessThan     = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthLessThan"     , "-1" ));
 		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
 		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
 		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
 		
-		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));
-		
+		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));		
 		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "forceSplitDoublePageImage", "0"  ));
 
 		FractionFormat ff = new FractionFormat();
@@ -319,6 +317,7 @@ public class Analyse {
 			widths.clear();
 			heights.clear();
 			excludedCount = 0;
+			splittedCount = 0;
 			excludeFolderCreated = false;
 		
 			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
@@ -326,15 +325,7 @@ public class Analyse {
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
 			String outputFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 			
-			if( appendOnly == 1 ) {
-				
-				// create folder if not already existing
-				Tools.createFolder( outputFolder, false, true );
-			}
-			else {
-				// drop output folders if already exist then re-create it 
-				Tools.createFolder( outputFolder, true, true );
-			}			
+			Tools.createFolder( outputFolder, cleanupSubFolders, true );
 			
 			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
 			

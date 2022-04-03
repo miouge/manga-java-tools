@@ -2,8 +2,6 @@ package programs;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -24,7 +22,7 @@ public class Repack {
 	static Integer firstVol;
 	static Integer lastVol;
 	static String subFolderFmt;
-	static int appendOnly; // ask to append only content to outlet/ (default behavior is to drop existing outlet/ then recreate it)
+	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 	static String format; // cbz, cbr or pdf	
 	static String filenameFmt;
 	static String titlefmt;
@@ -95,7 +93,7 @@ public class Repack {
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));		
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
-		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "appendOnly", "0" ));
+		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));
 
 		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "pdf" );		
 		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "Repack", "filenameFmt", config.projectName + " T%02d" );
@@ -109,17 +107,8 @@ public class Repack {
 
 		init( config );
 		
-		if( appendOnly == 1 ) {
-			
-			// create folder if not already existing
-			Tools.createFolder( config.outletFolder, false, true );
-		}
-		else {
-		
-			// drop output folders if already exist then re-create it 
-			Tools.createFolder( config.outletFolder, true, true );
-		}
-		
+		// create folder (optionally drop output folders if already exist then re-create it)
+		Tools.createFolder( config.outletFolder, cleanupSubFolders, false );
 		
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 

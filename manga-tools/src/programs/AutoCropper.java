@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.OptionalDouble;
 import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
@@ -46,7 +45,8 @@ public class AutoCropper {
 	// loaded from settings.ini
 	
 	static Integer firstVol;
-	static Integer lastVol;	
+	static Integer lastVol;
+	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 	
 	static int borderMarginToIgnore = -1;
 
@@ -758,6 +758,8 @@ public class AutoCropper {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
+		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
 		
 		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "0" ));
 		
@@ -784,8 +786,6 @@ public class AutoCropper {
 
 		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalHeightRatio"  , "0/100" ) );
 		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
-		
-		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );		
 	}	
 	
 	public static void autoCrop() throws Exception {
@@ -814,8 +814,8 @@ public class AutoCropper {
 			
 			System.out.format( "[AutoCropper] will crop images of <%s> ...\n", context.srcpath );
 			
-			// drop output folders if already exist then re-create it
-			Tools.createFolder( context.outpath, true, false );
+			// create folder (optionally drop output folders if already exist then re-create it)
+			Tools.createFolder( context.outpath, cleanupSubFolders, false );
 	
 			try ( BufferedWriter writer = new BufferedWriter(new FileWriter(logfile)) )
 			{
