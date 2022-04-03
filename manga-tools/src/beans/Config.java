@@ -17,15 +17,11 @@ public class Config {
 	
 	// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 	// Unpack module source when looking for archives to unpack	
-	public String archiveFolder;;
+	public String archiveFolder;
 
 	// folder that contain analysed image and/or also source of picture file for AutoCropper module
 	public String analysedFolder;
-	
-	// when extracting image from pdf, should we resize the images
-	public boolean resizeImg = false;
-	public int wantedHeight = 1872; // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
-	
+		
 	// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
 	public String originalImgFolder;
 			
@@ -56,10 +52,6 @@ public class Config {
 
 		// folder that contain analysed image and/or also source of picture file for AutoCropper module
 		this.analysedFolder = this.rootFolder + "/" + this.projectName + "/analysed-img";
-		
-		// when extracting image from pdf, should we resize the images
-		this.resizeImg = false;
-		this.wantedHeight = 1872; // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 		
 		// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
 		this.originalImgFolder = rootFolder + "/" + this.projectName + "/original-img";

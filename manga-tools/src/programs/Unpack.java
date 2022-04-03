@@ -12,16 +12,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
-import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 
 import com.github.junrar.Junrar;
 
@@ -34,11 +37,17 @@ public class Unpack {
 	// loaded from settings.ini
 	
 	static Integer firstVol;
-	static Integer lastVol;	
-	static String subFolderFmt;	
-	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)	
-	static int appendOnly;     // ask to append only unpacked content to original-img/ (default behavior is to drop existing original-img/ then recreate it)
-		
+	static Integer lastVol;
+	static String subFolderFmt;
+	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
+	
+	static Integer offsetVolumeNum;
+	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)		
+	
+	// when extracting from pdf
+	static int resizePdfImage = 0; // wshould we resize the images	
+	static int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
+	static String imageNameFmt; // image naming		
 	// Zip Unpack (2 functions possibles to try)
 	
 	// function #1 to unzip
@@ -195,17 +204,17 @@ public class Unpack {
 		
 		Double ratio = null;
 		
-		if( currentHeight <= config.wantedHeight ) {
+		if( currentHeight <= wantedHeight ) {
 			return null;
 		}
 		else {
-			ratio = config.wantedHeight / (double)(currentHeight);
+			ratio = wantedHeight / (double)(currentHeight);
 		}
 		
 		int newHeight = (int)((double)currentHeight * ratio);
 		int newWidth  = (int)((double)currentWidth  * ratio);
 		
-		System.out.format( "resize %dx%d -> %dx%d\n", currentHeight, currentWidth, newHeight, newWidth );
+		// System.out.format( "resize %dx%d -> %dx%d\n", currentHeight, currentWidth, newHeight, newWidth );
 		
         Image originalImage= image.getScaledInstance( newWidth, newHeight, Image.SCALE_DEFAULT);
 
@@ -223,7 +232,7 @@ public class Unpack {
         return resizedImage;
 	}	
 	
-	static void extractPdfContent( Config config, FileItem fi, String destFolder ) throws IOException {
+	static void extractPdfContent( Config config, FileItem fi, String destFolder, int num ) throws IOException {
 		
 		System.out.format( "extract content of %s ...\n", fi.name );
 		
@@ -233,23 +242,21 @@ public class Unpack {
 	    
 	    System.out.format( "page nb = %d\n", document.getNumberOfPages() );
 	    
-	    for( int page = 0; page < document.getNumberOfPages(); ++page ) {
-	    	
-	    	String dest = String.format( "%s/img%03d.jpg", destFolder, page+1 );
+	    for( int page = 0; page < document.getNumberOfPages(); ++page ) {  
 	    	
 	        BufferedImage img = pdfRenderer.renderImageWithDPI( page, 300, ImageType.RGB );
-	        BufferedImage outImg = img;
-	        
-	        if( config.resizeImg ) {
+
+	        if( resizePdfImage > 0 ) {
 	        	BufferedImage resizedImage = resizeImage( config, img );
 	        	if( resizedImage != null ) {
-	        		outImg = resizedImage;
+	        		img = resizedImage;
 	        	}
 	        }
 	        
-	        ImageIOUtil.writeImage( outImg, dest, 300 );
-			
-			System.out.format( "%d ", page + 1 );
+	        String dest = String.format( "%s/" + imageNameFmt + ".jpg", destFolder,  num, (page+1) );
+	        ImageIO.write( img, "jpg", new File( dest ));
+
+	        System.out.format( "%d ", page + 1 );
 	    }
 	    document.close();
 	    
@@ -258,7 +265,7 @@ public class Unpack {
 
 	// -----------------------
 	
-	static void unpackFile( Config config, FileItem fi, String destFolder ) throws Exception {
+	static void unpackFile( Config config, FileItem fi, String destFolder, int num ) throws Exception {
 		
 		// System.out.format( "extract content of %s ...\n", fi.name );
 
@@ -295,17 +302,22 @@ public class Unpack {
 		else if( fi.extention.equals("pdf") ) {
 
 			// pdf document
-			extractPdfContent( config, fi, destFolder );
+			extractPdfContent( config, fi, destFolder, num );
 		}
 	}	
 	
 	static void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
-		appendOnly = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "appendOnly", "0" ));				
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));	
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
+		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
+		
+		offsetVolumeNum  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "offsetVolumeNum" , "0" ));
 		flatUnpack = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "flatUnpack", "1" ));
+		resizePdfImage = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "resizePdfImage", "0" ));
+		wantedHeight = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "wantedHeight", "1872" ));
+		imageNameFmt = Tools.getIniSetting( config.settingsFilePath, "Unpack", "imageNameFmt", "%03d-%03d" );
 	}
 
 	// -----------------------	
@@ -332,43 +344,49 @@ public class Unpack {
 				return;
 			}
 			
-			if( appendOnly == 1 ) {
-			
-				// create folder if not already existing
-				Tools.createFolder( config.originalImgFolder, false, true );
-			}
-			else {
-			
-				// drop output folders if already exist then re-create it 
-				Tools.createFolder( config.originalImgFolder, true, true );
-			}
+			Tools.createFolder( config.originalImgFolder, cleanupSubFolders, true );
 
-			int num = firstVol;
-			int errorCount = 0;
+			int num = 0;
+			Set<Integer> volumeWithErrors = new HashSet<Integer>();  
+			
 			for( FileItem fi : files ) {
+				
+				num++; // [ 1 -> files.size() ] 
+				int volumeNum = num + offsetVolumeNum;
+				
+				if( volumeNum < firstVol ) {
+					continue;
+				}
+				if( volumeNum > lastVol ) {
+					break;
+				}
+				
+				// process file rank = [firstVol-lastVol]
 
 				// for each file ...				
-				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, num ), fi.name );				
+				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, volumeNum ), fi.name );				
 
-				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, num );
+				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNum );
 				Tools.createFolder( destFolder, true, false );
 
 				// unpack ...
 				try
 				{
-					unpackFile( config, fi, destFolder );
+					unpackFile( config, fi, destFolder, volumeNum );
 					
 				} catch ( Exception e ) {
 
 					e.printStackTrace();
-					errorCount++;
+					volumeWithErrors.add( volumeNum );
 				}
-
-				num++;
 			}
 			
-			if( errorCount > 0 ) {
-				System.out.format( "%d error(s) during the processing\n", errorCount );
+			if( volumeWithErrors.size() > 0 ) {				
+				
+				System.err.format( "%d error(s) during the processing : ", volumeWithErrors.size() );				
+				volumeWithErrors.forEach( volumeNum -> {
+					System.err.format( "	volume #%d\n", volumeNum );
+				});
 			}
 			else {
 				System.out.format( "no error : all was fine !\n" );
