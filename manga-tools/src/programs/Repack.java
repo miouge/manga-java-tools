@@ -95,15 +95,13 @@ public class Repack {
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));
 
-		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "pdf" );		
+		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "cbz" );		
 		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "Repack", "filenameFmt", config.projectName + " T%02d" );
 		titlefmt     = Tools.getIniSetting( config.settingsFilePath, "Repack", "titleFmt", config.projectName + " No %d" );
 		author       = Tools.getIniSetting( config.settingsFilePath, "Repack", "author", "NA" );		
 	}	
 	
-	public static void createArchives() throws Exception {
-		
-		Config config = new Config();
+	public static void createArchives( Config config ) throws Exception {
 
 		init( config );
 		
@@ -158,7 +156,8 @@ public class Repack {
 
 		try {
 
-			createArchives();
+			Config config = new Config();
+			createArchives( config );
 			System.out.format( "complete\n" );
 
 		} catch (Exception e) {

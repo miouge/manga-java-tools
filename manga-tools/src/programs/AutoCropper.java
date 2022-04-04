@@ -788,10 +788,8 @@ public class AutoCropper {
 		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
 	}	
 	
-	public static void autoCrop() throws Exception {
+	public static void autoCrop(Config config) throws Exception {
 
-		Config config = new Config();
-		
 		init( config );
 		
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
@@ -884,7 +882,8 @@ public class AutoCropper {
 		
 		try {
 
-			autoCrop();
+			Config config = new Config();
+			autoCrop( config );
 			System.out.format( "complete\n" );
 			
 		} catch (Exception e) {

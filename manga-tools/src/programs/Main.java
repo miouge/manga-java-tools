@@ -1,5 +1,8 @@
 package programs;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -7,6 +10,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import beans.Config;
 
 public class Main {
 
@@ -71,19 +76,35 @@ public class Main {
         boolean debug = cmd.hasOption("debug");
         
         System.out.format( "using project=%s\n", project );
+    
+        Set<String> operationsList = new HashSet<String>(); 
         
-        for( int i = 0 ; i < operations.length ; i++ ) {
-        	System.out.format( "using operations #%d=%s\n", i+1, operations[i] );
+        if( operations != null ) {
+	        for( int i = 0 ; i < operations.length ; i++ ) {
+	        	System.out.format( "using operations #%d=%s\n", i+1, operations[i] );
+	        	operationsList.add( operations[i].toLowerCase() );
+	        }
         }
         if( debug ) {
         	System.out.format( "verbose/debug mode ON\n" );
         }
 		
 		try {
-
-			// TODO ...
-
-
+			Config config = new Config(project);
+			
+			if( operationsList.contains("unpack")) {
+				Unpack.unPackArchiveFolderContent(config);
+			}
+			if( operationsList.contains("analyse")) {
+				Analyse.processOriginalImages(config);
+			}
+			if( operationsList.contains("crop")) {
+				AutoCropper.autoCrop(config);
+			}
+			if( operationsList.contains("repack")) {
+				Repack.createArchives(config);
+			}
+			
 			error = false;
 		}
 		catch ( Exception e )

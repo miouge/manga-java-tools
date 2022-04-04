@@ -304,10 +304,8 @@ public class Analyse {
 		splitX4Ratio = fraction.doubleValue();
 	}	
 	
-	public static void processOriginalImages() throws Exception {
-
-		Config config = new Config();
-
+	public static void processOriginalImages(Config config) throws Exception {
+		
 		init( config );
 		
 		Tools.createFolder( config.analysedFolder, true, false );
@@ -398,7 +396,8 @@ public class Analyse {
 		
 		try {
 			
-			processOriginalImages();
+			Config config = new Config();
+			processOriginalImages(config);
 			System.out.format( "complete\n" );
 			
 		} catch (Exception e) {

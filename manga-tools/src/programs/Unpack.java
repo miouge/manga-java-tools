@@ -322,12 +322,10 @@ public class Unpack {
 
 	// -----------------------	
 	
-	public static void unPackArchiveFolderContent() {
+	public static void unPackArchiveFolderContent(Config config) {
 				
 		try
-		{
-			Config config = new Config();
-			
+		{					
 			init( config );			
 			
 			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
@@ -403,9 +401,16 @@ public class Unpack {
 		
 		// This will list all .cbr or .cbz or .pdf from config.archiveFolder
 		// then unpack all files found to a separate subfolder
-				
-		unPackArchiveFolderContent();
-		
-		System.out.format( "complete\n" );
+
+		try {
+
+			Config config = new Config();
+			unPackArchiveFolderContent( config );
+			System.out.format( "complete\n" );
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}		
 	}		
 }
