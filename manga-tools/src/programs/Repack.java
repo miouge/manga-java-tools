@@ -1,9 +1,20 @@
 package programs;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.List;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Image;
@@ -13,7 +24,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import beans.Config;
 import beans.FileItem;
 import beans.Tools;
-import beans.ZipFileCompressUtils;
 
 public class Repack {
 
@@ -28,7 +38,45 @@ public class Repack {
 	static String titlefmt;
 	static String author;	
 	
-	static void generatePDF( TreeSet<FileItem> files, String destFilePath, String title, String author )  throws Exception {
+    static void generateZipArchive( List<FileItem> files, String zipFileName ) {
+    	    	
+        try {
+        	
+            Path zipFilePath = Paths.get(zipFileName);
+            
+            OutputStream outputStream = Files.newOutputStream(zipFilePath);            
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream);            
+            ZipArchiveOutputStream zipArchiveOutputStream = new ZipArchiveOutputStream(bufferedOutputStream);
+            
+            for( FileItem file : files ) {
+            
+            	String prefix = "";
+            	File fileToZip = new File( file.fullpathname );
+            	
+            	// addFileToZipStream(zipArchiveOutputStream, fileToZip, "");            	
+                
+            	String entryName = prefix + fileToZip.getName();
+            	
+                ZipArchiveEntry zipArchiveEntry = new ZipArchiveEntry( fileToZip, entryName );
+                zipArchiveOutputStream.putArchiveEntry( zipArchiveEntry );
+                
+                FileInputStream fileInputStream = new FileInputStream( fileToZip );
+                IOUtils.copy( fileInputStream, zipArchiveOutputStream );
+                IOUtils.closeQuietly(fileInputStream);
+                
+                zipArchiveOutputStream.closeArchiveEntry();                
+            }
+
+            zipArchiveOutputStream.close();
+            bufferedOutputStream.close();
+            outputStream.close();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }        
+	
+	static void generatePDF( List<FileItem> files, String destFilePath, String title, String author )  throws Exception {
 
         Document document = new Document();
         
@@ -113,13 +161,13 @@ public class Repack {
 			String archiveName = String.format( filenameFmt, volumeNo ) + "." + format;
 			String archiveFile = config.outletFolder + "/" + archiveName;
 			String title       = String.format( titlefmt   , volumeNo );			
-			
-	        String baseSourcePath = config.croppedImgFolder + "/" + String.format( subFolderFmt, volumeNo );
-
-			TreeSet<FileItem> files = new TreeSet<>(); // is Naturally ordered 			
-			ArrayList<String> locations = new ArrayList<String>();
+				        
+			ArrayList<FileItem> files = new ArrayList<>(); // is Naturally ordered 			
+			ArrayList<String> locations = new ArrayList<String>();			
+			locations.add( config.croppedImgFolder );
 			
 			// get list of folder to browse to collect images to include in the PDF
+			String baseSourcePath = config.croppedImgFolder + "/" + String.format( subFolderFmt, volumeNo );			
 			getImagesLocations( baseSourcePath, locations );
 
 			// compile picture list
@@ -142,8 +190,11 @@ public class Repack {
 			else if( format.equalsIgnoreCase("cbz") ) {
 
 
-		        ZipFileCompressUtils zipFileCompressUtils = new ZipFileCompressUtils();
-		        zipFileCompressUtils.createZipFile( files, archiveFile );
+		        //ZipFileCompressUtils zipFileCompressUtils = new ZipFileCompressUtils();
+		        //zipFileCompressUtils.createZipFile( files, archiveFile );
+		        
+				generateZipArchive( files, archiveFile );
+				
 			}
 			else if( format.equalsIgnoreCase("cbr") ) {
 				

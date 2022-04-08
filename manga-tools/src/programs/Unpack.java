@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -277,7 +277,7 @@ public class Unpack {
 			
 			if( flatUnpack > 0 ) {
 				
-				TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
+				ArrayList<FileItem> files = new ArrayList<>();
 				
 				// list recursive images
 				Tools.listInputFiles( destFolder, ".*\\.jpe?g", files, true, false ); // jpg or jpeg
@@ -328,7 +328,7 @@ public class Unpack {
 		{					
 			init( config );			
 			
-			TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
+			ArrayList<FileItem> files = new ArrayList<>(); // Naturally ordered
 			
 			// compile file list
 			

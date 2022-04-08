@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 
@@ -819,7 +818,7 @@ public class AutoCropper {
 			{
 				context.writer = writer;
 				
-				TreeSet<FileItem> files = new TreeSet<>(); // Naturally ordered
+				ArrayList<FileItem> files = new ArrayList<>(); // Naturally ordered
 				
 				// list but not recursive to not process the excludes/ subfolder if this one exist
 				Tools.listInputFiles( context.srcpath, ".*\\.jpe?g", files, false, false ); // jpg or jpeg

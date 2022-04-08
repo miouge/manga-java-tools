@@ -6,8 +6,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
-import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
@@ -46,7 +46,7 @@ public class Tools {
 	      .map(f -> f.substring(filename.lastIndexOf(".") + 1));
 	}	
 	
-	public static int listInputFiles( String pathToSearch, String pattern, TreeSet<FileItem> files, boolean recursive, boolean verbose ) throws IOException {
+	public static int listInputFiles( String pathToSearch, String pattern, List<FileItem> files, boolean recursive, boolean verbose ) throws IOException {
 		
 		int foundNb = 0;
 		

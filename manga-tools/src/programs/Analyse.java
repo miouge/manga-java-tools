@@ -10,7 +10,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
-import java.util.TreeSet;
 
 import javax.imageio.ImageIO;
 
@@ -318,7 +317,7 @@ public class Analyse {
 			splittedCount = 0;
 			excludeFolderCreated = false;
 		
-			TreeSet<FileItem> files = new TreeSet<>(); // naturaly ordered
+			ArrayList<FileItem> files = new ArrayList<>();
 			
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
 			String outputFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );

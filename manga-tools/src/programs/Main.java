@@ -15,10 +15,9 @@ import beans.Config;
 
 public class Main {
 
-
 	// need commons-cli-1.4.jar	
 	// java -jar manga-tools.jar
-	// java -jar manga-tools.jar -p myProject -op UNPACK ANALYSE CROP REPACK
+	// java -jar manga-tools.jar -p theProjectName -op UNPACK ANALYSE CROP REPACK
 	
 	public static void main(String[] args) {
 
@@ -28,9 +27,9 @@ public class Main {
 
         Option projectOpt = new Option("p", "project", true, "Project name (subfolder) to operate (default is \"default\"");
         options.addOption(projectOpt);
-        projectOpt.setRequired(true);        
+        projectOpt.setRequired(true);
 
-        Option operationsOpt = new Option("op", "operations", true, "Operations list to perform {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE)");
+        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE)");
         options.addOption(operationsOpt);
         operationsOpt.setRequired(true);
         operationsOpt.setArgs(Option.UNLIMITED_VALUES); // Set option c to take 1 to oo arguments
@@ -67,7 +66,7 @@ public class Main {
         } catch (ParseException e) {
         	
             System.out.println(e.getMessage());
-            formatter.printHelp("manga-tools a helper to crop manga archives", options);
+            formatter.printHelp("manga-tools a helper to (auto) crop manga images of archives", options);
             System.exit(1);
         }
 
