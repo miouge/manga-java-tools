@@ -27,6 +27,7 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import com.github.junrar.Junrar;
+import com.github.junrar.exception.RarException;
 
 import beans.Config;
 import beans.FileItem;
@@ -47,7 +48,80 @@ public class Unpack {
 	// when extracting from pdf
 	static int resizePdfImage = 0; // wshould we resize the images	
 	static int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
-	static String imageNameFmt; // image naming		
+	static String imageNameFmt; // image naming
+	
+	
+	// RAR Unpack (2 functions possibles to try)
+
+	static Boolean useWinRAR = null;
+	
+	static void unpackWithJUNRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, RarException {
+
+		// rar file
+		
+	}
+	
+	static void unpackRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, InterruptedException, RarException {
+				
+		// check if present winrar (testing the first file only) ...
+		
+		if( useWinRAR == null ) {
+			
+			int exitCodeTest = 1;
+			
+			try {
+				
+				String cmdTest = String.format( "winrar t -y \"%s\"",  fi.fullpathname, destFolder );
+				Process processT = Runtime.getRuntime().exec(cmdTest);			
+				exitCodeTest = processT.waitFor();		
+				System.out.format( "%s : ret=%d\n",cmdTest, exitCodeTest );				
+			} 
+			catch ( Exception e ) {
+			}
+			
+			if( exitCodeTest != 0 ) {				
+				// error while testing
+				useWinRAR = false;
+			}
+			else {
+				useWinRAR = true;
+			}			
+		}
+		
+		if( useWinRAR != null && useWinRAR == true ) {		
+		
+			String cmd = String.format( "winrar x -y \"%s\" \"%s\"",  fi.fullpathname, destFolder );		
+			Process process = Runtime.getRuntime().exec(cmd);			
+			int exitCode = process.waitFor();			
+			System.out.format( "%s : ret=%d\n",cmd, exitCode );
+		}
+		else {
+		
+			// use junrar (not working in all case ... as junrar does not support yet RAR5 format)
+			Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
+		}
+		
+		if( flatUnpack > 0 )
+		{
+			
+			ArrayList<FileItem> files = new ArrayList<>();
+			
+			// list recursive images
+			Tools.listInputFiles( destFolder, ".*\\.jpe?g", files, true, false ); // jpg or jpeg
+			Tools.listInputFiles( destFolder, ".*\\.png", files, true, false );
+
+			for( FileItem img : files ) {
+
+				if( img.folderOnly.length() != destFolder.length() ) {
+
+					// move it to the volume sub folder ...
+					String destination = destFolder + "/" + img.name;
+					Files.move(Paths.get( img.fullpathname), Paths.get( destination), StandardCopyOption.REPLACE_EXISTING);
+				}
+			}
+		}			
+	}
+	
 	// Zip Unpack (2 functions possibles to try)
 	
 	// function #1 to unzip
@@ -164,7 +238,7 @@ public class Unpack {
         System.out.format( "%d files saved\n", fileCount );
     }	
     
-    static void unzipFile( Config config, FileItem fi, String destFolder ) throws Exception {
+    static void unpackZIP( Config config, FileItem fi, String destFolder ) throws Exception {
 
     	boolean success = false;
     	
@@ -232,7 +306,7 @@ public class Unpack {
         return resizedImage;
 	}	
 	
-	static void extractPdfContent( Config config, FileItem fi, String destFolder, int num ) throws IOException {
+	static void unpackPDF( Config config, FileItem fi, String destFolder, int num ) throws IOException {
 		
 		System.out.format( "extract content of %s ...\n", fi.name );
 		
@@ -270,39 +344,19 @@ public class Unpack {
 		// System.out.format( "extract content of %s ...\n", fi.name );
 
 		if( fi.extention.equals("cbr") ) {
-
-			// rar file
-			// using junrar (but junrar does not support yet RAR5 format)
-			Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
 			
-			if( flatUnpack > 0 ) {
-				
-				ArrayList<FileItem> files = new ArrayList<>();
-				
-				// list recursive images
-				Tools.listInputFiles( destFolder, ".*\\.jpe?g", files, true, false ); // jpg or jpeg
-				Tools.listInputFiles( destFolder, ".*\\.png", files, true, false );
-
-				for( FileItem img : files ) {
-
-					if( img.folderOnly.length() != destFolder.length() ) {
-
-						// move it to the volume sub folder ...
-						String destination = destFolder + "/" + img.name;
-						Files.move(Paths.get( img.fullpathname), Paths.get( destination), StandardCopyOption.REPLACE_EXISTING);
-					}
-				}
-			}			
+			// RAR file
+			unpackRAR( flatUnpack, fi, destFolder );
 		}
 		else if( fi.extention.equals("cbz") ) {
 			
 			// zipped file
-			unzipFile( config, fi, destFolder );
+			unpackZIP( config, fi, destFolder );
 		}
 		else if( fi.extention.equals("pdf") ) {
 
 			// pdf document
-			extractPdfContent( config, fi, destFolder, num );
+			unpackPDF( config, fi, destFolder, num );
 		}
 	}	
 	
