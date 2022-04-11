@@ -24,6 +24,7 @@ public class Analyse {
 	
 	static ArrayList<Integer> widths = new ArrayList<>();
 	static ArrayList<Integer> heights = new ArrayList<>();
+	static ArrayList<Double> ratios = new ArrayList<>();
 			
 	static boolean excludeFolderCreated = false;
 	static int excludedCount = 0;
@@ -209,7 +210,7 @@ public class Analyse {
 		
 		File file = new File( fi.fullpathname );
 		BufferedImage srcImage = ImageIO.read( file );
-
+		
 		if( doExcludeImage( srcImage ) ) {
 
 			// copy original image to analysed-img/T.../excludes/ ...
@@ -228,6 +229,10 @@ public class Analyse {
 			excludedCount++;
 			return;
 		}
+		
+		widths.add(srcImage.getWidth());
+		heights.add(srcImage.getHeight());
+		ratios.add( (srcImage.getWidth() * 1.0) / (srcImage.getHeight() * 1.0) );
 		
 		boolean copyOriginal = true;
 		
@@ -252,8 +257,6 @@ public class Analyse {
 		if( copyOriginal ) {
 						
 			Files.copy(Paths.get( fi.fullpathname), Paths.get( destinationPath), StandardCopyOption.REPLACE_EXISTING );
-			widths.add(srcImage.getWidth());
-			heights.add(srcImage.getHeight());
  		}
 		else {
 			// output srcImage to analysed-img/Tn/ ...
@@ -261,9 +264,7 @@ public class Analyse {
 			String format = Tools.getImageFormat(fi.name);
 			File outputfile = new File( destinationPath );
 			ImageIO.write( srcImage , format, outputfile );
-			widths.add(srcImage.getWidth());
-			heights.add(srcImage.getHeight());
-		}
+		}		
 	}
 	
 	static void init( Config config ) throws Exception {
@@ -336,57 +337,55 @@ public class Analyse {
 			
 			System.out.format( "   Total Images count : %d \n", files.size() );
 			if( excludedCount > 0 ) {
-				System.out.format( "   Excluded count : %d (moved apart to excludes/)\n", excludedCount );
+				System.err.format( "   Excluded count : %d (moved apart to excludes/)\n", excludedCount );
 			}
-			if( splittedCount > 0 ) {
-				System.out.format( "   Splitted count : %d\n", splittedCount );
-			}			
 			
-			// compute statistics  
-			
-			if( widths.size() > 0 ) {
+			// compute statistics
+						
+			if( widths.size() > 0 && heights.size() > 0 && ratios.size() > 0 ) {
 				
 				OptionalInt maxW = widths.stream().mapToInt(Integer::intValue).max();
 				OptionalInt minW = widths.stream().mapToInt(Integer::intValue).min();
 				OptionalDouble avgW = widths.stream().mapToInt(Integer::intValue).average();
 				
-		        // Variance
-				double mean = widths.stream().mapToInt(Integer::intValue).average().getAsDouble();
-		        double variance = widths.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();
-		        
-		        //Standard Deviation 
-		        double standardDeviation = Math.sqrt(variance);
-				
-		        if( minW.getAsInt() == maxW.getAsInt() )
-		        {
-		        	System.out.format( "   Width  : [ %d ] \n", minW.getAsInt() );		        	
-		        }
-		        else
-		        {
-		        	System.out.format( "   Width  : [ %d - %d ] avg = %.1f deviation = %.1f\n", minW.getAsInt(), maxW.getAsInt(), avgW.getAsDouble(), standardDeviation );
-		        }
-			}
-			if( heights.size() > 0 ) {
-	
 				OptionalInt maxH = heights.stream().mapToInt(Integer::intValue).max();
 				OptionalInt minH = heights.stream().mapToInt(Integer::intValue).min();
 				OptionalDouble avgH = heights.stream().mapToInt(Integer::intValue).average();
-	
-				// Variance
-				double mean = heights.stream().mapToInt(Integer::intValue).average().getAsDouble();
-				double variance = heights.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();
-	
-				//Standard Deviation
-				double standardDeviation = Math.sqrt(variance);
-
-		        if( minH.getAsInt() == maxH.getAsInt() )
+				
+				OptionalDouble maxR = ratios.stream().mapToDouble(Double::doubleValue).max();
+				OptionalDouble minR = ratios.stream().mapToDouble(Double::doubleValue).min();
+				OptionalDouble avgR = ratios.stream().mapToDouble(Double::doubleValue).average();
+				
+		        // Variance
+				// double mean = widths.stream().mapToInt(Integer::intValue).average().getAsDouble();
+		        // double variance = widths.stream().map( i -> i - mean ).map( i -> i*i ).mapToDouble( i -> i ).average().getAsDouble();		        
+		        // Standard Deviation 
+		        // double standardDeviation = Math.sqrt(variance);
+				
+				String trace = "";
+				
+		        if( minW.getAsInt() == maxW.getAsInt() )
 		        {
-		        	System.out.format( "   Height  : [ %d ] \n", minH.getAsInt() );		        	
+		        	trace += String.format( "   Width [ %d ]", minW.getAsInt() );		        	
 		        }
 		        else
 		        {
-		        	System.out.format( "   Height : [ %d - %d ] avg = %.1f deviation = %.1f\n", minH.getAsInt(), maxH.getAsInt(), avgH.getAsDouble(), standardDeviation );
+		        	trace += String.format( "   Width [ %d - %d ]", minW.getAsInt(), maxW.getAsInt() );
 		        }
+		        if( minH.getAsInt() == maxH.getAsInt() )
+		        {
+		        	trace += String.format( " Height [ %d ]", minH.getAsInt() );		        	
+		        }
+		        else
+		        {
+		        	trace += String.format( " Height [ %d - %d ]", minH.getAsInt(), maxH.getAsInt() );
+		        }
+		        
+	        	trace += String.format( " -> Ratio [ %.2f - %.2f ]", minR.getAsDouble(), maxR.getAsDouble() );
+	        	System.out.println( trace );
+			}
+			if( splittedCount > 0 ) {
+				System.err.format( "   Splitted count : %d\n", splittedCount );
 			}
 		}
 	}

@@ -10,9 +10,7 @@ public class Config {
 	// current project name to easily switch between several projects
 	// then project folder will be %MGT_SCRATCH_FOLDER%/<projetName>/
 	
-	//public String projectName = "default";
-	//public String projectName = "us-Iron-Man";
-	public String projectName = "world-end-harem";
+	public String projectName = "default";
 
 	// settings.ini that can hold any override custom directives about the project
 	public String settingsFilePath;
