@@ -20,13 +20,17 @@ it can however lead to crop automatically and reproductively ~90%-95% of the man
 
 ### Generate the binary :
 
-** manga-tools.jar ** : can be generated with ant using the ant-build.xml into \out
-"command line : java -jar manga-tools.jar -p <myproject> -op UNPACK ANALYSE CROP REPACK"
-"usage: manga-tools a helper to (auto) crop manga images of archives"
-" -d,--debug               switch Debug/Verbose mode on"
-" -op,--operations <arg>   List of operations to perform"
-"                          {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE)"
-" -p,--project <arg>       Project name (subfolder) to operate (default is "default"" 
+**manga-tools.jar** : can be generated with ant using the ant-build.xml into \out.
+
+command line : java -jar manga-tools.jar -p <myproject> -op UNPACK ANALYSE CROP REPACK.
+
+usage: manga-tools a helper to (auto) crop manga images of archives.
+
+ -d,--debug               switch Debug/Verbose mode on.
+
+ -op,--operations <arg>   List of operations to perform {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE).
+
+ -p,--project <arg>       Project name (subfolder) to operate (default is "default").
 
 ### How to use this code : 
 
