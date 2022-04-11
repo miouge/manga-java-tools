@@ -31,6 +31,7 @@ import com.github.junrar.exception.RarException;
 
 import beans.Config;
 import beans.FileItem;
+import beans.Sscanf;
 import beans.Tools;
 
 public class Unpack {
@@ -43,15 +44,15 @@ public class Unpack {
 	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 	
 	static Integer offsetVolumeNum;
-	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)		
+	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
+	static String archiveNamingPattern;
 	
 	// when extracting from pdf
 	static int resizePdfImage = 0; // wshould we resize the images	
 	static int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 	static String imageNameFmt; // image naming
-	
-	
-	// RAR Unpack (2 functions possibles to try)
+
+	// RAR Unpack (2 possibles functions to try)
 
 	static Boolean useWinRAR = null;
 	
@@ -72,14 +73,14 @@ public class Unpack {
 			try {
 				
 				String cmdTest = String.format( "winrar t -y \"%s\"",  fi.fullpathname, destFolder );
-				Process processT = Runtime.getRuntime().exec(cmdTest);			
+				Process processT = Runtime.getRuntime().exec(cmdTest);
 				exitCodeTest = processT.waitFor();		
-				System.out.format( "%s : ret=%d\n",cmdTest, exitCodeTest );				
+				System.out.format( "%s : ret=%d\n",cmdTest, exitCodeTest );
 			} 
 			catch ( Exception e ) {
 			}
 			
-			if( exitCodeTest != 0 ) {				
+			if( exitCodeTest != 0 ) {
 				// error while testing
 				useWinRAR = false;
 			}
@@ -88,11 +89,11 @@ public class Unpack {
 			}			
 		}
 		
-		if( useWinRAR != null && useWinRAR == true ) {		
+		if( useWinRAR != null && useWinRAR == true ) {
 		
-			String cmd = String.format( "winrar x -y \"%s\" \"%s\"",  fi.fullpathname, destFolder );		
-			Process process = Runtime.getRuntime().exec(cmd);			
-			int exitCode = process.waitFor();			
+			String cmd = String.format( "winrar x -y \"%s\" \"%s\"",  fi.fullpathname, destFolder );
+			Process process = Runtime.getRuntime().exec(cmd);
+			int exitCode = process.waitFor();
 			System.out.format( "%s : ret=%d\n",cmd, exitCode );
 		}
 		else {
@@ -122,7 +123,7 @@ public class Unpack {
 		}			
 	}
 	
-	// Zip Unpack (2 functions possibles to try)
+	// Zip Unpack (2 possibles functions to try)
 	
 	// function #1 to unzip
 	static void apacheDecompressZip( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
@@ -363,12 +364,13 @@ public class Unpack {
 	static void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));	
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
 		
 		offsetVolumeNum  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "offsetVolumeNum" , "0" ));
 		flatUnpack = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "flatUnpack", "1" ));
+		archiveNamingPattern = Tools.getIniSetting( config.settingsFilePath, "Unpack", "archiveNamingPattern", "" );
 		resizePdfImage = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "resizePdfImage", "0" ));
 		wantedHeight = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Unpack", "wantedHeight", "1872" ));
 		imageNameFmt = Tools.getIniSetting( config.settingsFilePath, "Unpack", "imageNameFmt", "%03d-%03d" );
@@ -377,12 +379,12 @@ public class Unpack {
 	// -----------------------	
 	
 	public static void unPackArchiveFolderContent(Config config) {
-				
+
 		try
-		{					
-			init( config );			
+		{
+			init( config );
 			
-			ArrayList<FileItem> files = new ArrayList<>(); // Naturally ordered
+			ArrayList<FileItem> files = new ArrayList<>();
 			
 			// compile file list
 			
@@ -394,6 +396,32 @@ public class Unpack {
 			
 			if( files.size() == 0 ) {
 				return;
+			}
+			
+			// if a pattern is defined to determine the rank of the archive
+			if( archiveNamingPattern.length() > 0 ) {
+				
+				ArrayList<FileItem> sortedfiles = new ArrayList<>();
+				
+				for( FileItem fi : files ) {
+
+					// Iron Man #1 Alone Against A.I.M.!.cbr ...
+					// Iron Man #%d %s
+					Object[] info = Sscanf.sscanf( archiveNamingPattern, fi.name );
+					if( info.length < 1 ) {
+						
+						System.err.format( "[Unpack] applying archiveNamingPattern => ignoring archive <%s> ...\n", fi.name );
+						continue;
+					}
+					fi.rank = (Long)info[0];
+					sortedfiles.add( fi );
+				}
+
+				// sorting ascending using rank of the archive
+				sortedfiles.sort(( o1, o2) -> o1.rank.compareTo( o2.rank ));
+
+				// replace initial list with sorted list
+				files = sortedfiles;
 			}
 			
 			Tools.createFolder( config.originalImgFolder, cleanupSubFolders, true );
@@ -409,13 +437,20 @@ public class Unpack {
 				if( volumeNum < firstVol ) {
 					continue;
 				}
-				if( volumeNum > lastVol ) {
-					break;
+				
+				if( lastVol > 0 ) {
+					if( volumeNum > lastVol ) {
+						break;
+					}
+				}
+				else {
+					
+					// lastVol = -1 => mean continue until end of file list
 				}
 				
 				// process file rank = [firstVol-lastVol]
 
-				// for each file ...				
+				// for each file ...
 				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, volumeNum ), fi.name );				
 
 				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNum );
@@ -433,9 +468,9 @@ public class Unpack {
 				}
 			}
 			
-			if( volumeWithErrors.size() > 0 ) {				
+			if( volumeWithErrors.size() > 0 ) {
 				
-				System.err.format( "%d error(s) during the processing : ", volumeWithErrors.size() );				
+				System.err.format( "%d error(s) during the processing : ", volumeWithErrors.size() );
 				volumeWithErrors.forEach( volumeNum -> {
 					System.err.format( "	volume #%d\n", volumeNum );
 				});
@@ -454,7 +489,7 @@ public class Unpack {
 	public static void main(String[] args) {
 		
 		// This will list all .cbr or .cbz or .pdf from config.archiveFolder
-		// then unpack all files found to a separate subfolder
+		// then unpack all files found to a separate subfolder (1 subfolder by file) 
 
 		try {
 

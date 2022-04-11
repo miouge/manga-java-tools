@@ -346,15 +346,15 @@ public class Analyse {
 				
 				OptionalInt maxW = widths.stream().mapToInt(Integer::intValue).max();
 				OptionalInt minW = widths.stream().mapToInt(Integer::intValue).min();
-				OptionalDouble avgW = widths.stream().mapToInt(Integer::intValue).average();
+				// OptionalDouble avgW = widths.stream().mapToInt(Integer::intValue).average();
 				
 				OptionalInt maxH = heights.stream().mapToInt(Integer::intValue).max();
 				OptionalInt minH = heights.stream().mapToInt(Integer::intValue).min();
-				OptionalDouble avgH = heights.stream().mapToInt(Integer::intValue).average();
+				// OptionalDouble avgH = heights.stream().mapToInt(Integer::intValue).average();
 				
 				OptionalDouble maxR = ratios.stream().mapToDouble(Double::doubleValue).max();
 				OptionalDouble minR = ratios.stream().mapToDouble(Double::doubleValue).min();
-				OptionalDouble avgR = ratios.stream().mapToDouble(Double::doubleValue).average();
+				// OptionalDouble avgR = ratios.stream().mapToDouble(Double::doubleValue).average();
 				
 		        // Variance
 				// double mean = widths.stream().mapToInt(Integer::intValue).average().getAsDouble();

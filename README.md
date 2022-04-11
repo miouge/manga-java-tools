@@ -2,24 +2,31 @@
 
 manga-java-tool is a set/collection of JAVA code piece,
 that i personnaly use to automate some tasks
-when i want to process PDF/CBZ/CBR MANGA files in order to crop out most of the useless pictures areas (white or black margins) then repack the result into PDF files.
-I do this because, i read my mangas on my 7'8 inch B&W Reader (a Vilio Ink Pad 3), and i like to maximize the display of the device to ease the reading.
+when i want to process PDF/CBZ/CBR MANGA files in order to crop out most of the useless pictures areas (white or black margins) then repack the result into PDF/CBZ files.
+I do this because, i read my mangas on a 7'8 inch Reader, and i like to maximize the display of the device to ease the reading.
 
 I share this code, as an entry point on the subject, to help anyone who could have the same or close needs as mine.
 
-
 ## modules presentation
 
-**Unpack** : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF) but not yet CBR with RAR5 format.
+**Unpack** : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF), to unpack PDF, if installed winrar will use prefered (as RAR5 format is correctly managed).
 
-**Analyse** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes (min/max/average/standard deviation). it can also be used to exclude images based on size consideration.
-it can also be used to rotate original images. it can also be used to split rotate original dual page images.
+**Analyse** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes and ratios. it can also be used to exclude images based on size consideration, to rotate original images, to split rotate original dual page images.
 
 **AutoCropper** : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).using this module usely require iterative try to set the correct detection parameters especially if used with non-official source images.
 it can however lead to crop automatically and reproductively ~90%-95% of the manga content leaving 5-10% to be checked and cropped manually to do this step of work, i'm using the freeware program [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
 
-**GeneratePDF** : will be used to repack into one or multiple PDF files the cropped images 
+**Repack** : will be used to repack into one or multiple PDF/CBZ files the cropped images 
 
+### Generate the binary :
+
+** manga-tools.jar ** : can be generated with ant using the ant-build.xml into \out
+"command line : java -jar manga-tools.jar -p <myproject> -op UNPACK ANALYSE CROP REPACK"
+"usage: manga-tools a helper to (auto) crop manga images of archives"
+" -d,--debug               switch Debug/Verbose mode on"
+" -op,--operations <arg>   List of operations to perform"
+"                          {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE)"
+" -p,--project <arg>       Project name (subfolder) to operate (default is "default"" 
 
 ### How to use this code : 
 
@@ -42,9 +49,9 @@ it can however lead to crop automatically and reproductively ~90%-95% of the man
 - %MGTW_ROOT_FOLDER% / default / cropped-img / std /
 - %MGTW_ROOT_FOLDER% / default / cropped-img / empty /
 - %MGTW_ROOT_FOLDER% / default / cropped-img / errors /
-- %MGTW_ROOT_FOLDER% / default / outlet-pdf /
+- %MGTW_ROOT_FOLDER% / default / outlet /
 
-- archives/ -> {Unpack} -> original-img/ -> {Analyse} -> analysed-img/ -> {AutoCropper} -> cropped-img/ -> {GeneratePDF} -> outlet-pdf/
+- archives/ -> {Unpack} -> original-img/ -> {Analyse} -> analysed-img/ -> {AutoCropper} -> cropped-img/ -> {Repack} -> outlet/
 
 ### Development/Running environnement : 
 

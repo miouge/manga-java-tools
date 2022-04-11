@@ -6,10 +6,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-//import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-//import java.util.stream.StreamSupport;
 
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
@@ -57,12 +55,6 @@ public class Tools {
 		}
 		
 	    try( DirectoryStream<Path> stream = Files.newDirectoryStream( Paths.get(pathToSearch) ) ) {
-
-			/*
-	    	StreamSupport.stream( stream.spliterator(), false)
-	        .sorted( Comparator.comparing( Path::toString ))
-	        .forEach( p -> { System.out.println("reading: " + p); });
-			*/	    	
 	    	
 	        for( Path path : stream) {
 	        		        	
