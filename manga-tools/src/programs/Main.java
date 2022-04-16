@@ -29,7 +29,7 @@ public class Main {
         options.addOption(projectOpt);
         projectOpt.setRequired(true);
 
-        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE)");
+        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform with spaces UNPACK ANALYSE CROP REPACK (default is none)");
         options.addOption(operationsOpt);
         operationsOpt.setRequired(true);
         operationsOpt.setArgs(Option.UNLIMITED_VALUES); // Set option c to take 1 to oo arguments

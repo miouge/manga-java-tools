@@ -314,6 +314,7 @@ public class Analyse {
 			
 			widths.clear();
 			heights.clear();
+			ratios.clear();
 			excludedCount = 0;
 			splittedCount = 0;
 			excludeFolderCreated = false;
