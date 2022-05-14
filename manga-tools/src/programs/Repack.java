@@ -173,32 +173,37 @@ public class Repack {
 			// compile picture list
 			for(  String location : locations ) {
 
-				Tools.listInputFiles( location, ".*\\.jpe?g", files, false, true );
-				Tools.listInputFiles( location, ".*\\.png", files, false, true );
+				Tools.listInputFiles( location, ".*\\.jpe?g", files, false, false );
+				Tools.listInputFiles( location, ".*\\.png", files, false, false );
 			}
 			
-			System.out.format( "total images count : %d files\n", files.size() );
+			System.out.format( "total images count : %d files ... ", files.size() );
 			
 			if( files.size() == 0 ) {
 				continue;
 			}
 			
+			boolean success = false;
 			if( format.equalsIgnoreCase("pdf") ) {
 				
 				generatePDF( files, archiveFile, title, author );
+				success = true;
 			}
 			else if( format.equalsIgnoreCase("cbz") ) {
 
-
-		        //ZipFileCompressUtils zipFileCompressUtils = new ZipFileCompressUtils();
-		        //zipFileCompressUtils.createZipFile( files, archiveFile );
-		        
 				generateZipArchive( files, archiveFile );
-				
+				success = true;
 			}
 			else if( format.equalsIgnoreCase("cbr") ) {
 				
 				// TODO : implement
+			}
+			
+			if( success ) {
+				System.out.format( "-> %s OK\n", archiveName );
+			}
+			else {
+				System.out.format( "-> %s FAILED\n", archiveName );
 			}
 		}
 	}	

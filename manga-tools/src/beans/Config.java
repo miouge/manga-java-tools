@@ -18,14 +18,14 @@ public class Config {
 	// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 	// Unpack module source when looking for archives to unpack	
 	public String archiveFolder;
-
-	// folder that contain analysed image and/or also source of picture file for AutoCropper module
-	public String analysedFolder;
 		
-	// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
+	// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for Analyse module
 	public String originalImgFolder;
+	
+	// folder that contain analysed image and/or also source of picture file for AutoCropper module
+	public String analysedFolder;	
 			
-	// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module
+	// outlet for cropping operation and/or also source based location of picture file for Repack module
 	public String croppedImgFolder;
 
 	// outlet for archive generation (pdf/cbz/cbr)
@@ -48,19 +48,19 @@ public class Config {
 		
 		// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 		// Unpack module source when looking for archives to unpack	
-		this.archiveFolder = this.rootFolder + "/" + this.projectName + "/archives";
+		this.archiveFolder = this.rootFolder + "/" + this.projectName + "/A-archives";
 
-		// folder that contain analysed image and/or also source of picture file for AutoCropper module
-		this.analysedFolder = this.rootFolder + "/" + this.projectName + "/analysed-img";
-		
 		// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
-		this.originalImgFolder = rootFolder + "/" + this.projectName + "/original-img";
+		this.originalImgFolder = rootFolder + "/" + this.projectName + "/B-original-img";
+		
+		// folder that contain analysed image and/or also source of picture file for AutoCropper module
+		this.analysedFolder = this.rootFolder + "/" + this.projectName + "/C-analysed-img";		
 				
 		// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module
-		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/cropped-img";
+		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/D-cropped-img";
 
 		// outlet for PDF generation
-		this.outletFolder = rootFolder + "/" + this.projectName + "/outlet";
+		this.outletFolder = rootFolder + "/" + this.projectName + "/E-outlet";
 	}
 	
 	

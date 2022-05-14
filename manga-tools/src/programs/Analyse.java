@@ -338,7 +338,7 @@ public class Analyse {
 			
 			System.out.format( "   Total Images count : %d \n", files.size() );
 			if( excludedCount > 0 ) {
-				System.err.format( "   Excluded count : %d (moved apart to excludes/)\n", excludedCount );
+				System.err.format( "   *** Excluded count : %d (moved apart to excludes/)\n", excludedCount );
 			}
 			
 			// compute statistics
@@ -386,7 +386,7 @@ public class Analyse {
 	        	System.out.println( trace );
 			}
 			if( splittedCount > 0 ) {
-				System.err.format( "   Splitted count : %d\n", splittedCount );
+				System.err.format( "   *** Splitted count : %d\n", splittedCount );
 			}
 		}
 	}
