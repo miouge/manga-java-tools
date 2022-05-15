@@ -22,13 +22,13 @@ it can however lead to crop automatically and reproductively ~90%-95% of the man
 
 **manga-tools.jar** : can be generated with ant using the ant-build.xml into \out.
 
-command line : java -jar manga-tools.jar -p <myproject> -op UNPACK ANALYSE CROP REPACK.
+command line : java -jar manga-tools.jar -p <myproject> -op CREATE or ALL or UNPACK ANALYSE CROP REPACK.
 
 usage: manga-tools a helper to (auto) crop manga images of archives.
 
  -d,--debug               switch Debug/Verbose mode on.
 
- -op,--operations <arg>   List of operations to perform {UNPACK/ANALYSE/CROP/REPACK/NONE} (default is NONE).
+ -op,--operations <arg>   List of operations to perform CREATE or ALL or UNPACK ANALYSE CROP REPACK. (default is none).
 
  -p,--project <arg>       Project name (subfolder) to operate (default is "default").
 
@@ -44,18 +44,18 @@ usage: manga-tools a helper to (auto) crop manga images of archives.
 ### Folders structure : 
 
 - %MGTW_ROOT_FOLDER% / default /
-- %MGTW_ROOT_FOLDER% / default / archives /
-- %MGTW_ROOT_FOLDER% / default / original-img /
-- %MGTW_ROOT_FOLDER% / default / analysed-img /
-- %MGTW_ROOT_FOLDER% / default / analysed-img / excludes /
-- %MGTW_ROOT_FOLDER% / default / cropped-img /
-- %MGTW_ROOT_FOLDER% / default / cropped-img / tocheck /
-- %MGTW_ROOT_FOLDER% / default / cropped-img / std /
-- %MGTW_ROOT_FOLDER% / default / cropped-img / empty /
-- %MGTW_ROOT_FOLDER% / default / cropped-img / errors /
-- %MGTW_ROOT_FOLDER% / default / outlet /
+- %MGTW_ROOT_FOLDER% / default / A-archives /
+- %MGTW_ROOT_FOLDER% / default / B-original-img /
+- %MGTW_ROOT_FOLDER% / default / C-analysed-img /
+- %MGTW_ROOT_FOLDER% / default / C-analysed-img / excludes /
+- %MGTW_ROOT_FOLDER% / default / D-cropped-img /
+- %MGTW_ROOT_FOLDER% / default / D-cropped-img / tocheck /
+- %MGTW_ROOT_FOLDER% / default / D-cropped-img / std /
+- %MGTW_ROOT_FOLDER% / default / D-cropped-img / empty /
+- %MGTW_ROOT_FOLDER% / default / D-cropped-img / errors /
+- %MGTW_ROOT_FOLDER% / default / E-outlet /
 
-- archives/ -> {Unpack} -> original-img/ -> {Analyse} -> analysed-img/ -> {AutoCropper} -> cropped-img/ -> {Repack} -> outlet/
+- A-archives/ -> {Unpack} -> B-original-img/ -> {Analyse} -> C-analysed-img/ -> {AutoCropper} -> D-cropped-img/ -> {Repack} -> E-outlet/
 
 ### Development/Running environnement : 
 

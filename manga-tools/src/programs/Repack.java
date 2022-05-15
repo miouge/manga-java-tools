@@ -90,7 +90,7 @@ public class Repack {
         int pageCount = 0;
         for( FileItem f : files ) {
         
-        	System.out.format( "add %s\n", f.fullpathname );
+        	// System.out.format( "add %s\n", f.fullpathname );
         	
             document.newPage();
             Image image = Image.getInstance( f.fullpathname );
@@ -143,7 +143,7 @@ public class Repack {
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));
 
-		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "cbz" );		
+		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "pdf" );		
 		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "Repack", "filenameFmt", config.projectName + " T%02d" );
 		titlefmt     = Tools.getIniSetting( config.settingsFilePath, "Repack", "titleFmt", config.projectName + " No %d" );
 		author       = Tools.getIniSetting( config.settingsFilePath, "Repack", "author", "NA" );		

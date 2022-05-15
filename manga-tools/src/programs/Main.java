@@ -12,6 +12,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import beans.Config;
+import beans.Tools;
 
 public class Main {
 
@@ -29,7 +30,7 @@ public class Main {
         options.addOption(projectOpt);
         projectOpt.setRequired(true);
 
-        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform with spaces UNPACK ANALYSE CROP REPACK (default is none)");
+        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform with spaces if many (default will be none):\n CREATE or ALL or UNPACK ANALYSE CROP REPACK");
         options.addOption(operationsOpt);
         operationsOpt.setRequired(true);
         operationsOpt.setArgs(Option.UNLIMITED_VALUES); // Set option c to take 1 to oo arguments
@@ -66,7 +67,7 @@ public class Main {
         } catch (ParseException e) {
         	
             System.out.println(e.getMessage());
-            formatter.printHelp("manga-tools a helper to (auto) crop manga images of archives", options);
+            formatter.printHelp("manga-tools a helper to (auto) crop manga images of archives (-? for help)", options);
             System.exit(1);
         }
 
@@ -89,19 +90,35 @@ public class Main {
         }
 		
 		try {
+			
 			Config config = new Config(project);
 			
-			if( operationsList.contains("unpack")) {
-				Unpack.unPackArchiveFolderContent(config);
+			if( operationsList.contains("create") ) {
+				
+				// create tree folders
+
+				Tools.createFolder( config.archiveFolder, true, true );
+				Tools.createFolder( config.originalImgFolder, true, true );
+				Tools.createFolder( config.analysedFolder, true, true );
+				Tools.createFolder( config.croppedImgFolder, true, true );
+				Tools.createFolder( config.outletFolder, true, true );
+				
+				// TODO : install a default ini file
 			}
-			if( operationsList.contains("analyse")) {
-				Analyse.processOriginalImages(config);
-			}
-			if( operationsList.contains("crop")) {
-				AutoCropper.autoCrop(config);
-			}
-			if( operationsList.contains("repack")) {
-				Repack.createArchives(config);
+			else {
+				
+				if( operationsList.contains("unpack") || operationsList.contains("all")) {
+					Unpack.unPackArchiveFolderContent(config);
+				}
+				if( operationsList.contains("analyse") || operationsList.contains("all")) {
+					Analyse.processOriginalImages(config);
+				}
+				if( operationsList.contains("crop") || operationsList.contains("all")) {
+					AutoCropper.autoCrop(config);
+				}
+				if( operationsList.contains("repack") || operationsList.contains("all")) {
+					Repack.createArchives(config);
+				}
 			}
 			
 			error = false;

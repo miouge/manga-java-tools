@@ -814,7 +814,7 @@ public class AutoCropper {
 			// create folder (optionally drop output folders if already exist then re-create it)
 			Tools.createFolder( context.outpath, cleanupSubFolders, false );
 	
-			try ( BufferedWriter writer = new BufferedWriter(new FileWriter(logfile)) )
+			try( BufferedWriter writer = new BufferedWriter(new FileWriter(logfile)) )
 			{
 				context.writer = writer;
 				
