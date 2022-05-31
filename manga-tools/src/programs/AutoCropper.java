@@ -62,16 +62,17 @@ public class AutoCropper {
 	static float nonBlackNbRatio;
 	static int nonWhiteLevel;
 	static int nonBlackLevel;
-	static int alsoCropBlackArea;
+	static int cropWhiteArea;
+	static int cropBlackArea;
 	static int drawCroppingLine;
-	
+
 	static double toCheckCroppedFinalWidthRatio;
 	static double toCheckCroppedFinalHeightRatio;
-	
+
 	static String subFolderFmt;
 
 	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
-		
+
 		// ignore these pixels close to the borders as it could include some scan artifacts
 		// if borderMarginToIgnore = 5 -> ignore the 5 pixels zone close to the border
 		// 0 mean : does not ignore anything
@@ -185,277 +186,312 @@ public class AutoCropper {
 	// guess y & h
 	static void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 
-		// useless white area detection
-		
-		double nonWhiteNbMin = (double)width * param.nonWhiteNbRatio;
 		int wfirstRow = -1;
-		int wlastRow  = -1;
+		int wlastRow  = -1;	
 		
-		// from the top ...
-
-		for( int row = 0 ; row < height && wfirstRow == -1 ; row++ ) {
-
-			int rowNonWhiteNb = 0;
+		if( param.cropWhiteArea > 0 ) {
+		
+			// useless white area detection
 			
-			for( int col = 0 ; col < width && wfirstRow == -1 ; col++ ) {
+			double nonWhiteNbMin = (double)width * param.nonWhiteNbRatio;
+			
+			// from the top ...
+	
+			for( int row = 0 ; row < height && wfirstRow == -1 ; row++ ) {
+	
+				int rowNonWhiteNb = 0;
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
-
-				rowNonWhiteNb++;
-			}
-			
-			if( rowNonWhiteNb > nonWhiteNbMin ) {
-
-				wfirstRow = row;
-				//System.out.format( "first row %d non white pixel = %d\n", row, rowNonWhiteNb );
-				log.append( String.format( "first row %d non white pixel nb = %d\n", row, rowNonWhiteNb ));
-			}
-			
-			if( row == (height - 1) && wfirstRow == -1 ) {
-			
-				// image if nearly full of white like pixel
-				cdr.isEmpty = true;
-				return;
-			}
-		}
-		
-		// from the bottom ...
-		
-		for( int row = height - 1 ; row >= 0 && wlastRow == -1 ; row-- ) {
-			
-			
-			int rowNonWhiteNb = 0;
-			
-			for( int col = 0 ; col < width && wlastRow == -1 ; col++ ) {
+				for( int col = 0 ; col < width && wfirstRow == -1 ; col++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
+	
+					rowNonWhiteNb++;
+				}
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
-
-				rowNonWhiteNb++;
+				if( rowNonWhiteNb > nonWhiteNbMin ) {
+	
+					wfirstRow = row;
+					//System.out.format( "first row %d non white pixel = %d\n", row, rowNonWhiteNb );
+					log.append( String.format( "first row %d non white pixel nb = %d\n", row, rowNonWhiteNb ));
+				}
+				
+				if( row == (height - 1) && wfirstRow == -1 ) {
+				
+					// image if nearly full of white like pixel
+					cdr.isEmpty = true;
+					return;
+				}
 			}
-
-			if( rowNonWhiteNb > nonWhiteNbMin ) {
-
-				wlastRow = row;
-				//System.out.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb );
-				log.append(String.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb ));
+			
+			// from the bottom ...
+			
+			for( int row = height - 1 ; row >= 0 && wlastRow == -1 ; row-- ) {
+				
+				
+				int rowNonWhiteNb = 0;
+				
+				for( int col = 0 ; col < width && wlastRow == -1 ; col++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
+	
+					rowNonWhiteNb++;
+				}
+	
+				if( rowNonWhiteNb > nonWhiteNbMin ) {
+	
+					wlastRow = row;
+					//System.out.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb );
+					log.append(String.format( "last row %d non white pixel = %d\n", row, rowNonWhiteNb ));
+				}
 			}
 		}
-		
-		if( param.alsoCropBlackArea <= 0 ) {
 
-			cdr.firstRow = wfirstRow;
-			cdr.lastRow = wlastRow;
-
-			log.append(String.format("delta Row =%d\n", cdr.lastRow - cdr.firstRow ));
-			cdr.vCrop = height - (( cdr.lastRow - cdr.firstRow )+1);
-			return;
-		}
-		
-		// useless black area detection
-		
 		int bfirstRow = -1;
 		int blastRow  = -1;
-		double nonBlackNbMin = (double)width * param.nonBlackNbRatio;
 		
-		// from the top ...
-
-		for( int row = 0 ; row < height && bfirstRow == -1 ; row++ ) {
-
+		if( param.cropBlackArea > 0 ) {
+		
+			// useless black area detection
 			
-			int rowNonBlackNb = 0;
+			double nonBlackNbMin = (double)width * param.nonBlackNbRatio;
 			
-			for( int col = 0 ; col < width && bfirstRow == -1 ; col++ ) {
+			// from the top ...
+	
+			for( int row = 0 ; row < height && bfirstRow == -1 ; row++ ) {
+	
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
-
-				rowNonBlackNb++;
+				int rowNonBlackNb = 0;
+				
+				for( int col = 0 ; col < width && bfirstRow == -1 ; col++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+	
+					rowNonBlackNb++;
+				}
+				
+				if( rowNonBlackNb > nonBlackNbMin ) {
+	
+					bfirstRow = row;
+					//System.out.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb );
+					log.append( String.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb ));
+				}
+				
+				if( row == (height - 1) && bfirstRow == -1 ) {
+					
+					// image if nearly full of black like pixel
+					cdr.isEmpty = true;
+					return;
+				}
 			}
 			
-			if( rowNonBlackNb > nonBlackNbMin ) {
-
-				bfirstRow = row;
-				//System.out.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb );
-				log.append( String.format( "first row %d non black pixel nb = %d\n", row, rowNonBlackNb ));
-			}
+			// from the bottom ...
 			
-			if( row == (height - 1) && bfirstRow == -1 ) {
+			for( int row = height - 1 ; row >= 0 && blastRow == -1 ; row-- ) {
 				
-				// image if nearly full of black like pixel
-				cdr.isEmpty = true;
-				return;
-			}			
-		}
-		
-		// from the bottom ...
-		
-		for( int row = height - 1 ; row >= 0 && blastRow == -1 ; row-- ) {
-			
-			int rowNonBlackNb = 0;
-			
-			for( int col = 0 ; col < width && blastRow == -1 ; col++ ) {
+				int rowNonBlackNb = 0;
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
-
-				rowNonBlackNb++;
-			}
-
-			if( rowNonBlackNb > nonBlackNbMin ) {
-
-				blastRow = row;
-				//System.out.format( "last row %d non black pixel = %d\n", row, rowNonBlackNb );
-				log.append(String.format( "last row %d non black pixel = %d\n", row, rowNonBlackNb ));
+				for( int col = 0 ; col < width && blastRow == -1 ; col++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+	
+					rowNonBlackNb++;
+				}
+	
+				if( rowNonBlackNb > nonBlackNbMin ) {
+	
+					blastRow = row;
+					//System.out.format( "last row %d non black pixel = %d\n", row, rowNonBlackNb );
+					log.append(String.format( "last row %d non black pixel = %d\n", row, rowNonBlackNb ));
+				}
 			}
 		}
 		
 		if( wfirstRow != -1 && bfirstRow != -1 ) {
-			cdr.firstRow = ( wfirstRow > bfirstRow ) ? wfirstRow : bfirstRow;
+			cdr.firstRow = ( wfirstRow > bfirstRow ) ? wfirstRow : bfirstRow; // take the max 
 		}
+		else if ( wfirstRow != -1 ) {
+			cdr.firstRow = wfirstRow;
+		}
+		else if ( bfirstRow != -1 ) {
+			cdr.firstRow = bfirstRow;
+		}
+		
+
 		if( wlastRow != -1 && blastRow != -1 ) {
-			cdr.lastRow = ( wlastRow < blastRow ) ? wlastRow : blastRow;
+			cdr.lastRow = ( wlastRow < blastRow ) ? wlastRow : blastRow; // take the minimum
 		}
+		else if ( wlastRow != -1 ) {
+			cdr.lastRow = wlastRow;
+		}
+		else if ( blastRow != -1 ) {
+			cdr.lastRow = blastRow;
+		}
+
+		if( cdr.firstRow != -1 && cdr.lastRow != -1 ) {
 		
-		log.append(String.format("delta Row =%d\n", cdr.lastRow - cdr.firstRow ));
-		
-		cdr.vCrop = height - (( cdr.lastRow - cdr.firstRow )+1);
+			log.append(String.format("delta Row =%d\n", cdr.lastRow - cdr.firstRow ));		
+			cdr.vCrop = height - (( cdr.lastRow - cdr.firstRow )+1);
+		}
+		else {
+			log.append(String.format("unable to detect what rows to crop !\n" ));
+		}
 	}
 	
 	// guess x & w	
 	static void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 		 
-		// useless white area detection
 		
 		int wfirstCol = -1;
 		int wlastCol  = -1;
-		double nonWhiteNbMin = (double) height * param.nonWhiteNbRatio;
-
-		// from the left
 		
-		for( int col = 0; col < width && wfirstCol == -1 ; col++ ) {
+		if( param.cropWhiteArea > 0 ) {
+
+			// useless white area detection
+
+			double nonWhiteNbMin = (double) height * param.nonWhiteNbRatio;
+	
+			// from the left
 			
-			int colNonWhiteNb = 0;
-			
-			for( int row = 0; row < height && wfirstCol == -1 ; row++ ) {
+			for( int col = 0; col < width && wfirstCol == -1 ; col++ ) {
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
+				int colNonWhiteNb = 0;
 				
-				colNonWhiteNb++;
+				for( int row = 0; row < height && wfirstCol == -1 ; row++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
+					
+					colNonWhiteNb++;
+				}
+				
+				if( colNonWhiteNb > nonWhiteNbMin ) {
+	
+					wfirstCol = col;
+					// System.out.format( "first col %d non white pixel = %d\n", col, colNonWhiteNb );
+					log.append(String.format("first col %d non white pixel = %d\n", col, colNonWhiteNb ));
+				}
 			}
 			
-			if( colNonWhiteNb > nonWhiteNbMin ) {
-
-				wfirstCol = col;
-				// System.out.format( "first col %d non white pixel = %d\n", col, colNonWhiteNb );
-				log.append(String.format("first col %d non white pixel = %d\n", col, colNonWhiteNb ));
+			// from the right
+			
+			for( int col = width - 1; col >= 0 && wlastCol == -1 ; col-- ) {
+				
+	
+				
+				int colNonWhiteNb = 0;
+				
+				for( int row = 0; row < height && wlastCol == -1 ; row++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
+					
+					colNonWhiteNb++;
+				}
+	
+				if( colNonWhiteNb > nonWhiteNbMin ) {
+	
+					wlastCol = col;
+					// System.out.format( "last col %d non white pixel = %d\n", col, colNonWhiteNb );
+					log.append(String.format("last col %d non white pixel = %d\n", col, colNonWhiteNb ));
+				}
 			}
 		}
-		
-		// from the right
-		
-		for( int col = width - 1; col >= 0 && wlastCol == -1 ; col-- ) {
-			
 
-			
-			int colNonWhiteNb = 0;
-			
-			for( int row = 0; row < height && wlastCol == -1 ; row++ ) {
-				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey > param.nonWhiteLevel ) {  continue; } // pixel is white-like
-				
-				colNonWhiteNb++;
-			}
-
-			if( colNonWhiteNb > nonWhiteNbMin ) {
-
-				wlastCol = col;
-				// System.out.format( "last col %d non white pixel = %d\n", col, colNonWhiteNb );
-				log.append(String.format("last col %d non white pixel = %d\n", col, colNonWhiteNb ));
-			}
-		}
-		
-		if( param.alsoCropBlackArea <= 0 ) {
-
-			cdr.firstCol = wfirstCol;
-			cdr.lastCol = wlastCol;
-
-			log.append(String.format("delta col=%d\n", cdr.lastCol - cdr.firstCol ));
-			cdr.hCrop = width - (( cdr.lastCol - cdr.firstCol )+1);
-			return;
-		}
-		
-		// useless black area detection
-		
 		int bfirstCol = -1;
 		int blastCol  = -1;
-		double nonBlackNbMin = (double)width * param.nonBlackNbRatio;
-
-		// from the left
 		
-		for( int col = 0; col < width && bfirstCol == -1 ; col++ ) {
-						
-			int colNonBlackNb = 0;
+		if( param.cropBlackArea > 0 ) {
+		
+			// useless black area detection
 			
-			for( int row = 0; row < height && bfirstCol == -1 ; row++ ) {
+			double nonBlackNbMin = (double)width * param.nonBlackNbRatio;
+	
+			// from the left
+			
+			for( int col = 0; col < width && bfirstCol == -1 ; col++ ) {
+							
+				int colNonBlackNb = 0;
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+				for( int row = 0; row < height && bfirstCol == -1 ; row++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+					
+					colNonBlackNb++;
+				}
 				
-				colNonBlackNb++;
+				if( colNonBlackNb > nonBlackNbMin ) {
+	
+					bfirstCol = col;
+					// System.out.format( "first col %d non black pixel = %d\n", col, colNonWhiteNb );
+					log.append(String.format("first col %d non black pixel = %d\n", col, colNonBlackNb ));
+				}
 			}
 			
-			if( colNonBlackNb > nonBlackNbMin ) {
-
-				bfirstCol = col;
-				// System.out.format( "first col %d non black pixel = %d\n", col, colNonWhiteNb );
-				log.append(String.format("first col %d non black pixel = %d\n", col, colNonBlackNb ));
-			}
-		}
-		
-		// from the right
-		
-		for( int col = width - 1; col >= 0 && blastCol == -1 ; col-- ) {
-						
-			int colNonBlackNb = 0;
+			// from the right
 			
-			for( int row = 0; row < height && blastCol == -1 ; row++ ) {
+			for( int col = width - 1; col >= 0 && blastCol == -1 ; col-- ) {
+							
+				int colNonBlackNb = 0;
 				
-				if( isIgnoreZone( row, col, height, width )) { continue; }
-				PixColor pxColor = fastRGB.getColor( col, row );
-				if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
-				
-				colNonBlackNb++;
-			}
-
-			if( colNonBlackNb > nonBlackNbMin ) {
-
-				blastCol = col;
-				// System.out.format( "last col %d non black pixel = %d\n", col, colNonWhiteNb );
-				log.append(String.format("last col %d non black pixel = %d\n", col, colNonBlackNb ));
+				for( int row = 0; row < height && blastCol == -1 ; row++ ) {
+					
+					if( isIgnoreZone( row, col, height, width )) { continue; }
+					PixColor pxColor = fastRGB.getColor( col, row );
+					if( pxColor.grey < param.nonBlackLevel ) {  continue; } // pixel is black-like
+					
+					colNonBlackNb++;
+				}
+	
+				if( colNonBlackNb > nonBlackNbMin ) {
+	
+					blastCol = col;
+					// System.out.format( "last col %d non black pixel = %d\n", col, colNonWhiteNb );
+					log.append(String.format("last col %d non black pixel = %d\n", col, colNonBlackNb ));
+				}
 			}
 		}
 		
 		if( wfirstCol != -1 && bfirstCol != -1 ) {
-			cdr.firstCol = ( wfirstCol > bfirstCol ) ? wfirstCol : bfirstCol;
+			cdr.firstCol = ( wfirstCol > bfirstCol ) ? wfirstCol : bfirstCol; // take the max 
 		}
-		if( wlastCol != -1 && blastCol != -1 ) {
-			cdr.lastCol = ( wlastCol < blastCol ) ? wlastCol : blastCol;
+		else if ( wfirstCol != -1 ) {
+			cdr.firstCol = wfirstCol;
 		}
-			
-		log.append(String.format("delta col=%d\n", cdr.lastCol - cdr.firstCol ));
+		else if ( bfirstCol != -1 ) {
+			cdr.firstCol = bfirstCol;
+		}
+		
 
-		cdr.hCrop = width - (( cdr.lastCol - cdr.firstCol )+1);
+		if( wlastCol != -1 && blastCol != -1 ) {
+			cdr.lastCol = ( wlastCol < blastCol ) ? wlastCol : blastCol; // take the minimum
+		}
+		else if ( wlastCol != -1 ) {
+			cdr.lastCol = wlastCol;
+		}
+		else if ( blastCol != -1 ) {
+			cdr.lastCol = blastCol;
+		}
+
+		if( cdr.firstCol != -1 && cdr.lastCol != -1 ) {
+
+			log.append(String.format("delta col=%d\n", cdr.lastCol - cdr.firstCol ));
+			cdr.hCrop = width - (( cdr.lastCol - cdr.firstCol )+1);
+		}
+		else {
+			log.append(String.format("unable to detect what columns to crop !\n" ));
+		}
 	}
 	
 	static void findCropping( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, DetectionParam param, CropDetectionResult cdr ) throws IOException {
@@ -551,7 +587,9 @@ public class AutoCropper {
 			param.nonBlackNbRatio = nonBlackNbRatio; // 0.25 = 25% = 1 sur 4
 			param.nonWhiteLevel = nonWhiteLevel; // below this grey level
 			param.nonBlackLevel = nonBlackLevel; // greater than this grey level
-			param.alsoCropBlackArea = alsoCropBlackArea;
+			
+			param.cropWhiteArea = cropWhiteArea;
+			param.cropBlackArea = cropBlackArea;
 			
 			try {
 				
@@ -771,12 +809,13 @@ public class AutoCropper {
 		pageNumbersRight1  = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "pageNumbersRight1", "-1" ));
 		pageNumbersRight2  = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "pageNumbersRight2", "-1" ));
 		
-		nonWhiteNbRatio    = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonWhiteNbRatio"   , "0.005" ));
-		nonBlackNbRatio    = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonBlackNbRatio"   , "0.005" ));
-		nonWhiteLevel      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonWhiteLevel"     , "175" ));
-		nonBlackLevel      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonBlackLevel"     , "80" ));
-		alsoCropBlackArea  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "alsoCropBlackArea" , "0" ));
-		drawCroppingLine   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "drawCroppingLine"  , "0" ));
+		nonWhiteNbRatio    = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonWhiteNbRatio"    , "0.005" ));
+		nonBlackNbRatio    = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonBlackNbRatio"    , "0.005" ));
+		nonWhiteLevel      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonWhiteLevel"      , "175"   ));
+		nonBlackLevel      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonBlackLevel"      , "80"    ));
+		cropWhiteArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropWhiteArea"      , "1"     ));
+		cropBlackArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropBlackArea"      , "0"     ));
+		drawCroppingLine   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "drawCroppingLine"   , "0"     ));
 		
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;				
