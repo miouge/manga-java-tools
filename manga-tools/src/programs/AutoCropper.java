@@ -65,6 +65,9 @@ public class AutoCropper {
 	static int cropWhiteArea;
 	static int cropBlackArea;
 	static int drawCroppingLine;
+	
+	static int horizontalPadding;
+	static int verticalPadding;
 
 	static double toCheckCroppedFinalWidthRatio;
 	static double toCheckCroppedFinalHeightRatio;
@@ -575,8 +578,8 @@ public class AutoCropper {
 			return;
 		}
 		
-		int ymargin = 1; // height padding after cropping detection
-		int xmargin = 1; // width padding after cropping detection
+		int ymargin = verticalPadding; // height padding after cropping detection
+		int xmargin = horizontalPadding; // width padding after cropping detection
 			
 		// find standard drawing at first
 		{	
@@ -816,6 +819,9 @@ public class AutoCropper {
 		cropWhiteArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropWhiteArea"      , "1"     ));
 		cropBlackArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropBlackArea"      , "0"     ));
 		drawCroppingLine   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "drawCroppingLine"   , "0"     ));
+		
+		horizontalPadding  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "horizontalPadding"  , "1"     )); 
+		verticalPadding    = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "verticalPadding"    , "1"     )); 
 		
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;				
