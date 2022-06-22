@@ -143,22 +143,17 @@ public class Repack {
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));
 
-		format   = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "pdf" );		
+		format       = Tools.getIniSetting( config.settingsFilePath, "Repack", "format", "both" );		
 		filenameFmt  = Tools.getIniSetting( config.settingsFilePath, "Repack", "filenameFmt", config.projectName + " T%02d" );
 		titlefmt     = Tools.getIniSetting( config.settingsFilePath, "Repack", "titleFmt", config.projectName + " No %d" );
 		author       = Tools.getIniSetting( config.settingsFilePath, "Repack", "author", "NA" );		
 	}	
 	
-	public static void createArchives( Config config ) throws Exception {
-
-		init( config );
-		
-		// create folder (optionally drop output folders if already exist then re-create it)
-		Tools.createFolder( config.outletFolder, cleanupSubFolders, false );
+	public static void createArchives( Config config, String activeFormat ) throws Exception {
 		
 		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
 
-			String archiveName = String.format( filenameFmt, volumeNo ) + "." + format;
+			String archiveName = String.format( filenameFmt, volumeNo ) + "." + activeFormat;
 			String archiveFile = config.outletFolder + "/" + archiveName;
 			String title       = String.format( titlefmt   , volumeNo );			
 				        
@@ -184,19 +179,18 @@ public class Repack {
 			}
 			
 			boolean success = false;
-			if( format.equalsIgnoreCase("pdf") ) {
+			if( activeFormat.equalsIgnoreCase("pdf") ) {
 				
 				generatePDF( files, archiveFile, title, author );
 				success = true;
 			}
-			else if( format.equalsIgnoreCase("cbz") ) {
+			else if( activeFormat.equalsIgnoreCase("cbz") ) {
 
 				generateZipArchive( files, archiveFile );
 				success = true;
 			}
-			else if( format.equalsIgnoreCase("cbr") ) {
+			else {
 				
-				// TODO : implement
 			}
 			
 			if( success ) {
@@ -206,14 +200,31 @@ public class Repack {
 				System.out.format( "-> %s FAILED\n", archiveName );
 			}
 		}
-	}	
+	}
+	
+	public static void repack( Config config ) throws Exception {
+
+		init( config );
+
+		// create folder (optionally drop output folders if already exist then re-create it)
+		Tools.createFolder( config.outletFolder, cleanupSubFolders, false );
+
+		if( format.equalsIgnoreCase("pdf") || format.equalsIgnoreCase("both") ) {
+
+			createArchives( config, "pdf" );
+		}
+		if( format.equalsIgnoreCase("cbz") || format.equalsIgnoreCase("both") ) {
+
+			createArchives( config, "cbz" );
+		}
+	}
 	
 	public static void main(String[] args) {
 
 		try {
 
 			Config config = new Config();
-			createArchives( config );
+			repack( config );
 			System.out.format( "complete\n" );
 
 		} catch (Exception e) {

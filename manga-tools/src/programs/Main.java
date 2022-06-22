@@ -27,13 +27,14 @@ public class Main {
 		Options options = new Options();
 
         Option projectOpt = new Option("p", "project", true, "Project name (subfolder) to operate (default is \"default\"");
-        options.addOption(projectOpt);
         projectOpt.setRequired(true);
+        options.addOption(projectOpt);
+        
 
-        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform with spaces if many (default will be none):\n CREATE or ALL or UNPACK ANALYSE CROP REPACK");
-        options.addOption(operationsOpt);
+        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform with spaces if many (default will be none):\n CREATE or ALL or UNPACK ANALYZE CROP REPACK");
         operationsOpt.setRequired(true);
         operationsOpt.setArgs(Option.UNLIMITED_VALUES); // Set option c to take 1 to oo arguments
+        options.addOption(operationsOpt);
         
         // Maximum of 4 arguments that can pass into option
         // operationsOpt.setArgs(4);
@@ -67,13 +68,19 @@ public class Main {
         } catch (ParseException e) {
         	
             System.out.println(e.getMessage());
-            formatter.printHelp("manga-tools a helper to (auto) crop manga images of archives (-? for help)", options);
+            formatter.printHelp("manga-tools a helper to (auto) crop manga images of archives", options);
             System.exit(1);
         }
-
+        
         String project = cmd.getOptionValue("p", "default");
         String[] operations = cmd.getOptionValues("op");
         boolean debug = cmd.hasOption("debug");
+        
+        if( project == null || operations == null || operations.length == 0 ) {
+        	
+            formatter.printHelp("manga-tools a helper to (auto) crop manga images of archives", options);
+            System.exit(1);        	
+        }        
         
         System.out.format( "using project=%s\n", project );
     
@@ -110,14 +117,14 @@ public class Main {
 				if( operationsList.contains("unpack") || operationsList.contains("all")) {
 					Unpack.unPackArchiveFolderContent(config);
 				}
-				if( operationsList.contains("analyse") || operationsList.contains("all")) {
+				if( operationsList.contains("analyze") || operationsList.contains("all")) {
 					Analyse.processOriginalImages(config);
 				}
 				if( operationsList.contains("crop") || operationsList.contains("all")) {
 					AutoCropper.autoCrop(config);
 				}
 				if( operationsList.contains("repack") || operationsList.contains("all")) {
-					Repack.createArchives(config);
+					Repack.repack(config);
 				}
 			}
 			
