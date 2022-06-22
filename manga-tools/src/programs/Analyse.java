@@ -5,6 +5,7 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -269,8 +270,8 @@ public class Analyse {
 	
 	static void init( Config config ) throws Exception {
 		
-		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
+		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
 		
@@ -310,7 +311,21 @@ public class Analyse {
 		
 		Tools.createFolder( config.analysedFolder, true, false );
 		
-		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+		//for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+			
+		int volumeNo = 1;
+		
+		if( firstVol > 0 ) { // can be = -1
+			volumeNo = firstVol;
+		} 
+			
+		do {
+			
+			if( lastVol > 0 ) { // can be = -1 
+				if( volumeNo > lastVol ) {
+					break;
+				}
+			}
 			
 			widths.clear();
 			heights.clear();
@@ -323,10 +338,19 @@ public class Analyse {
 			
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
 			String outputFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
-			
-			Tools.createFolder( outputFolder, cleanupSubFolders, true );
-			
+						
 			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
+			
+			Path path = Paths.get(sourceFolder);			
+			if( Files.exists(path) == false ) {
+				
+				if( lastVol > 0 ) {
+					System.err.format( "error ! original img folder does not exist <%s>...\n", sourceFolder );
+				}
+				break;
+			}
+			
+			Tools.createFolder( outputFolder, cleanupSubFolders, true );			
 			
 			Tools.listInputFiles( sourceFolder, ".*\\.jpe?g", files, true, false ); // jpg or jpeg
 			Tools.listInputFiles( sourceFolder, ".*\\.png"  , files, true, false );
@@ -388,7 +412,10 @@ public class Analyse {
 			if( splittedCount > 0 ) {
 				System.err.format( "   *** Splitted count : %d\n", splittedCount );
 			}
+			
+			volumeNo++;
 		}
+		while( true );
 	}
 	
 	public static void main(String[] args) {
