@@ -309,10 +309,8 @@ public class Analyse {
 		
 		init( config );
 		
-		Tools.createFolder( config.analysedFolder, true, false );
+		Tools.createFolder( config.analysedFolder, cleanupSubFolders, false );
 		
-		//for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
-			
 		int volumeNo = 1;
 		
 		if( firstVol > 0 ) { // can be = -1

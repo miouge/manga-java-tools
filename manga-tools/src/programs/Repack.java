@@ -138,8 +138,8 @@ public class Repack {
 
 	static void init( Config config ) throws Exception {
 		
-		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));		
+		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));
 
@@ -151,7 +151,19 @@ public class Repack {
 	
 	public static void createArchives( Config config, String activeFormat ) throws Exception {
 		
-		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+		int volumeNo = 1;
+		
+		if( firstVol > 0 ) { // can be = -1
+			volumeNo = firstVol;
+		} 
+			
+		do {
+			
+			if( lastVol > 0 ) { // can be = -1 
+				if( volumeNo > lastVol ) {
+					break;
+				}
+			}		
 
 			String archiveName = String.format( filenameFmt, volumeNo ) + "." + activeFormat;
 			String archiveFile = config.outletFolder + "/" + archiveName;
@@ -173,8 +185,13 @@ public class Repack {
 			}
 			
 			System.out.format( "total images count : %d files ... ", files.size() );
-			
+
 			if( files.size() == 0 ) {
+				
+				if( lastVol <= 0 ) {
+					break;
+				}
+				
 				continue;
 			}
 			
@@ -199,7 +216,10 @@ public class Repack {
 			else {
 				System.out.format( "-> %s FAILED\n", archiveName );
 			}
+
+			volumeNo++;
 		}
+		while( true );			
 	}
 	
 	public static void repack( Config config ) throws Exception {

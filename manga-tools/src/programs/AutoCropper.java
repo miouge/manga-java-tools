@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -796,8 +797,8 @@ public class AutoCropper {
 	
 	static void init( Config config ) throws Exception {
 		
-		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
-		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "1" ));
+		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
+		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
 		
@@ -835,8 +836,22 @@ public class AutoCropper {
 	public static void autoCrop(Config config) throws Exception {
 
 		init( config );
+				
+		Tools.createFolder( config.croppedImgFolder, cleanupSubFolders, false );
 		
-		for( int volumeNo = firstVol ; volumeNo <= lastVol ; volumeNo ++ ) {
+		int volumeNo = 1;
+		
+		if( firstVol > 0 ) { // can be = -1
+			volumeNo = firstVol;
+		} 
+			
+		do {
+			
+			if( lastVol > 0 ) { // can be = -1 
+				if( volumeNo > lastVol ) {
+					break;
+				}
+			}		
 		
 			folderStdCreated = false;
 			folderCheckCreated = false;
@@ -848,6 +863,8 @@ public class AutoCropper {
 			stdHs.clear();
 			stdvCrops.clear();
 			stdhCrops.clear();
+			initialPixelsAmountCumul = 0.0;
+			finalPixelsAmountCumul   = 0.0;
 			
 			Context context = new Context();
 			context.srcpath = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
@@ -855,6 +872,15 @@ public class AutoCropper {
 			String logfile = context.outpath + "/autoCropper.log";
 			
 			System.out.format( "[AutoCropper] will crop images of <%s> ...\n", context.srcpath );
+			
+			Path path = Paths.get(context.srcpath);			
+			if( Files.exists(path) == false ) {
+				
+				if( lastVol > 0 ) {
+					System.err.format( "error ! analysed img folder does not exist <%s>...\n", context.srcpath );
+				}
+				break;
+			}		
 			
 			// create folder (optionally drop output folders if already exist then re-create it)
 			Tools.createFolder( context.outpath, cleanupSubFolders, false );
@@ -885,6 +911,8 @@ public class AutoCropper {
 					System.err.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
 				}
 				else {
+					
+					// TODO : output only > 0 quantity
 					
 					System.out.format( "std=%d untouched=%d empty =%d tocheck=%d error=%d [total=%d]\n", context.std, context.untouched, context.empty, context.tocheck, context.error, (context.std+context.untouched+context.tocheck+context.error+context.empty) );
 				}
@@ -919,7 +947,9 @@ public class AutoCropper {
 					System.out.format( "pixels cropped = %.2f%%\n", ( 1 - finalPixelsAmountCumul/initialPixelsAmountCumul)*100.0 );	
 				}				
 			}
+			volumeNo++;
 		}
+		while( true );
 	}
 	
 	public static void main(String[] args) {
