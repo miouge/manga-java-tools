@@ -48,19 +48,19 @@ public class Config {
 		
 		// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 		// Unpack module source when looking for archives to unpack	
-		this.archiveFolder = this.rootFolder + "/" + this.projectName + "/A-archives";
+		this.archiveFolder = this.rootFolder + "/" + this.projectName + "/a-archives";
 
 		// outlet for extraction/unpack of pdf, cbr, cbz and/or also source of picture file for AutoCropper module
-		this.originalImgFolder = rootFolder + "/" + this.projectName + "/B-original-img";
+		this.originalImgFolder = rootFolder + "/" + this.projectName + "/b-original-img";
 		
 		// folder that contain analysed image and/or also source of picture file for AutoCropper module
-		this.analysedFolder = this.rootFolder + "/" + this.projectName + "/C-analysed-img";		
+		this.analysedFolder = this.rootFolder + "/" + this.projectName + "/c-analysed-img";		
 				
 		// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module
-		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/D-cropped-img";
+		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/e-cropped-img";
 
 		// outlet for PDF generation
-		this.outletFolder = rootFolder + "/" + this.projectName + "/E-outlet";
+		this.outletFolder = rootFolder + "/" + this.projectName + "/e-outlet";
 	}
 	
 	

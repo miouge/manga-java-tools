@@ -118,7 +118,7 @@ public class Main {
 					Unpack.unPackArchiveFolderContent(config);
 				}
 				if( operationsList.contains("analyze") || operationsList.contains("all")) {
-					Analyse.processOriginalImages(config);
+					Analyze.analyzeOriginalImages(config);
 				}
 				if( operationsList.contains("crop") || operationsList.contains("all")) {
 					AutoCropper.autoCrop(config);

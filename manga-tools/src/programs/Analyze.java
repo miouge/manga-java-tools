@@ -21,7 +21,7 @@ import beans.Config;
 import beans.FileItem;
 import beans.Tools;
 
-public class Analyse {
+public class Analyze {
 	
 	static ArrayList<Integer> widths = new ArrayList<>();
 	static ArrayList<Integer> heights = new ArrayList<>();
@@ -305,7 +305,7 @@ public class Analyse {
 		splitX4Ratio = fraction.doubleValue();
 	}	
 	
-	public static void processOriginalImages(Config config) throws Exception {
+	public static void analyzeOriginalImages(Config config) throws Exception {
 		
 		init( config );
 		
@@ -337,7 +337,7 @@ public class Analyse {
 			String sourceFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNo );
 			String outputFolder = config.analysedFolder + "/" + String.format( subFolderFmt, volumeNo );
 						
-			System.out.format( "[Analyse] will compute statistics about content of <%s> ...\n", sourceFolder );
+			System.out.format( "[Analyze] will compute statistics about content of <%s> ...\n", sourceFolder );
 			
 			Path path = Paths.get(sourceFolder);			
 			if( Files.exists(path) == false ) {
@@ -421,7 +421,7 @@ public class Analyse {
 		try {
 			
 			Config config = new Config();
-			processOriginalImages(config);
+			analyzeOriginalImages(config);
 			System.out.format( "complete\n" );
 			
 		} catch (Exception e) {
