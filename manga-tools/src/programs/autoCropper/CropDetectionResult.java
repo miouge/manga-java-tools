@@ -3,10 +3,10 @@ package programs.autoCropper;
 public class CropDetectionResult {
 	
 	// cropping detected
-	public int firstRow = -1;
-	public int lastRow  = -1;
-	public int firstCol = -1;
-	public int lastCol  = -1;
+	public int firstRow = -1; //  [ 0 - Height [
+	public int lastRow  = -1; //  [ 0 - Height [
+	public int firstCol = -1; //  [ 0 - Width [
+	public int lastCol  = -1; //  [ 0 - Width [
 
 	// sum of cropping pixels 
 	public int vCrop  = 0;	

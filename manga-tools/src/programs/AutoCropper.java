@@ -50,6 +50,8 @@ public class AutoCropper {
 	
 	static int borderMarginToIgnore = -1;
 
+	static float readerRatio = -1.0F;
+	
 	static float fullHeight;
 	static float pageNumbersUp;
 	static float pageNumbersDown;
@@ -516,19 +518,57 @@ public class AutoCropper {
 
 		if( cdr.firstCol == -1 || cdr.firstRow == -1 || cdr.lastCol == -1 || cdr.lastRow == -1 ) {			
 			return;
-		}		
+		}
+		
+		// adjust horizontal cropping (with less cropping) in order to stick to the reader ratio ...		
+		if( readerRatio > 0.0F ) {
+			
+			do {
+				
+				if( cdr.hCrop <= 0 ) { 
+					break;
+				}
+				
+				int forecast_w = cdr.lastCol - cdr.firstCol; // width
+				int forecast_h = cdr.lastRow - cdr.firstRow; // height
+				
+				float forecast_ratio = (float)forecast_h / (float)forecast_w;
+				
+				if( forecast_ratio <= readerRatio ) {
+					break;					
+				}
+				
+				// horizontal crop could be less important without any loss when auto-zooming on the reader
+				
+				if( ( cdr.hCrop > 0 ) && ( cdr.firstCol > 0 ) ) {
+					
+					// crop 1 pixel less horizontally ...
+					cdr.firstCol--;
+					cdr.hCrop--;					
+				}
+				
+				if( ( cdr.hCrop > 0 ) && ( cdr.lastCol < (width-1) ) ) {
+
+					// crop 1 pixel less horizontally ...
+					cdr.lastCol++;
+					cdr.hCrop--;
+				}
+			}
+			while( true );
+		}
+
+		// coloring the cropping lines ...		
 		
 		if( drawCroppingLine > 0 ) {
 			drawCroppingLineOnSource( context, fastRGB, srcImage, cdr, height, width );
 		}
-		// record cropping directives
+		// record final cropping directives
 		
 		img.x = cdr.firstCol;
 		img.w = cdr.lastCol - cdr.firstCol; 
 
 		img.y = cdr.firstRow;
-		img.h = cdr.lastRow - cdr.firstRow;
-		
+		img.h = cdr.lastRow - cdr.firstRow;		
 	}
 	
 	static int countBorderUse( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, int height, int width ) throws IOException {
@@ -825,7 +865,11 @@ public class AutoCropper {
 		verticalPadding    = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "verticalPadding"    , "1"     )); 
 		
 		FractionFormat ff = new FractionFormat();
-		Fraction fraction;				
+		Fraction fraction;	
+		
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "readerRatio"  , "-1/1" ) );
+		readerRatio = (float) fraction.doubleValue();
+		
 		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalWidthRatio"   , "0/100" ) );
 		toCheckCroppedFinalWidthRatio = (float) fraction.doubleValue();
 

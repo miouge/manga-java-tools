@@ -57,7 +57,7 @@ public class Config {
 		this.analysedFolder = this.rootFolder + "/" + this.projectName + "/c-analysed-img";		
 				
 		// outlet for cropping operation and/or also source based location of picture file for GeneratePDF module
-		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/e-cropped-img";
+		this.croppedImgFolder = rootFolder + "/" + this.projectName + "/d-cropped-img";
 
 		// outlet for PDF generation
 		this.outletFolder = rootFolder + "/" + this.projectName + "/e-outlet";
