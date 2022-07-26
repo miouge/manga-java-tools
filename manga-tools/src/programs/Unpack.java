@@ -194,7 +194,7 @@ public class Unpack {
                 }
     		}
     	}
-    	System.out.format( "%d files saved\n", fileCount );
+    	System.out.format( " %d files saved\n", fileCount );
     }	
 	
 	// function #2 to unzip
@@ -236,7 +236,7 @@ public class Unpack {
         zis.closeEntry();
         zis.close();
  
-        System.out.format( "%d files saved\n", fileCount );
+        System.out.format( " %d files saved\n", fileCount );
     }	
     
     static void unpackZIP( Config config, FileItem fi, String destFolder ) throws Exception {
@@ -451,7 +451,7 @@ public class Unpack {
 				// process file rank = [firstVol-lastVol]
 
 				// for each file ...
-				System.out.format( "unpack to %s/ the archive <%s> ...\n", String.format( subFolderFmt, volumeNum ), fi.name );				
+				System.out.format( "unpack to %s/ the archive <%s> ...", String.format( subFolderFmt, volumeNum ), fi.name );				
 
 				String destFolder = config.originalImgFolder + "/" + String.format( subFolderFmt, volumeNum );
 				Tools.createFolder( destFolder, true, false );

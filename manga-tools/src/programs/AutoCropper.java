@@ -50,7 +50,7 @@ public class AutoCropper {
 	
 	static int borderMarginToIgnore = -1;
 
-	static float readerRatio = -1.0F;
+	static float readerRatio = -1.0F; // 1.3333... after init by default
 	
 	static float fullHeight;
 	static float pageNumbersUp;
@@ -107,11 +107,10 @@ public class AutoCropper {
 		if( pageNumbersUp     <= 0.0F ) { return false; }
 		if( pageNumbersDown   <= 0.0F ) { return false; }
 		if( fullWidth         <= 0.0F ) { return false; }
+
 		if( pageNumbersLeft1  <= 0.0F ) { return false; }
 		if( pageNumbersLeft2  <= 0.0F ) { return false; }
-		if( pageNumbersRight1 <= 0.0F ) { return false; }
-		if( pageNumbersRight2 <= 0.0F ) { return false; }
-		
+				
 		// expected page numbers position 
 		
 		final float fullH = fullHeight; // original image height on which the measurement has been done
@@ -121,8 +120,16 @@ public class AutoCropper {
 		final float fullW = fullWidth; // original image width on which the measurement has been done
 		final float left1   =  pageNumbersLeft1  / fullW;
 		final float left2   =  pageNumbersLeft2  / fullW;
-		final float right1  =  pageNumbersRight1 / fullW;
-		final float right2  =  pageNumbersRight2 / fullW;
+		
+		float right1  =  left1; // by default to manage if only one location was given
+		float right2  =  left2; // by default to manage if only one location was given
+		
+		if( pageNumbersRight1 > 0.0F )  {
+			right1  =  pageNumbersRight1 / fullW;			
+		}
+		if( pageNumbersRight2 > 0.0F )  {
+			right2  =  pageNumbersRight2 / fullW;			
+		}
 
 		//            left1         left2                 right1      right2   
 		//              v             v                     v            v
@@ -500,6 +507,7 @@ public class AutoCropper {
 		}
 	}
 	
+	// find out and fill CropDetectionResult
 	static void findCropping( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, DetectionParam param, CropDetectionResult cdr ) throws IOException {
 
 		int height = srcImage.getHeight();
@@ -521,35 +529,37 @@ public class AutoCropper {
 		}
 		
 		// adjust horizontal cropping (with less cropping) in order to stick to the reader ratio ...		
-		if( readerRatio > 0.0F ) {
-			
+		if( readerRatio > 0.0F ) // height / width of the reader
+		{
 			do {
-				
-				if( cdr.hCrop <= 0 ) { 
+
+				if( cdr.hCrop <= 0 ) {
 					break;
 				}
 				
-				int forecast_w = cdr.lastCol - cdr.firstCol; // width
-				int forecast_h = cdr.lastRow - cdr.firstRow; // height
+				int forecastH = cdr.lastRow - cdr.firstRow; // result height after cropping
+				int forecastW = cdr.lastCol - cdr.firstCol; // result width  after cropping
+
+				float forecastRatio = (float)forecastH / (float)forecastW;
 				
-				float forecast_ratio = (float)forecast_h / (float)forecast_w;
-				
-				if( forecast_ratio <= readerRatio ) {
+				if( forecastRatio <= readerRatio ) {
 					break;					
 				}
 				
-				// horizontal crop could be less important without any loss when auto-zooming on the reader
+				// not enough width considering the height
+				// so horizontal crop could be less important without any loss when auto-zooming on the reader
+				// look for reduce horizontal crop if any was done ...
 				
 				if( ( cdr.hCrop > 0 ) && ( cdr.firstCol > 0 ) ) {
 					
-					// crop 1 pixel less horizontally ...
+					// crop 1 pixel less horizontally (at the left)...
 					cdr.firstCol--;
 					cdr.hCrop--;					
 				}
 				
 				if( ( cdr.hCrop > 0 ) && ( cdr.lastCol < (width-1) ) ) {
 
-					// crop 1 pixel less horizontally ...
+					// crop 1 pixel less horizontally (at the right)...
 					cdr.lastCol++;
 					cdr.hCrop--;
 				}
@@ -867,7 +877,7 @@ public class AutoCropper {
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;	
 		
-		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "readerRatio"  , "-1/1" ) );
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "readerRatio"  , "1872/1404" ) ); // to disable by default "-1/1"
 		readerRatio = (float) fraction.doubleValue();
 		
 		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalWidthRatio"   , "0/100" ) );
@@ -1009,5 +1019,4 @@ public class AutoCropper {
 			e.printStackTrace();
 		}
 	}
-
 }
