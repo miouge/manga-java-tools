@@ -50,7 +50,7 @@ public class AutoCropper {
 	
 	static int borderMarginToIgnore = -1;
 
-	static float readerRatio = -1.0F; // 1.3333... after init by default
+	static float readerRatio = -1.0F;
 	
 	static float fullHeight;
 	static float pageNumbersUp;
@@ -72,8 +72,8 @@ public class AutoCropper {
 	static int horizontalPadding;
 	static int verticalPadding;
 
-	static double toCheckCroppedFinalWidthRatio;
-	static double toCheckCroppedFinalHeightRatio;
+	static double toCheckCroppedFinalWidthRatio;  // by default 70% of original size
+	static double toCheckCroppedFinalHeightRatio; // by default 70% of original size
 
 	static String subFolderFmt;
 
@@ -877,13 +877,14 @@ public class AutoCropper {
 		FractionFormat ff = new FractionFormat();
 		Fraction fraction;	
 		
-		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "readerRatio"  , "1872/1404" ) ); // to disable by default "-1/1"
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "readerRatio"  , "-1/1" ) ); // to disable by default
+		//fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "readerRatio"  , "1872/1404" ) );
 		readerRatio = (float) fraction.doubleValue();
 		
-		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalWidthRatio"   , "0/100" ) );
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalWidthRatio"   , "70/100" ) );
 		toCheckCroppedFinalWidthRatio = (float) fraction.doubleValue();
 
-		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalHeightRatio"  , "0/100" ) );
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "toCheckCroppedFinalHeightRatio"  , "70/100" ) );
 		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
 	}	
 	
