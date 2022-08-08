@@ -29,16 +29,16 @@ public class Repack {
 
 	// loaded from settings.ini
 	
-	static Integer firstVol;
-	static Integer lastVol;
-	static String subFolderFmt;
-	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
-	static String format; // cbz, cbr or pdf	
-	static String filenameFmt;
-	static String titlefmt;
-	static String author;	
+	Integer firstVol;
+	Integer lastVol;
+	String subFolderFmt;
+	boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
+	String format; // cbz, cbr or pdf	
+	String filenameFmt;
+	String titlefmt;
+	String author;	
 	
-    static void generateZipArchive( List<FileItem> files, String zipFileName ) {
+    void generateZipArchive( List<FileItem> files, String zipFileName ) {
     	    	
         try {
         	
@@ -76,7 +76,7 @@ public class Repack {
         }
     }        
 	
-	static void generatePDF( List<FileItem> files, String destFilePath, String title, String author )  throws Exception {
+	void generatePDF( List<FileItem> files, String destFilePath, String title, String author )  throws Exception {
 
         Document document = new Document();
         
@@ -109,7 +109,7 @@ public class Repack {
 	// TODO : customize image locations path list if needed
 	// each path will be checked to list all images (.jpg .jpeg or .png) it contains
 	// then images will be ordered by names	before insertion into the PDF document
-	public static void getImagesLocations( String baseSourcePath, ArrayList<String> locations ) {
+	public void getImagesLocations( String baseSourcePath, ArrayList<String> locations ) {
 				
 		// select std/_BIC/ subfolder content (manually cropped) if exit instead of std/ content
 		
@@ -136,7 +136,7 @@ public class Repack {
 		locations.add( baseSourcePath );
 	}
 
-	static void init( Config config ) throws Exception {
+	void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
@@ -149,7 +149,7 @@ public class Repack {
 		author       = Tools.getIniSetting( config.settingsFilePath, "Repack", "author", "NA" );		
 	}	
 	
-	public static void createArchives( Config config, String activeFormat ) throws Exception {
+	public void createArchives( Config config, String activeFormat ) throws Exception {
 		
 		int volumeNo = 1;
 		
@@ -222,7 +222,7 @@ public class Repack {
 		while( true );			
 	}
 	
-	public static void repack( Config config ) throws Exception {
+	public void repack( Config config ) throws Exception {
 
 		init( config );
 
@@ -244,7 +244,8 @@ public class Repack {
 		try {
 
 			Config config = new Config();
-			repack( config );
+			Repack repack = new Repack();
+			repack.repack( config );
 			System.out.format( "complete\n" );
 
 		} catch (Exception e) {

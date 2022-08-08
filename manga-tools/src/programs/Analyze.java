@@ -23,30 +23,30 @@ import beans.Tools;
 
 public class Analyze {
 	
-	static ArrayList<Integer> widths = new ArrayList<>();
-	static ArrayList<Integer> heights = new ArrayList<>();
-	static ArrayList<Double> ratios = new ArrayList<>();
+	ArrayList<Integer> widths = new ArrayList<>();
+	ArrayList<Integer> heights = new ArrayList<>();
+	ArrayList<Double> ratios = new ArrayList<>();
 			
-	static boolean excludeFolderCreated = false;
-	static int excludedCount = 0;
-	static int splittedCount = 0;
+	boolean excludeFolderCreated = false;
+	int excludedCount = 0;
+	int splittedCount = 0;
 
 	// loaded from settings.ini
 	
-	static Integer firstVol;
-	static Integer lastVol;
-	static String subFolderFmt;
-	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
+	Integer firstVol;
+	Integer lastVol;
+	String subFolderFmt;
+	boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 
 	// exclusion
 	
-	static int excludeWidthLessThan = -1;
-	static int excludeWidthGreaterThan = -1;
-	static int excludeHeightLessThan = -1;
-	static int excludeHeightGreaterThan = -1;
+	int excludeWidthLessThan = -1;
+	int excludeWidthGreaterThan = -1;
+	int excludeHeightLessThan = -1;
+	int excludeHeightGreaterThan = -1;
 	
 	// rotation
-	static double rotateImageBy = 0.0;
+	double rotateImageBy = 0.0;
 	
 
 	// Spitting
@@ -63,17 +63,17 @@ public class Analyze {
 	//        |          |       |            |
 	//  Height
 	
-	static int forceSplitDoublePageImage = 0;
-	static float splitOnlyIfRatioGreaterThan = 99F;
-	static int firstPageIsLeftHalf = 1;	
-	static double splitY1Ratio = 0.0;
-	static double splitY2Ratio = 1.0;
-	static double splitX1Ratio = 0.0;
-	static double splitX2Ratio = 0.5;
-	static double splitX3Ratio = 0.5;
-	static double splitX4Ratio = 1.0;
+	int forceSplitDoublePageImage = 0;
+	float splitOnlyIfRatioGreaterThan = 99F;
+	int firstPageIsLeftHalf = 1;	
+	double splitY1Ratio = 0.0;
+	double splitY2Ratio = 1.0;
+	double splitX1Ratio = 0.0;
+	double splitX2Ratio = 0.5;
+	double splitX3Ratio = 0.5;
+	double splitX4Ratio = 1.0;
 	
-	private static BufferedImage rotateImage( BufferedImage srcImage, double angle ) {
+	private BufferedImage rotateImage( BufferedImage srcImage, double angle ) {
 		
 		double radian = Math.toRadians(angle);
 		double sin = Math.abs(Math.sin(radian));
@@ -99,7 +99,7 @@ public class Analyze {
 		return rotatedImage;
 	}
 
-	static void splitImage( BufferedImage srcImage, FileItem fi, String destFolder ) throws Exception {
+	void splitImage( BufferedImage srcImage, FileItem fi, String destFolder ) throws Exception {
 		
 		int width = srcImage.getWidth();
 		int height = srcImage.getHeight();
@@ -156,7 +156,7 @@ public class Analyze {
 		heights.add(rightHalf.getHeight());
 	}
 	
-	static boolean doSplitImage( BufferedImage srcImage ) throws Exception  {
+	boolean doSplitImage( BufferedImage srcImage ) throws Exception  {
 
 		if( forceSplitDoublePageImage == 1 ) {
 			return true;
@@ -173,7 +173,7 @@ public class Analyze {
 		return false;
 	}
 
-	static boolean doRotageImage( BufferedImage srcImage ) throws Exception  {
+	boolean doRotageImage( BufferedImage srcImage ) throws Exception  {
 
 		if(( rotateImageBy < -0.0001 )||( 0.0001 < rotateImageBy ) ) {
 			
@@ -184,7 +184,7 @@ public class Analyze {
 		return false;
 	}
 	
-	static boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
+	boolean doExcludeImage( BufferedImage srcImage ) throws Exception  {
 
 		int width = srcImage.getWidth();
 		int height = srcImage.getHeight();
@@ -205,7 +205,7 @@ public class Analyze {
 		return false;
 	}	
 	
-	static void processOriginalImage( Config config, int volumeNo, FileItem fi ) throws Exception  {
+	void processOriginalImage( Config config, int volumeNo, FileItem fi ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
 		
@@ -268,7 +268,7 @@ public class Analyze {
 		}		
 	}
 	
-	static void init( Config config ) throws Exception {
+	void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
@@ -305,7 +305,7 @@ public class Analyze {
 		splitX4Ratio = fraction.doubleValue();
 	}	
 	
-	public static void analyzeOriginalImages(Config config) throws Exception {
+	public void analyzeOriginalImages(Config config) throws Exception {
 		
 		init( config );
 		
@@ -421,7 +421,8 @@ public class Analyze {
 		try {
 			
 			Config config = new Config();
-			analyzeOriginalImages(config);
+			Analyze analyze = new Analyze();
+			analyze.analyzeOriginalImages(config);
 			System.out.format( "complete\n" );
 			
 		} catch (Exception e) {

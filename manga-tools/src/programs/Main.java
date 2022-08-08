@@ -115,16 +115,20 @@ public class Main {
 			else {
 				
 				if( operationsList.contains("unpack") || operationsList.contains("all")) {
-					Unpack.unPackArchiveFolderContent(config);
+					Unpack unpack = new Unpack();
+					unpack.unPackArchiveFolderContent( config );
 				}
 				if( operationsList.contains("analyze") || operationsList.contains("all")) {
-					Analyze.analyzeOriginalImages(config);
+					Analyze analyze = new Analyze();
+					analyze.analyzeOriginalImages(config);
 				}
 				if( operationsList.contains("crop") || operationsList.contains("all")) {
-					AutoCropper.autoCrop(config);
+					AutoCropper autoCropper = new AutoCropper();
+					autoCropper.autoCrop( config );
 				}
 				if( operationsList.contains("repack") || operationsList.contains("all")) {
-					Repack.repack(config);
+					Repack repack = new Repack();
+					repack.repack( config );
 				}
 			}
 			

@@ -29,55 +29,55 @@ import programs.autoCropper.TypeDetected;
 
 public class AutoCropper {
 		
-	static ArrayList<Integer> stdWs = new ArrayList<>();
-	static ArrayList<Integer> stdHs = new ArrayList<>();
-	static ArrayList<Integer> stdvCrops = new ArrayList<>();
-	static ArrayList<Integer> stdhCrops = new ArrayList<>();
-	static double initialPixelsAmountCumul = 0.0;
-	static double finalPixelsAmountCumul = 0.0;
+	ArrayList<Integer> stdWs = new ArrayList<>();
+	ArrayList<Integer> stdHs = new ArrayList<>();
+	ArrayList<Integer> stdvCrops = new ArrayList<>();
+	ArrayList<Integer> stdhCrops = new ArrayList<>();
+	double initialPixelsAmountCumul = 0.0;
+	double finalPixelsAmountCumul = 0.0;
 	
-	static boolean folderStdCreated = false;
-	static boolean folderCheckCreated = false;
-	static boolean folderErrorCreated = false;
-	static boolean folderUntouchedCreated = false;
-	static boolean folderEmptyCreated = false;
+	boolean folderStdCreated = false;
+	boolean folderCheckCreated = false;
+	boolean folderErrorCreated = false;
+	boolean folderUntouchedCreated = false;
+	boolean folderEmptyCreated = false;
 	
 	// loaded from settings.ini
 	
-	static Integer firstVol;
-	static Integer lastVol;
-	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
+	Integer firstVol;
+	Integer lastVol;
+	boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 	
-	static int borderMarginToIgnore = -1;
+	int borderMarginToIgnore = -1;
 
-	static float readerRatio = -1.0F;
+	float readerRatio = -1.0F;
 	
-	static float fullHeight;
-	static float pageNumbersUp;
-	static float pageNumbersDown;
-	static float fullWidth;
-	static float pageNumbersLeft1;
-	static float pageNumbersLeft2;
-	static float pageNumbersRight1;
-	static float pageNumbersRight2;
+	float fullHeight;
+	float pageNumbersUp;
+	float pageNumbersDown;
+	float fullWidth;
+	float pageNumbersLeft1;
+	float pageNumbersLeft2;
+	float pageNumbersRight1;
+	float pageNumbersRight2;
 	
-	static float nonWhiteNbRatio;
-	static float nonBlackNbRatio;
-	static int nonWhiteLevel;
-	static int nonBlackLevel;
-	static int cropWhiteArea;
-	static int cropBlackArea;
-	static int drawCroppingLine;
+	float nonWhiteNbRatio;
+	float nonBlackNbRatio;
+	int nonWhiteLevel;
+	int nonBlackLevel;
+	int cropWhiteArea;
+	int cropBlackArea;
+	int drawCroppingLine;
 	
-	static int horizontalPadding;
-	static int verticalPadding;
+	int horizontalPadding;
+	int verticalPadding;
 
-	static double toCheckCroppedFinalWidthRatio;  // by default 70% of original size
-	static double toCheckCroppedFinalHeightRatio; // by default 70% of original size
+	double toCheckCroppedFinalWidthRatio;  // by default 70% of original size
+	double toCheckCroppedFinalHeightRatio; // by default 70% of original size
 
-	static String subFolderFmt;
+	String subFolderFmt;
 
-	static boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
+	boolean isIgnoreBorderZone( int row, int col, int height, int width ) {
 
 		// ignore these pixels close to the borders as it could include some scan artifacts
 		// if borderMarginToIgnore = 5 -> ignore the 5 pixels zone close to the border
@@ -101,7 +101,7 @@ public class AutoCropper {
 		return false;
 	}
 		
-	static boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
+	boolean isIgnoreZoneRelative( int row, int col, int height, int width ) {
 
 		if( fullHeight        <= 0.0F ) { return false; }
 		if( pageNumbersUp     <= 0.0F ) { return false; }
@@ -125,10 +125,10 @@ public class AutoCropper {
 		float right2  =  left2; // by default to manage if only one location was given
 		
 		if( pageNumbersRight1 > 0.0F )  {
-			right1  =  pageNumbersRight1 / fullW;			
+			right1  =  pageNumbersRight1 / fullW;
 		}
 		if( pageNumbersRight2 > 0.0F )  {
-			right2  =  pageNumbersRight2 / fullW;			
+			right2  =  pageNumbersRight2 / fullW;
 		}
 
 		//            left1         left2                 right1      right2   
@@ -152,7 +152,7 @@ public class AutoCropper {
 		return false;
 	}
 
-	static boolean isIgnoreZone( int row, int col, int height, int width ) {
+	boolean isIgnoreZone( int row, int col, int height, int width ) {
 		
 		if( isIgnoreBorderZone  ( row, col, height, width )) { return true; }
 		if( isIgnoreZoneRelative( row, col, height, width )) { return true; }
@@ -160,7 +160,7 @@ public class AutoCropper {
 		return false;
 	}
 
-	static void drawCroppingLineOnSource( Context context, FastRGB fastRGB, BufferedImage srcImage, CropDetectionResult cdr, int height, int width ) {
+	void drawCroppingLineOnSource( Context context, FastRGB fastRGB, BufferedImage srcImage, CropDetectionResult cdr, int height, int width ) {
 		
 		int red   = new Color(255,0,0).getRGB();
 		int blue  = new Color(0,0,255).getRGB();
@@ -197,7 +197,7 @@ public class AutoCropper {
 	}
 	
 	// guess y & h
-	static void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
+	void findCroppingRow( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 
 		int wfirstRow = -1;
 		int wlastRow  = -1;	
@@ -359,7 +359,7 @@ public class AutoCropper {
 	}
 	
 	// guess x & w	
-	static void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
+	void findCroppingCol( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, DetectionParam param, CropDetectionResult cdr, int height, int width ) throws IOException {
 		 
 		
 		int wfirstCol = -1;
@@ -508,7 +508,7 @@ public class AutoCropper {
 	}
 	
 	// find out and fill CropDetectionResult
-	static void findCropping( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, DetectionParam param, CropDetectionResult cdr ) throws IOException {
+	void findCropping( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, DetectionParam param, CropDetectionResult cdr ) throws IOException {
 
 		int height = srcImage.getHeight();
 		int width = srcImage.getWidth();
@@ -581,7 +581,7 @@ public class AutoCropper {
 		img.h = cdr.lastRow - cdr.firstRow;		
 	}
 	
-	static int countBorderUse( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, int height, int width ) throws IOException {
+	int countBorderUse( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage, int height, int width ) throws IOException {
 		
 		int nonWhiteNb = 0;
 		
@@ -606,7 +606,7 @@ public class AutoCropper {
 		return nonWhiteNb;
 	}	
 
-	static void findImageType( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
+	void findImageType( Context context, StringBuffer log, FileImg img, FastRGB fastRGB, BufferedImage srcImage ) throws IOException {
 		
 		log.append( String.format("--- %s ---\n", img.name ) );
 		
@@ -721,7 +721,7 @@ public class AutoCropper {
 		}
 	}
 		
-	static void processImg( Context context, FileImg img ) throws Exception  {
+	void processImg( Context context, FileImg img ) throws Exception  {
 
 		// System.out.format( "processing %s ...\n", img.name );
 		
@@ -845,7 +845,7 @@ public class AutoCropper {
 		}
 	}
 	
-	static void init( Config config ) throws Exception {
+	void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
@@ -888,7 +888,7 @@ public class AutoCropper {
 		toCheckCroppedFinalHeightRatio = (float) fraction.doubleValue();
 	}	
 	
-	public static void autoCrop(Config config) throws Exception {
+	public void autoCrop(Config config) throws Exception {
 
 		init( config );
 				
@@ -998,9 +998,9 @@ public class AutoCropper {
 					}
 				}
 				
-				if( initialPixelsAmountCumul > 0.0 && finalPixelsAmountCumul > 0.0 ) {					
+				if( initialPixelsAmountCumul > 0.0 && finalPixelsAmountCumul > 0.0 ) {
 					System.out.format( "pixels cropped = %.2f%%\n", ( 1 - finalPixelsAmountCumul/initialPixelsAmountCumul)*100.0 );	
-				}				
+				}
 			}
 			volumeNo++;
 		}
@@ -1012,7 +1012,8 @@ public class AutoCropper {
 		try {
 
 			Config config = new Config();
-			autoCrop( config );
+			AutoCropper autoCropper = new AutoCropper();
+			autoCropper.autoCrop( config );
 			System.out.format( "complete\n" );
 			
 		} catch (Exception e) {

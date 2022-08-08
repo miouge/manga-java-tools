@@ -38,31 +38,31 @@ public class Unpack {
 	
 	// loaded from settings.ini
 	
-	static Integer firstVol;
-	static Integer lastVol;
-	static String subFolderFmt;
-	static boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
+	Integer firstVol;
+	Integer lastVol;
+	String subFolderFmt;
+	boolean cleanupSubFolders = true;  // default behavior is to drop existing target subfolders then recreate it
 	
-	static Integer offsetVolumeNum;
-	static int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
-	static String archiveNamingPattern;
+	Integer offsetVolumeNum;
+	int flatUnpack = 1; // ask unpack all files of a single manga file to the same destination folder (without consideration of archive folders)
+	String archiveNamingPattern;
 	
 	// when extracting from pdf
-	static int resizePdfImage = 0; // wshould we resize the images	
-	static int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
-	static String imageNameFmt; // image naming
+	int resizePdfImage = 0; // wshould we resize the images	
+	int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
+	String imageNameFmt; // image naming
 
 	// RAR Unpack (2 possibles functions to try)
 
-	static Boolean useWinRAR = null;
+	Boolean useWinRAR = null;
 	
-	static void unpackWithJUNRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, RarException {
+	void unpackWithJUNRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, RarException {
 
 		// rar file
 		
 	}
 	
-	static void unpackRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, InterruptedException, RarException {
+	void unpackRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, InterruptedException, RarException {
 				
 		// check if present winrar (testing the first file only) ...
 		
@@ -126,7 +126,7 @@ public class Unpack {
 	// Zip Unpack (2 possibles functions to try)
 	
 	// function #1 to unzip
-	static void apacheDecompressZip( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
+	void apacheDecompressZip( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException {
 		
 		File fromFile = new File( fi.fullpathname);
 		
@@ -198,7 +198,7 @@ public class Unpack {
     }	
 	
 	// function #2 to unzip
-    static void javaUtilUnzipFile( Config config, FileItem fi, String destFolder ) throws IOException {
+    void javaUtilUnzipFile( Config config, FileItem fi, String destFolder ) throws IOException {
 	       
     	System.out.format( "unzip content of %s ...", fi.name );
     	
@@ -239,7 +239,7 @@ public class Unpack {
         System.out.format( " %d files saved\n", fileCount );
     }	
     
-    static void unpackZIP( Config config, FileItem fi, String destFolder ) throws Exception {
+    void unpackZIP( Config config, FileItem fi, String destFolder ) throws Exception {
 
     	boolean success = false;
     	
@@ -272,7 +272,7 @@ public class Unpack {
     
 	// PDF Unpack
 	
-	static BufferedImage resizeImage( Config config, BufferedImage image ) {
+	BufferedImage resizeImage( Config config, BufferedImage image ) {
 	
 		int currentHeight = image.getHeight();
 		int currentWidth  = image.getWidth();
@@ -307,7 +307,7 @@ public class Unpack {
         return resizedImage;
 	}	
 	
-	static void unpackPDF( Config config, FileItem fi, String destFolder, int num ) throws IOException {
+	void unpackPDF( Config config, FileItem fi, String destFolder, int num ) throws IOException {
 		
 		System.out.format( "extract content of %s ...\n", fi.name );
 		
@@ -340,7 +340,7 @@ public class Unpack {
 
 	// -----------------------
 	
-	static void unpackFile( Config config, FileItem fi, String destFolder, int num ) throws Exception {
+	void unpackFile( Config config, FileItem fi, String destFolder, int num ) throws Exception {
 		
 		// System.out.format( "extract content of %s ...\n", fi.name );
 
@@ -361,7 +361,7 @@ public class Unpack {
 		}
 	}	
 	
-	static void init( Config config ) throws Exception {
+	void init( Config config ) throws Exception {
 		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
@@ -378,7 +378,7 @@ public class Unpack {
 
 	// -----------------------	
 	
-	public static void unPackArchiveFolderContent(Config config) {
+	public void unPackArchiveFolderContent(Config config) {
 
 		try
 		{
@@ -494,7 +494,8 @@ public class Unpack {
 		try {
 
 			Config config = new Config();
-			unPackArchiveFolderContent( config );
+			Unpack unpack = new Unpack();
+			unpack.unPackArchiveFolderContent( config );
 			System.out.format( "complete\n" );
 
 		} catch (Exception e) {
