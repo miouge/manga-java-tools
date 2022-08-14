@@ -30,6 +30,7 @@ public class Analyze {
 	boolean excludeFolderCreated = false;
 	int excludedCount = 0;
 	int splittedCount = 0;
+	int rotatedCount = 0;
 
 	// loaded from settings.ini
 	
@@ -47,6 +48,7 @@ public class Analyze {
 	
 	// rotation
 	double rotateImageBy = 0.0;
+	float rotateOnlyIfRatioGreaterThan = 99F;
 	
 
 	// Spitting
@@ -177,8 +179,24 @@ public class Analyze {
 
 		if(( rotateImageBy < -0.0001 )||( 0.0001 < rotateImageBy ) ) {
 			
-			// rotateImageBy not equal to 0.0 
-			return true;
+			// rotateImageBy not equal to 0.0
+			
+			if( rotateOnlyIfRatioGreaterThan < 99.0F ) {
+
+				// rotateOnlyIfRatioGreaterThan is defined (that is a condition on the rotation) 
+				
+				float width  = (float)srcImage.getWidth();
+				float height = (float)srcImage.getHeight();
+				
+				float ratio = width / height;
+				if( ratio > rotateOnlyIfRatioGreaterThan ) {
+					return true;
+				}
+			}
+			else {
+			
+				return true;
+			}
 		}
 
 		return false;
@@ -241,6 +259,7 @@ public class Analyze {
 			
 			srcImage = rotateImage( srcImage, rotateImageBy );
 			copyOriginal = false;
+			rotatedCount++;
 		}
 		
 		if( doSplitImage( srcImage ) ) {
@@ -270,6 +289,9 @@ public class Analyze {
 	
 	void init( Config config ) throws Exception {
 		
+		FractionFormat ff = new FractionFormat();
+		Fraction fraction;
+		
 		firstVol = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "firstVolume", "-1" ));
 		lastVol  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "General", "lastVolume" , "-1" ));
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
@@ -279,12 +301,13 @@ public class Analyze {
 		excludeWidthGreaterThan  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeWidthGreaterThan"  , "-1" ));
 		excludeHeightLessThan    = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightLessThan"    , "-1" ));
 		excludeHeightGreaterThan = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "excludeHeightGreaterThan" , "-1" ));
-		
-		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));		
-		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "forceSplitDoublePageImage", "0"  ));
 
-		FractionFormat ff = new FractionFormat();
-		Fraction fraction;
+		rotateImageBy            = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateImageBy", "0.0" ));
+		
+		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "rotateOnlyIfRatioGreaterThan"  , "100/1" ) );
+		rotateOnlyIfRatioGreaterThan = fraction.floatValue();
+		
+		forceSplitDoublePageImage   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "Analyse", "forceSplitDoublePageImage", "0"  ));
 		
 		fraction = ff.parse( Tools.getIniSetting( config.settingsFilePath, "Analyse", "splitOnlyIfRatioGreaterThan"  , "100/1" ) );		
 		splitOnlyIfRatioGreaterThan = fraction.floatValue();		
@@ -330,6 +353,7 @@ public class Analyze {
 			ratios.clear();
 			excludedCount = 0;
 			splittedCount = 0;
+			rotatedCount = 0;
 			excludeFolderCreated = false;
 		
 			ArrayList<FileItem> files = new ArrayList<>();
@@ -409,6 +433,9 @@ public class Analyze {
 			}
 			if( splittedCount > 0 ) {
 				System.err.format( "   *** Splitted count : %d\n", splittedCount );
+			}
+			if( rotatedCount > 0 ) {
+				System.err.format( "   *** Rotated count : %d\n", rotatedCount );
 			}
 			
 			volumeNo++;
