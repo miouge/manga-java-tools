@@ -48,8 +48,6 @@ usage: manga-tools a helper to (auto) crop manga images of archives.
 
  -p,--project <arg>       Project name (subfolder) to operate (default is "default").
 
-- [ ] 
-
 ## Basic usages
 
 1. set up the environmement variable MGTW_ROOT_FOLDER (that location will be used as the program workspace base folder)
@@ -59,8 +57,8 @@ usage: manga-tools a helper to (auto) crop manga images of archives.
 5. retrieve the processed files into %MGTW_ROOT_FOLDER%/foo/e-outlet
 
 Basic settings are
-- to process original files in basic files orders
-- to crop both white and black area
+- to process original files in basic files order
+- to crop both white and black areas
 - to not crop if cropped area would be more than 30% of the original picture
 - to generate both PDF and CBZ as results
 
