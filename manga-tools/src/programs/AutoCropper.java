@@ -852,7 +852,7 @@ public class AutoCropper {
 		subFolderFmt = Tools.getIniSetting( config.settingsFilePath, "General", "subFolderFmt", "T%02d" );
 		cleanupSubFolders = Boolean.parseBoolean( Tools.getIniSetting( config.settingsFilePath, "General", "cleanupSubFolders", "true" ));		
 		
-		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "borderMarginToIgnore"     , "0" ));
+		borderMarginToIgnore = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "borderMarginToIgnore", "0" ));
 		
 		fullHeight         = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "fullHeight"       , "-1" ));
 		pageNumbersUp      = Float.parseFloat( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "pageNumbersUp"    , "-1" ));
@@ -868,7 +868,7 @@ public class AutoCropper {
 		nonWhiteLevel      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonWhiteLevel"      , "175"   ));
 		nonBlackLevel      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "nonBlackLevel"      , "80"    ));
 		cropWhiteArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropWhiteArea"      , "1"     ));
-		cropBlackArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropBlackArea"      , "0"     ));
+		cropBlackArea      = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "cropBlackArea"      , "1"     ));
 		drawCroppingLine   = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "drawCroppingLine"   , "0"     ));
 		
 		horizontalPadding  = Integer.parseInt( Tools.getIniSetting( config.settingsFilePath, "AutoCropper", "horizontalPadding"  , "1"     )); 
