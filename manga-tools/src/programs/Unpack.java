@@ -35,8 +35,12 @@ import beans.Sscanf;
 import beans.Tools;
 
 public class Unpack {
+
+	// RAR Unpack (2 possibles functions to try)
+
+	Boolean useWinRAR = null;	
 	
-	// loaded from settings.ini
+	// loaded from settings.ini ...
 	
 	Integer firstVol;
 	Integer lastVol;
@@ -51,10 +55,6 @@ public class Unpack {
 	int resizePdfImage = 0; // wshould we resize the images	
 	int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 	String imageNameFmt; // image naming
-
-	// RAR Unpack (2 possibles functions to try)
-
-	Boolean useWinRAR = null;
 	
 	void unpackWithJUNRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, RarException {
 

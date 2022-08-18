@@ -27,7 +27,7 @@ import beans.Tools;
 
 public class Repack {
 
-	// loaded from settings.ini
+	// loaded from settings.ini ...
 	
 	Integer firstVol;
 	Integer lastVol;

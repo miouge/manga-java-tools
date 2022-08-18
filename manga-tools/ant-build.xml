@@ -16,6 +16,9 @@
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <fileset dir="${dir.buildfile}/bin"/>
+            <fileset dir="${dir.buildfile}/template">
+                <include name="settings.ini"/>
+            </fileset>
             <fileset dir="${dir.buildfile}/../junrar/bin"/>
             <zipfileset dir="${dir.buildfile}/../junrar/bind/gradle/wrapper" includes="gradle-wrapper.jar"/>
         </jar>
