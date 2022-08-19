@@ -15,6 +15,8 @@ public class Config {
 	// settings.ini that can hold any override custom directives about the project
 	public String settingsFilePath;
 	
+	public String projectFolder;
+	
 	// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 	// Unpack module source when looking for archives to unpack	
 	public String archiveFolder;
@@ -46,6 +48,8 @@ public class Config {
 			System.err.println( settingFile + " was not found : will use default settings." );
 		}
 		
+		this.projectFolder = this.rootFolder + "/" + this.projectName;
+		
 		// folder that contain original pdf, cbz, cbr files and/or also source of picture file for Analyse module
 		// Unpack module source when looking for archives to unpack	
 		this.archiveFolder = this.rootFolder + "/" + this.projectName + "/a-archives";
@@ -66,7 +70,7 @@ public class Config {
 	
 	public Config() throws Exception {
 		
-		init();		
+		init();
 	}
 	
 	public Config( String projectName ) throws Exception {

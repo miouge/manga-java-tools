@@ -1,5 +1,10 @@
 package programs;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,8 +25,54 @@ public class Main {
 	// java -jar manga-tools.jar
 	// java -jar manga-tools.jar -p theProjectName -op UNPACK ANALYSE CROP REPACK
 	
-	public static void main(String[] args) {
+	boolean copyOutFile( String filename, String outputFolder, boolean replaceExisting ) throws IOException {
+		
+		boolean exitValue = false;
+		
+		//	To copy a file from your jar, to the outside, you need to use the following approach:
+		//
+		//	    Get a InputStream to a the file inside your jar file using getResourceAsStream()
+		//	    We open our target file using a FileOutputStream
+		//	    We copy bytes from the input to the output stream
+		//	    We close our streams to prevent resource leaks
+		
+		try {
+			
+			File outputDirectory = new File( outputFolder );
+			File out = new File( outputDirectory, filename );
+		    if( replaceExisting == false && out.exists() ) {
+		    
+		    	System.out.format( "file %s is already present\n", out );
+		    	return false;
+		    }
 
+			InputStream is = Main.class.getClassLoader().getResourceAsStream( filename );
+		    if( is == null ) {
+		    	throw new FileNotFoundException( filename + " (resource not found in jar)");
+		    }
+
+			try( FileOutputStream fos = new FileOutputStream( out ); ) {
+				
+			    byte[] buf = new byte[2048];
+			    int r;
+			    while( -1 != (r = is.read(buf)) ) {
+			        fos.write(buf, 0, r);
+			    }
+			}
+			
+			exitValue = true;
+		}
+		catch( Exception e )
+		{
+			System.out.format( "copyOutFile failed\n" );
+			System.out.format( "Exception : %s\n", e.getMessage() );
+		}
+		
+		return exitValue;
+	}	
+	
+	public static void main(String[] args) {
+		
 		boolean error = true;
 		
 		Options options = new Options();
@@ -100,17 +151,19 @@ public class Main {
 			
 			Config config = new Config(project);
 			
-			if( operationsList.contains("create") ) {
-				
+			if( operationsList.contains("create") )
+			{
 				// create tree folders
 
-				Tools.createFolder( config.archiveFolder, true, true );
+				Tools.createFolder( config.archiveFolder, false, true );
 				Tools.createFolder( config.originalImgFolder, true, true );
 				Tools.createFolder( config.analysedFolder, true, true );
 				Tools.createFolder( config.croppedImgFolder, true, true );
 				Tools.createFolder( config.outletFolder, true, true );
 				
-				// TODO : install a default ini file
+				if( new Main().copyOutFile( "settings.ini", config.projectFolder, false ) == true ) {
+					System.out.format( "settings.ini copied out into %s\n", config.projectFolder );
+				}
 			}
 			else {
 				
