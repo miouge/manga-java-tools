@@ -171,7 +171,7 @@ public class Main {
 					Unpack unpack = new Unpack();
 					unpack.unPackArchiveFolderContent( config );
 				}
-				if( operationsList.contains("analyze") || operationsList.contains("all")) {
+				if( operationsList.contains("analyse") || operationsList.contains("analyze") || operationsList.contains("all")) {
 					Analyze analyze = new Analyze();
 					analyze.analyzeOriginalImages(config);
 				}
