@@ -1,11 +1,11 @@
 ## manga-java-tool
 
-manga-java-tool is a tool to crop out the useless pictures areas of manga picture's ebooks
+manga-java-tool is a command line tool that can be use to crop out the useless pictures areas of manga picture's ebooks
 
 I personnally designed it to automate some/any/most or all tasks when i want to process many MANGA files (PDF or CBZ or CBR) in order to crop out most of the useless pictures areas (white or black margins) then to repack the result into PDF or CBZ files.
 
 I did this because i read my mangas on a Pocket Book 7'8 inch Reader that have options to stretch pictures either using full width or full height of the screen.
-Doing such, i maximize the display of the device to ease the reading.
+Doing such, i maximize the display use of the device and ease the reading.
 
 ### Prerequisites
 
@@ -34,70 +34,80 @@ for com.github.junrar (use as submodule)
 - [slf4j-api-1.7.30.jar](https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar)
 - [slf4j-simple-1.7.30.jar](https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/1.7.30/slf4j-simple-1.7.30.jar)
 
-### Generate the binary :
+### To Generate the binary :
 
-**manga-tools.jar** : can be generated with ant using the ant-build.xml into \out.
+**manga-tools.jar** : can be generated into \out with ant using the ant-build.xml
 
 ## CLI
 
 usage: manga-tools a helper to (auto) crop manga images of archives.
 
-  command line : java -jar manga-tools.jar -p <foo-project> -op <operations>
+  command line : java -jar manga-tools.jar -p {foo-project} -op {operations}
 
   operations could be "create" or "all" or list of these "unpack" "analyze" "crop" "repack", separated by a space
 
  -d,--debug               switch Debug/Verbose mode on.
 
- -op,--operations <arg>   List of operations to perform CREATE or ALL or UNPACK ANALYZE CROP REPACK. (default is none).
+ -op,--operations {arg1 arg2 arg3}   List of operations to perform CREATE or ALL or UNPACK ANALYZE CROP REPACK, separated by a space (default is NONE).
 
- -p,--project <arg>       Project name (subfolder) to work on (default is "default").
+ -p,--project {arg}       Project name (subfolder) to work on (default is "default").
 
- example : java -jar manga-tools.jar -p MaisonIKKOKU -op analyze crop repack
+ example : ``` java -jar manga-tools.jar -p MaisonIKKOKU -op unpack analyze crop repack ```
 
 ## Basic usages
  
-1. set up the environmement variable MGTW_ROOT_FOLDER (that location will be used as the program workspace base folder)
-2. create project subfolder by calling java -jar manga-java-tool.jar -p foo -op create
-3. put all ebooks files (of a single story) ro process into the created folder %MGTW_ROOT_FOLDER%/foo/a-archives 
-4. run java -jar manga-java-tool.jar -p foo -op all
-5. retrieve the processed files into %MGTW_ROOT_FOLDER%/foo/e-outlet
+1. set up the environmement variable **MGTW_ROOT_FOLDER** (that location will be used as the program workspace base folder)
+2. create project subfolder by calling ``` java -jar manga-java-tool.jar -p foo -op create ```
+3. put all ebooks files (of a single story) to process into the folder that was created in step 2 : *%MGTW_ROOT_FOLDER%/foo/a-archives* 
+4. run ``` java -jar manga-java-tool.jar -p foo -op all ```
+5. retrieve the processed files into *%MGTW_ROOT_FOLDER%/foo/e-outlet*
 
-Basic settings would be :
-- to process archives files in basic files order
+Basic (default) settings are :
+- to process archives files in basic files order (file01.pdf, file02.pdf ...)
 - to crop both white and black areas
-- to not crop if cropped area would be more than 30% of the original picture
-- to generate both PDF and CBZ as results
+- to not crop if cropped area would be more than 30% of the original picture (such case are put in the tocheck/ subfolder)
+- to generate both PDF and CBZ files as results
 
-Advanced settings are available by customizing the file **settings.ini** present into the %MGTW_ROOT_FOLDER%/foo folder
+Many Advanced settings are available (and described) by customizing the file **settings.ini** that should be present into the %MGTW_ROOT_FOLDER%/foo folder
+
+## Processing flow & Folders structure : 
+
+- %MGTW_ROOT_FOLDER% / {projetName} /
+- %MGTW_ROOT_FOLDER% / {projetName} / setting.ini
+- %MGTW_ROOT_FOLDER% / {projetName} / a-archives /
+
+-> {UNPACK} ->
+
+- %MGTW_ROOT_FOLDER% / {projetName} / b-original-img / {ebookNum} /
+
+-> {ANALYZE} ->
+
+- %MGTW_ROOT_FOLDER% / {projetName} / c-analysed-img / {ebookNum} /
+- %MGTW_ROOT_FOLDER% / {projetName} / c-analysed-img / {ebookNum} / excludes /
+
+-> {CROP} ->
+
+- %MGTW_ROOT_FOLDER% / {projetName} / d-cropped-img / {ebookNum} / std /
+- %MGTW_ROOT_FOLDER% / {projetName} / d-cropped-img / {ebookNum} / tocheck /
+- %MGTW_ROOT_FOLDER% / {projetName} / d-cropped-img / {ebookNum} / empty /
+- %MGTW_ROOT_FOLDER% / {projetName} / d-cropped-img / {ebookNum} / errors /
+
+-> {REPACK} ->
+
+- %MGTW_ROOT_FOLDER% / {projetName} / e-outlet /
 
 ## modules presentation
 
-**Unpack** : this module will be used to unpack images from original MANGA files ( .CBZ or .CBR or .PDF), to unpack PDF, if winrar is installed and available in the path, then it will used preferably (as RAR5 format is correctly managed) rather than the junrar sub module that don't support RAR5.
+**Unpack** : this module will be used to unpack images from original MANGA files (supported input format and extentions are CBZ CBR or .PDF), to unpack RAR if winrar is installed and available in the path, then it will used preferably rather than the junrar[^1] sub module.
 
-**Analyse** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes and ratios. it can also be used to exclude images based on size consideration, to perform conditionnal split and/or rotate of original images.
+[^1]: So far from now, junrar sub module don't support RAR5.
+
+**Analyze** : this module will be used to walk along the images of unpacked content then output statistics about theirs sizes and ratios. it can also be used to exclude images based on size consideration, to perform conditionnal split and/or rotate of original images.
 
 **AutoCropper** : will be used to crop the images (ie remove any useless part of the original image like white margin, margin with scan artefact, page number, useless white or black areas ...).using this module usely could require iterative tries to set the correct detection parameters especially if used with non-official source images.
 it can however lead to crop automatically and reproductively ~90%-100% of the manga content leaving 0-10% to be checked and cropped manually to do this step of work, if needed, i'm using the freeware program [BIC – Batch-Image-Cropper](https://funk.eu/bic-batch-image-cropper/)
 
 **Repack** : will be used to repack into one or multiple PDF/CBZ files the cropped images 
-
-### Processing flow & Folders structure : 
-
-Processing flow :
-- a-archives/ -> {UNPACK} -> b-original-img/ -> {ANALYZE} -> c-analysed-img/ -> {CROP} -> d-cropped-img/ -> {REPACK} -> e-outlet/
-
-- %MGTW_ROOT_FOLDER% / default /
-- %MGTW_ROOT_FOLDER% / default / setting.ini
-- %MGTW_ROOT_FOLDER% / default / a-archives /
-- %MGTW_ROOT_FOLDER% / default / b-original-img /
-- %MGTW_ROOT_FOLDER% / default / c-analysed-img /
-- %MGTW_ROOT_FOLDER% / default / c-analysed-img / excludes /
-- %MGTW_ROOT_FOLDER% / default / d-cropped-img /
-- %MGTW_ROOT_FOLDER% / default / d-cropped-img / tocheck /
-- %MGTW_ROOT_FOLDER% / default / d-cropped-img / std /
-- %MGTW_ROOT_FOLDER% / default / d-cropped-img / empty /
-- %MGTW_ROOT_FOLDER% / default / d-cropped-img / errors /
-- %MGTW_ROOT_FOLDER% / default / e-outlet /
 
 ## Other Referenced softwares
 
