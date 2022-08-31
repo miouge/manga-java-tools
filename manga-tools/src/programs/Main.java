@@ -22,7 +22,9 @@ import beans.Tools;
 public class Main {
 
 	// need commons-cli-1.4.jar	
-	// java -jar manga-tools.jar
+	
+	// need to define
+	// java -jar manga-tools.jar (will show the usage)
 	// java -jar manga-tools.jar -p theProjectName -op UNPACK ANALYSE CROP REPACK
 	
 	boolean copyOutFile( String filename, String outputFolder, boolean replaceExisting ) throws IOException {
@@ -81,25 +83,28 @@ public class Main {
         projectOpt.setRequired(true);
         options.addOption(projectOpt);
         
-
-        Option operationsOpt = new Option("op", "operations", true, "List of operations to perform with spaces if many (default will be none):\n CREATE or ALL or UNPACK ANALYZE CROP REPACK");
+        String operationsHelp = 
+          "List of operations to perform (with spaces if many ; default will be NONE ) :\n"
+        + "Could be CREATE or ALL or some selection among UNPACK ANALYZE CROP REPACK\n"
+        + "create/CREATE : create the project subfolder, the intermediate subfolders and the default settings.ini file\n"
+        + "all/ALL       : equivalent to the list of these operations UNPACK ANALYZE CROP REPACK";
+                        
+        Option operationsOpt = new Option("op", "operations", true, operationsHelp );
         operationsOpt.setRequired(true);
-        operationsOpt.setArgs(Option.UNLIMITED_VALUES); // Set option c to take 1 to oo arguments
+        operationsOpt.setArgs(Option.UNLIMITED_VALUES); // Set option c to take 1 to unlimited arguments
         options.addOption(operationsOpt);
         
-        // Maximum of 4 arguments that can pass into option
-        // operationsOpt.setArgs(4);
-        // Comma as separator
-        // operationsOpt.setValueSeparator(' ');
+//      Maximum of 4 arguments that can pass into option
+//      operationsOpt.setArgs(4);
+//      Comma as separator
+//      operationsOpt.setValueSeparator(' ');
 
-        /*
-        Option c = Option.builder("c")
-                .hasArgs() // sets that number of arguments is unlimited
-                .build();
-        Options options = new Options();
-        options.addOption(c);
-        */        
-        
+//      Option c = Option.builder("c")
+//              .hasArgs() // sets that number of arguments is unlimited
+//              .build();
+//      Options options = new Options();
+//      options.addOption(c);
+                
         final Option debugOpt = Option.builder("d") 
                 .longOpt("debug") 
                 .desc("switch Debug/Verbose mode on") 

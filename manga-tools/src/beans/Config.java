@@ -35,9 +35,9 @@ public class Config {
 
 	private void init() throws Exception {
 
-		String rootFolderEnv = System.getenv( "MGT_SCRATCH_FOLDER" );
+		String rootFolderEnv = System.getenv( "MGT_SCRATCH_FOLDER_" );
 		if( rootFolderEnv == null ) {
-			throw new Exception( "MGT_SCRATCH_FOLDER environment variable is undefined !" );
+			throw new Exception( "MGT_SCRATCH_FOLDER environment variable is undefined !\n MGT_SCRATCH_FOLDER must locate where will be your workspace." );
 		}
 		this.rootFolder = rootFolderEnv;
 		settingsFilePath = this.rootFolder + "/" + this.projectName + "/settings.ini";
