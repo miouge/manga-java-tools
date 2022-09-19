@@ -26,8 +26,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
-import com.github.junrar.Junrar;
-import com.github.junrar.exception.RarException;
+//import com.github.junrar.Junrar;
+//import com.github.junrar.exception.RarException;
 
 import beans.Config;
 import beans.FileItem;
@@ -56,13 +56,7 @@ public class Unpack {
 	int wantedHeight = 1872;  // vivlio inkpad3 screen resolution (300dpi) h= 1872px w= 1404px (ratio = 4/3)
 	String imageNameFmt; // image naming
 	
-	void unpackWithJUNRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, RarException {
-
-		// rar file
-		
-	}
-	
-	void unpackRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, InterruptedException, RarException {
+	void unpackRAR( int flatUnpack, FileItem fi, String destFolder ) throws FileNotFoundException, IOException, InterruptedException {
 				
 		// check if present winrar (testing the first file only) ...
 		
@@ -99,7 +93,7 @@ public class Unpack {
 		else {
 		
 			// use junrar (not working in all case ... as junrar does not support yet RAR5 format)
-			Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
+			//Junrar.extract( new File( fi.fullpathname), new File( destFolder ) );
 		}
 		
 		if( flatUnpack > 0 )
