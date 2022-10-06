@@ -1,4 +1,4 @@
-package programs;
+package miouge;
 
 import java.io.File;
 import java.nio.file.DirectoryStream;
@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.TreeSet;
 
-import programs.renamer.FileItemComparable;
+import miouge.renamer.FileItemComparable;
 
 
 public class Renamer {

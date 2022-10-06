@@ -1,5 +1,5 @@
 //package vpnrevfwd.util.datastructure;
-package beans;
+package miouge.beans;
 
 import java.io.BufferedReader;
 import java.io.IOException;

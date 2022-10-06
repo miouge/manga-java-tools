@@ -1,4 +1,4 @@
-package programs.autoCropper;
+package miouge.autoCropper;
 
 import java.io.BufferedWriter;
 import java.util.TreeSet;

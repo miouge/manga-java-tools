@@ -1,4 +1,4 @@
-package beans;
+package miouge.beans;
 
 import java.io.File;
 import java.io.IOException;

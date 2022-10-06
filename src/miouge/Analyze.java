@@ -1,4 +1,4 @@
-package programs;
+package miouge;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -17,9 +17,9 @@ import javax.imageio.ImageIO;
 import org.apache.commons.math.fraction.Fraction;
 import org.apache.commons.math.fraction.FractionFormat;
 
-import beans.Config;
-import beans.FileItem;
-import beans.Tools;
+import miouge.beans.Config;
+import miouge.beans.FileItem;
+import miouge.beans.Tools;
 
 public class Analyze {
 	

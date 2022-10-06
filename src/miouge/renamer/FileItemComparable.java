@@ -1,4 +1,4 @@
-package programs.renamer;
+package miouge.renamer;
 
 public class FileItemComparable implements Comparable<FileItemComparable> {
 

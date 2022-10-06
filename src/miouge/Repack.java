@@ -1,4 +1,4 @@
-package programs;
+package miouge;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -21,9 +21,9 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import beans.Config;
-import beans.FileItem;
-import beans.Tools;
+import miouge.beans.Config;
+import miouge.beans.FileItem;
+import miouge.beans.Tools;
 
 public class Repack {
 

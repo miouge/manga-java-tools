@@ -1,4 +1,4 @@
-package programs.autoCropper;
+package miouge.autoCropper;
 
 public class PixColor {
 

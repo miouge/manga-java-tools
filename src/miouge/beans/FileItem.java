@@ -1,4 +1,4 @@
-package beans;
+package miouge.beans;
 
 public class FileItem implements Comparable<FileItem> {
 

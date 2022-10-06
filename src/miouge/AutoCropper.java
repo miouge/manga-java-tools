@@ -1,4 +1,4 @@
-package programs;
+package miouge;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -16,16 +16,16 @@ import javax.imageio.ImageIO;
 import org.apache.commons.math.fraction.Fraction;
 import org.apache.commons.math.fraction.FractionFormat;
 
-import beans.Config;
-import beans.FileItem;
-import beans.Tools;
-import programs.autoCropper.Context;
-import programs.autoCropper.CropDetectionResult;
-import programs.autoCropper.DetectionParam;
-import programs.autoCropper.FastRGB;
-import programs.autoCropper.FileImg;
-import programs.autoCropper.PixColor;
-import programs.autoCropper.TypeDetected;
+import miouge.autoCropper.Context;
+import miouge.autoCropper.CropDetectionResult;
+import miouge.autoCropper.DetectionParam;
+import miouge.autoCropper.FastRGB;
+import miouge.autoCropper.FileImg;
+import miouge.autoCropper.PixColor;
+import miouge.autoCropper.TypeDetected;
+import miouge.beans.Config;
+import miouge.beans.FileItem;
+import miouge.beans.Tools;
 
 public class AutoCropper {
 		

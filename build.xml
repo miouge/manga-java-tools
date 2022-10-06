@@ -4,7 +4,7 @@
     <!--ANT 1.7 is required-->
     <!--define folder properties-->
     <property name="dir.buildfile" value="."/>
-    <property name="dir.workspace" value="${dir.buildfile}/../.."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
     <property name="dir.jarfile" value="${dir.buildfile}/out"/>
     <target name="create_run_jar">
         <jar destfile="${dir.jarfile}/manga-tools.jar">
@@ -19,8 +19,8 @@
             <fileset dir="${dir.buildfile}/template">
                 <include name="settings.ini"/>
             </fileset>
-            <fileset dir="${dir.buildfile}/../junrar/bin"/>
-            <zipfileset dir="${dir.buildfile}/../junrar/bind/gradle/wrapper" includes="gradle-wrapper.jar"/>
+            <fileset dir="${dir.buildfile}/junrar/bin"/>
+            <zipfileset dir="${dir.buildfile}/junrar/bind/gradle/wrapper" includes="gradle-wrapper.jar"/>
         </jar>
     </target>
 </project>

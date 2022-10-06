@@ -1,4 +1,4 @@
-package programs;
+package miouge;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -26,13 +26,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
-//import com.github.junrar.Junrar;
-//import com.github.junrar.exception.RarException;
-
-import beans.Config;
-import beans.FileItem;
-import beans.Sscanf;
-import beans.Tools;
+import miouge.beans.Config;
+import miouge.beans.FileItem;
+import miouge.beans.Sscanf;
+import miouge.beans.Tools;
 
 public class Unpack {
 

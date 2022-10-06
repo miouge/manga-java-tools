@@ -1,4 +1,4 @@
-package programs;
+package miouge;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,8 +16,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import beans.Config;
-import beans.Tools;
+import miouge.beans.Config;
+import miouge.beans.Tools;
 
 public class Main {
 

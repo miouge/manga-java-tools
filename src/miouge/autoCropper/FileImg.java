@@ -1,6 +1,6 @@
-package programs.autoCropper;
+package miouge.autoCropper;
 
-import beans.FileItem;
+import miouge.beans.FileItem;
 
 public class FileImg extends FileItem {
 
