@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE xml>
-<project name="Create custom-convert.jar" default="create_jar" basedir="." >
+<project name="Create manga-tools.jar" default="create_jar" basedir="." >
 
 	<!-- set global properties for this build -->
 	<property name="dir.buildfile" value="."/>
